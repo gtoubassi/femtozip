@@ -1,14 +1,16 @@
-package org.toubassi.femtozip.coding.arithmetic;
+package org.toubassi.femtozip.coding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
+import org.toubassi.femtozip.coding.arithmetic.ArithCodeWriter;
+import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
 import org.toubassi.femtozip.coding.huffman.HuffmanModel;
 import org.toubassi.femtozip.util.StreamUtil;
 
-public class Tool {
+public class BenchmarkTool {
 
     public static void testHuffman(int[] histogram, byte[] input, boolean allSymbolsSampled) throws IOException {
         HuffmanModel huffmanModel = new HuffmanModel(histogram, allSymbolsSampled);
