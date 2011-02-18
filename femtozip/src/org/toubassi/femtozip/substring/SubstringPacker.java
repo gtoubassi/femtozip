@@ -12,7 +12,6 @@ public class SubstringPacker {
     public interface Consumer {
         public void encodeLiteral(int aByte);
         public void encodeSubstring(int offset, int length);
-        public void endEncoding();
     }
     
     public SubstringPacker(byte[] dictionary) {
@@ -111,8 +110,6 @@ public class SubstringPacker {
                 encoder.encodeLiteral(((int)rawBytes[curr]) & 0xff);
             }
         }
-        
-        encoder.endEncoding();
     }
 
     private void addTrigraphLocation(HashMap<Trigraph, ArrayList<Integer>> table, Trigraph trigraph, int location) {

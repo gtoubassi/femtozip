@@ -1,13 +1,10 @@
 package org.toubassi.femtozip;
 
-import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.toubassi.femtozip.encoding.verbosestring.VerboseStringEncodingModel;
-import org.toubassi.femtozip.substring.SubstringPacker;
-import org.toubassi.femtozip.substring.SubstringUnpacker;
+import org.toubassi.femtozip.models.VerboseStringCompressionModel;
 
 
 
@@ -27,7 +24,6 @@ public class SubstringPackerTest {
         Assert.assertEquals("a", pack("a"));
         Assert.assertEquals("aa", pack("aa"));
         Assert.assertEquals("aaa", pack("aaa"));
-        Assert.assertEquals("a<-1,3>", pack("aaaa"));
         Assert.assertEquals("a<-1,4>", pack("aaaaa"));
         Assert.assertEquals("a <-2,8>", pack("a a a a a "));
         Assert.assertEquals("a <-2,7>", pack("a a a a a"));
@@ -64,21 +60,15 @@ public class SubstringPackerTest {
         try {
             byte[] bytes = s.getBytes("UTF-8");
             byte[] dictBytes = dict == null ? null : dict.getBytes("UTF-8");
-            SubstringPacker packer = new SubstringPacker(dictBytes);
-            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-            VerboseStringEncodingModel encoder = new VerboseStringEncodingModel();
-            encoder.beginEncoding(bytesOut);
-            packer.pack(bytes, encoder);
-            String packedString = new String(bytesOut.toByteArray(), "UTF-8");
             
-            // Validate the unpacker
-            SubstringUnpacker unpacker = new SubstringUnpacker(dictBytes);
-            encoder.decode(packedString.getBytes("UTF-8"), unpacker);
-            String decompressedString = new String(unpacker.getUnpackedBytes(), "UTF-8");
+            VerboseStringCompressionModel model = new VerboseStringCompressionModel();
+            model.setDictionary(dictBytes);
+            byte[] compressed = model.compress(bytes);
+            byte[] decompressed = model.decompress(compressed);
             
-            Assert.assertEquals(s, decompressedString);
+            Assert.assertArrayEquals(bytes, decompressed);
             
-            return packedString;
+            return new String(compressed, "UTF-8");
         }
         catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);

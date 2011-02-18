@@ -10,7 +10,6 @@ public class NoopSubstringPacker {
         for (int i = 0, count = rawBytes.length; i < count; i++) {
             consumer.encodeLiteral(((int)rawBytes[i]) & 0xff);
         }
-        consumer.endEncoding();
     }
         
 }

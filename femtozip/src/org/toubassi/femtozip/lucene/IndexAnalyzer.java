@@ -2,15 +2,19 @@ package org.toubassi.femtozip.lucene;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
-import org.toubassi.femtozip.CompressionModel;
-import org.toubassi.femtozip.encoding.benchmark.BenchmarkEncodingModel;
+import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.models.OptimizingCompressionModel;
+import org.toubassi.femtozip.models.OptimizingCompressionModel.CompressionResult;
+import org.toubassi.femtozip.util.FileUtil;
 
 public class IndexAnalyzer  {
     
@@ -18,136 +22,104 @@ public class IndexAnalyzer  {
         BuildModel, Benchmark
     }
 
+    private DecimalFormat format = new DecimalFormat("#.##");
+
     private Operation operation;
     
     private String indexPath;
     private String modelPath;
-    private String[] encodings;
+    private String[] models;
     
-    private HashMap<String, CompressionModel> fieldToModel = new HashMap<String, CompressionModel>();
+    private HashMap<String, AbstractCompressionModel> fieldToModel = new HashMap<String, AbstractCompressionModel>();
     
     private int numSamples = 0;
-    private long totalIndexSize = 0;
-    private int numDocs = 0;
     private int maxDictionarySize = 0;
     
-    private long computeSize(File root) {
-        File[] files = root.listFiles();
-        
-        long size = 0;
-        for (File subFile : files) {
-            if (!subFile.getPath().endsWith(".fzmodel")) {
-                size += subFile.length();
-                if (subFile.isDirectory()) {
-                    size += computeSize(subFile);
-                }
-            }
-        }
-        
-        return size;
-    }
-    
-    protected void analyze() throws IOException {
-        totalIndexSize = computeSize(new File(indexPath));
-        IndexReader reader = IndexReader.open(indexPath);
-        
+    protected void buildModel(IndexReader reader) throws IOException {
         Collection allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
         String[] fieldNames = new String[allFields.size()];
         allFields.toArray(fieldNames);
+
+        ArrayList<OptimizingCompressionModel.CompressionResult> aggregateResults = new ArrayList<OptimizingCompressionModel.CompressionResult>();
+        for (String fieldName : fieldNames) {
+            long start = System.currentTimeMillis();
+            
+            IndexDocumentList trainingDocs = new IndexDocumentList(reader, numSamples, 0, fieldName);
+            IndexDocumentList testingDocs = new IndexDocumentList(reader, numSamples, 1, fieldName);
+            
+            if (trainingDocs.size() == 0 || testingDocs.size() == 0) {
+                continue;
+            }
+            
+            OptimizingCompressionModel model = models == null ? new OptimizingCompressionModel() : new OptimizingCompressionModel(models);
+            fieldToModel.put(fieldName, model);
+            
+            System.out.print("Building model for " + fieldName);
+            
+            model.build(trainingDocs);
+            model.optimize(testingDocs);
+            
+            long duration = Math.round((System.currentTimeMillis() - start)/1000d);
+            System.out.println(" (" + duration + "s)");
+            model.dump();
+            System.out.println();
+            model.aggregateResults(aggregateResults);
+        }
+
+        OptimizingCompressionModel.CompressionResult bestResult = new CompressionResult(new OptimizingCompressionModel());
+        for (Map.Entry<String, AbstractCompressionModel> entry : fieldToModel.entrySet()) {
+            OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
+            bestResult.accumulate(model.getBestPerformingResult());
+        }
         
-        numDocs = reader.numDocs();
-        int maxDocId = reader.maxDoc();
-        float samplingRate = ((float)numSamples) / numDocs;
-
-        int numDocsScanned = 0;
-        int numDocsSampled = 0;
-        long lastStatus = 0;
-        for (int docId = 0; docId < maxDocId; docId++) {
+        System.out.println("Aggregate performance:");
+        System.out.println(bestResult);
+        Collections.sort(aggregateResults);
+        for (CompressionResult result : aggregateResults) {
+            System.out.println(result);
+        }
+    }
+    
+    protected void benchmarkModel(IndexReader reader, long totalDataSize[], long totalCompressedSize[]) throws IOException {
+        for (Map.Entry<String, AbstractCompressionModel> entry : fieldToModel.entrySet()) {
+            String fieldName = entry.getKey();
+            AbstractCompressionModel model = entry.getValue();
             
-            if (reader.isDeleted(docId)) {
+            long start = System.currentTimeMillis();
+            
+            IndexDocumentList docs = new IndexDocumentList(reader, numSamples, 2, fieldName);
+
+            if (docs.size() == 0) {
                 continue;
             }
             
-            numDocsScanned++;
+            System.out.print("Benchmarking " + model.getClass().getSimpleName() + " for " + fieldName);
             
-            if (((int)(numDocsScanned * samplingRate)) <= numDocsSampled) {
-                continue;
-            }
-            
-            numDocsSampled++;
-
-            if (System.currentTimeMillis() - lastStatus > 5000) {
-                System.out.println("Sampling doc id " + docId + " (" + numDocsSampled + " of " + numSamples + ")");
-                lastStatus = System.currentTimeMillis();
-            }
-            
-            Document doc = reader.document(docId);
-            
-            for (String fieldName : fieldNames) {
+            int dataSize = 0;
+            int compressedSize = 0;
+            for (int i = 0, count = docs.size(); i < count; i++) {
+                byte[] bytes = docs.get(i);
                 
-                Field[] fields = doc.getFields(fieldName);
+                byte[] compressed = model.compress(bytes);
+                dataSize += bytes.length;
+                compressedSize += compressed.length;
                 
-                for (Field field : fields) {
-                    
-                    if (!field.isStored() || field.isCompressed()) {
-                        // TODO if its compressed, uncompress it and benchmark it.
-                        continue;
-                    }
-                    
-                    byte[] bytes;
-                    
-                    if (field.isBinary()) {
-                        bytes = new byte[field.getBinaryLength()];
-                        System.arraycopy(field.getBinaryValue(), field.getBinaryOffset(), bytes, 0, field.getBinaryLength());
-                    }
-                    else {
-                        String value = field.stringValue();
-                        bytes = value.getBytes("UTF-8");
-                    }
-                    
-                    if (bytes.length > 0) {
-                        CompressionModel model = fieldToModel.get(fieldName);
-                        
-                        if (operation == Operation.BuildModel) {
-                            if (model == null) {
-                                model = createModel();
-                                fieldToModel.put(fieldName, model);
-                                if (operation == Operation.BuildModel) {
-                                    model.beginModelConstruction();
-                                }
-                            }
-                            model.addDocumentToModel(bytes);
-                        }
-                        else if (operation == Operation.Benchmark) {
-                            if (model == null) {
-                                System.err.println("WARNING: No model for field " + fieldName + ".  Either corrupt model or that field was not sampled when the model was built.  Skipping");
-                            }
-                            else {
-                                try {
-                                    model.compress(bytes);
-                                }
-                                catch (RuntimeException e) {
-                                    System.err.println("Caught exception processing document " + docId + " field " + fieldName);
-                                    throw e;
-                                }
-                            }
-                        }
+                if (true) {
+                    byte[] decompressed = model.decompress(compressed);
+                    if (!Arrays.equals(bytes, decompressed)) {
+                        throw new RuntimeException("Compress/Decompress round trip failed for " + model.getClass().getSimpleName());
                     }
                 }
             }
+            
+            totalDataSize[0] += dataSize;
+            totalCompressedSize[0] += compressedSize;
+            
+            String duration = format.format((System.currentTimeMillis() - start)/1000f);
+            String ratio = format.format(100f * compressedSize / dataSize);
+            System.out.println(" in " + duration + "s:  " + ratio  + "% (" + compressedSize + "/" + dataSize + ")");
         }
         
-        if (operation == Operation.BuildModel) {
-            for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
-                System.out.print("Building model for " + entry.getKey());
-                long start = System.currentTimeMillis();
-                entry.getValue().endModelConstruction();
-                long duration = Math.round((System.currentTimeMillis() - start)/1000d);
-                System.out.println(" (" + duration + "s)");
-            }
-        }
-        
-        reader.close();
     }
     
     protected void loadBenchmarkModel() throws IOException {
@@ -156,15 +128,14 @@ public class IndexAnalyzer  {
         for (File file : dirContents) {
             if (file.getName().endsWith(".fzmodel")) {
                 String fieldName = file.getName().replace(".fzmodel", "");
-                CompressionModel model = createModel();
-                model.load(file.getPath());
+                AbstractCompressionModel model = AbstractCompressionModel.load(file.getPath());
                 fieldToModel.put(fieldName, model);
             }
         }        
     }
     
-    protected CompressionModel createModel() {
-        CompressionModel model = new CompressionModel(new BenchmarkEncodingModel(encodings));
+    protected OptimizingCompressionModel createModel() {
+        OptimizingCompressionModel model = new OptimizingCompressionModel(models);
         if (maxDictionarySize > 0) {
             model.setMaxDictionaryLength(maxDictionarySize);
         }
@@ -185,17 +156,15 @@ public class IndexAnalyzer  {
             }
         }
         
-        for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
+        for (Map.Entry<String, AbstractCompressionModel> entry : fieldToModel.entrySet()) {
             String path = modelDir.getPath() + File.separator + entry.getKey()+ ".fzmodel";
-            entry.getValue().save(path);
-            if (true) {
-                entry.getValue().dump(path + "-diagnostics");
-            }
+            OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
+            model.getBestPerformingModel().save(path);
         }
     }
     
     protected static void usage() {
-        System.out.println("Usage: [--buildmodel|--benchmark] --modelpath path --encodings [Encoding1,Encoding2,Encoding3] --numsamples number indexpath");
+        System.out.println("Usage: [--buildmodel|--benchmark] --modelpath path --models [Model1,Model2,...] --numsamples number indexpath");
         System.exit(1);
     }
     
@@ -215,8 +184,8 @@ public class IndexAnalyzer  {
             else if (arg.equals("--modelpath")) {
                 modelPath = args[++i];
             }
-            else if (arg.equals("--encodings")) {
-                encodings = args[++i].split(",");
+            else if (arg.equals("--models")) {
+                models = args[++i].split(",");
             }
             else if (arg.equals("--maxdict")) {
                 maxDictionarySize = Integer.parseInt(args[++i]);
@@ -229,42 +198,34 @@ public class IndexAnalyzer  {
         if (operation == null || indexPath == null || modelPath == null) {
             usage();
         }
-        
-        if (operation == Operation.Benchmark) {
-            loadBenchmarkModel();
-        }
 
-        analyze();
+        IndexReader reader = IndexReader.open(indexPath);
 
         if (operation == Operation.BuildModel) {
+            buildModel(reader);
             saveBenchmarkModel();
         }        
         else if (operation == Operation.Benchmark) {
-            long totalBytesSampled = 0;
-            long totalCompressedBytes = 0;
-            for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
-                System.out.println("Benchmark for field " + entry.getKey() + ":");
-                BenchmarkEncodingModel model = ((BenchmarkEncodingModel)entry.getValue().getEncodingModel());
-                model.dump();
-                totalBytesSampled += model.getTotalSize();
-                totalCompressedBytes += model.getBestPerformingTotalCompressedSize();
-                System.out.println();
-            }
+            loadBenchmarkModel();
             
+            long[] totalDataSizeRef = new long[1];
+            long[] totalCompressedSizeRef = new long[1];
+            benchmarkModel(reader, totalDataSizeRef, totalCompressedSizeRef);
+            long totalDataSize = totalDataSizeRef[0];
+            long totalCompressedSize = totalCompressedSizeRef[0];
+            
+            long totalIndexSize = FileUtil.computeSize(new File(indexPath));
+
             System.out.println("Summary:");
             System.out.println("Total Index Size: " + totalIndexSize);
+            int numDocs = reader.numDocs();
             System.out.println("# Documents in Index: " + numDocs);
-            long totalStoredDataSize = Math.round(((float)totalBytesSampled) * numDocs / numSamples);
-            System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + Math.round(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
-            System.out.println("Aggregate Stored Data Compression Rate: " + Math.round(totalCompressedBytes * 100f / totalBytesSampled) + "% (" + totalCompressedBytes + " bytes)");
-            
-            System.out.println("Best Performing Encodings:");
-            for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
-                BenchmarkEncodingModel model = ((BenchmarkEncodingModel)entry.getValue().getEncodingModel());
-                System.out.println(entry.getKey() + ": " + model.getBestPerformingEncoding() + " (" + Math.round(100f * model.getBestPerformingTotalCompressedSize() / model.getTotalSize()) + "%)");
-            }
-            
+            long totalStoredDataSize = Math.round(((double)totalDataSize) * numDocs / numSamples);
+            System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
+            System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
         }
+        
+        reader.close();
     }
     
     public static void main(String[] args) throws IOException {

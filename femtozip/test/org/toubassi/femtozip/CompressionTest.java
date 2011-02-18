@@ -5,13 +5,18 @@ import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.toubassi.femtozip.encoding.deflatefrequency.DeflateFrequencyEncodingModel;
-import org.toubassi.femtozip.encoding.nibblefrequency.NibbleFrequencyEncodingModel;
-import org.toubassi.femtozip.encoding.offsetnibblefrequency.OffsetNibbleFrequencyEncodingModel;
-import org.toubassi.femtozip.encoding.splitfrequency.SplitFrequencyEncodingModel;
-import org.toubassi.femtozip.encoding.triplenibblefrequency.TripleNibbleFrequencyEncodingModel;
-import org.toubassi.femtozip.encoding.unifiedfrequency.UnifiedFrequencyEncodingModel;
-import org.toubassi.femtozip.encoding.verbosestring.VerboseStringEncodingModel;
+import org.toubassi.femtozip.models.DeflateFrequencyCompressionModel;
+import org.toubassi.femtozip.models.GZipCompressionModel;
+import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
+import org.toubassi.femtozip.models.NibbleFrequencyCompressionModel;
+import org.toubassi.femtozip.models.NoopCompressionModel;
+import org.toubassi.femtozip.models.OffsetNibbleFrequencyCompressionModel;
+import org.toubassi.femtozip.models.PureArithCodingCompressionModel;
+import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
+import org.toubassi.femtozip.models.SplitFrequencyCompressionModel;
+import org.toubassi.femtozip.models.TripleNibbleFrequencyCompressionModel;
+import org.toubassi.femtozip.models.UnifiedFrequencyCompressionModel;
+import org.toubassi.femtozip.models.VerboseStringCompressionModel;
 
 
 public class CompressionTest {
@@ -24,18 +29,14 @@ public class CompressionTest {
     @Test
     public void testDictionaryOptimizer() throws IOException {
         
-        CompressionModel compressionModel = new CompressionModel(new UnifiedFrequencyEncodingModel());
-        compressionModel.beginModelConstruction();
-        compressionModel.addDocumentToModel(PreambleString.getBytes());
-        compressionModel.endModelConstruction();
-        
+        AbstractCompressionModel compressionModel = new UnifiedFrequencyCompressionModel();
+        compressionModel.build(new ArrayDocumentList(PreambleString.getBytes()));
+
         String dictionary = dictionaryToString(compressionModel.getDictionary());
         Assert.assertEquals(" our to , ince, sticure , proity, s of  and  for the  establish e the  the United States", dictionary);
         
-        compressionModel = new CompressionModel(new UnifiedFrequencyEncodingModel());
-        compressionModel.beginModelConstruction();
-        compressionModel.addDocumentToModel(PanamaString.getBytes());
-        compressionModel.endModelConstruction();
+        compressionModel = new UnifiedFrequencyCompressionModel();
+        compressionModel.build(new ArrayDocumentList(PanamaString.getBytes()));
         
         dictionary = dictionaryToString(compressionModel.getDictionary());
         Assert.assertEquals("an a ", dictionary);
@@ -43,15 +44,19 @@ public class CompressionTest {
     
     
     @Test
-    public void testEncodingModels() throws IOException {
-        testModel(PreambleString, PreambleDictionary, new VerboseStringEncodingModel());
-        testModel(PreambleString, PreambleDictionary, new UnifiedFrequencyEncodingModel());
-        testModel(PreambleString, PreambleDictionary, new SplitFrequencyEncodingModel());
-        testModel(PreambleString, PreambleDictionary, new OffsetNibbleFrequencyEncodingModel());
-        testModel(PreambleString, PreambleDictionary, new NibbleFrequencyEncodingModel());
-        testModel(PreambleString, PreambleDictionary, new DeflateFrequencyEncodingModel());
-        testModel(PreambleString, PreambleDictionary, new TripleNibbleFrequencyEncodingModel());
-        // Pending: test PureSymbol and PureHuffman
+    public void testCompressionModels() throws IOException {
+        testModel2(PreambleString, PreambleDictionary, new VerboseStringCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new UnifiedFrequencyCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new SplitFrequencyCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new NibbleFrequencyCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new TripleNibbleFrequencyCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new OffsetNibbleFrequencyCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new DeflateFrequencyCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new GZipDictionaryCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new GZipCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new PureArithCodingCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new PureHuffmanCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new NoopCompressionModel());
     }
     
     private static String dictionaryToString(byte[] dictionary) {
@@ -61,21 +66,18 @@ public class CompressionTest {
         return new String(Arrays.copyOfRange(dictionary, i, dictionary.length));
     }
     
-    private void testModel(String source, String dictionary, EncodingModel encodingModel) throws IOException {
+    private void testModel2(String source, String dictionary, AbstractCompressionModel model) throws IOException {
         byte[] sourceBytes = source.getBytes();
         byte[] dictionaryBytes = dictionary == null ? null : dictionary.getBytes();
         
-        CompressionModel compressionModel = new CompressionModel(encodingModel);
-        compressionModel.setDictionary(dictionaryBytes);
-        compressionModel.beginModelConstruction();
-        compressionModel.addDocumentToModel(sourceBytes);
-        compressionModel.endModelConstruction();
+        model.setDictionary(dictionaryBytes);
+        model.build(new ArrayDocumentList(sourceBytes));
         
-        byte[] compressedBytes = compressionModel.compress(sourceBytes);
+        byte[] compressedBytes = model.compress(sourceBytes);
         
-        System.out.println(sourceBytes.length + " compressed to " + compressedBytes.length + " using " + encodingModel.getClass().getSimpleName());
+        System.out.println(sourceBytes.length + " compressed to " + compressedBytes.length + " using " + model.getClass().getSimpleName());
 
-        byte[] decompressedBytes = compressionModel.decompress(compressedBytes);
+        byte[] decompressedBytes = model.decompress(compressedBytes);
         String decompressedString = new String(decompressedBytes);
         
         Assert.assertEquals(source, decompressedString);

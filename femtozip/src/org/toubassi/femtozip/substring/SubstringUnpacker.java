@@ -16,6 +16,10 @@ public class SubstringUnpacker implements SubstringPacker.Consumer {
     }
     
     public byte[] getUnpackedBytes() {
+        if (unpackedBytes == null) {
+            unpackedBytes = bytesOut.toByteArray();
+            bytesOut = new ByteOutput();
+        }
         return unpackedBytes;
     }
 
@@ -45,11 +49,6 @@ public class SubstringUnpacker implements SubstringPacker.Consumer {
                 bytesOut.write(bytesOut.get(i));
             }
         }
-    }
-    
-    public void endEncoding() {
-        unpackedBytes = bytesOut.toByteArray();
-        bytesOut = new ByteOutput();
     }
     
     private static class ByteOutput extends ByteArrayOutputStream {
