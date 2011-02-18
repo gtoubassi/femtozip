@@ -5,10 +5,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 
-public class NoopCompressionModel extends AbstractCompressionModel {
+public class NoopCompressionModel extends CompressionModel {
     
     public void load(DataInputStream in) throws IOException {
         // Nothing to save.  We override so the base class doesn't save the dictionary

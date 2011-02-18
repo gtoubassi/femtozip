@@ -16,12 +16,12 @@ import org.toubassi.femtozip.models.OptimizingCompressionModel;
 import org.toubassi.femtozip.substring.SubstringPacker;
 import org.toubassi.femtozip.util.StreamUtil;
 
-public abstract class AbstractCompressionModel implements SubstringPacker.Consumer {
+public abstract class CompressionModel implements SubstringPacker.Consumer {
     
     protected byte[] dictionary;
     private int maxDictionaryLength;
 
-    public static AbstractCompressionModel instantiateCompressionModel(String modelName) {
+    public static CompressionModel instantiateCompressionModel(String modelName) {
         if (modelName.indexOf('.') == -1) {
             modelName = OptimizingCompressionModel.class.getPackage().getName() + "." + modelName;
             if (!modelName.endsWith("CompressionModel")) {
@@ -29,11 +29,11 @@ public abstract class AbstractCompressionModel implements SubstringPacker.Consum
             }
         }
 
-        AbstractCompressionModel model = null;
+        CompressionModel model = null;
 
         try {
             Class<?> cls = Class.forName(modelName);
-            model = (AbstractCompressionModel)cls.newInstance();
+            model = (CompressionModel)cls.newInstance();
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -92,12 +92,12 @@ public abstract class AbstractCompressionModel implements SubstringPacker.Consum
         }
     }
     
-    public static AbstractCompressionModel load(String path) throws IOException {
+    public static CompressionModel load(String path) throws IOException {
         FileInputStream fileIn = new FileInputStream(path);
         BufferedInputStream bufferedIn = new BufferedInputStream(fileIn);
         DataInputStream in = new DataInputStream(bufferedIn);
         
-        AbstractCompressionModel model = instantiateCompressionModel(in.readUTF());
+        CompressionModel model = instantiateCompressionModel(in.readUTF());
         model.load(in);
         
         in.close();

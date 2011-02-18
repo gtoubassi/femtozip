@@ -5,11 +5,11 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 import org.toubassi.femtozip.substring.SubstringUnpacker;
 
-public class VerboseStringCompressionModel extends AbstractCompressionModel {
+public class VerboseStringCompressionModel extends CompressionModel {
     private PrintWriter writer;
 
     public void build(DocumentList documents) throws IOException {

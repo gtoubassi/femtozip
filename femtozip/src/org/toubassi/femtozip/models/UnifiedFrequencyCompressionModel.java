@@ -6,7 +6,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeReader;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeWriter;
@@ -14,7 +14,7 @@ import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 import org.toubassi.femtozip.substring.SubstringPacker;
 import org.toubassi.femtozip.substring.SubstringUnpacker;
 
-public class UnifiedFrequencyCompressionModel extends AbstractCompressionModel implements SubstringPacker.Consumer {
+public class UnifiedFrequencyCompressionModel extends CompressionModel implements SubstringPacker.Consumer {
     private static final int SUBSTRING_SYMBOL = 256;
 
     private FrequencyCodeModel codeModel;

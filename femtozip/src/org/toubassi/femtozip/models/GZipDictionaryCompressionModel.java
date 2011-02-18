@@ -8,10 +8,10 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 
-public class GZipDictionaryCompressionModel extends AbstractCompressionModel {
+public class GZipDictionaryCompressionModel extends CompressionModel {
 
     public void encodeLiteral(int aByte) {
         throw new UnsupportedOperationException();

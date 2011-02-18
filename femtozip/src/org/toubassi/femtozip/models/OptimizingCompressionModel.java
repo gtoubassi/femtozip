@@ -9,17 +9,17 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 
-public class OptimizingCompressionModel extends AbstractCompressionModel {
+public class OptimizingCompressionModel extends CompressionModel {
 
     public static class CompressionResult implements Comparable<CompressionResult>{
-        public AbstractCompressionModel model;
+        public CompressionModel model;
         public int totalCompressedSize;
         public int totalDataSize;
 
-        public CompressionResult(AbstractCompressionModel model) {
+        public CompressionResult(CompressionModel model) {
             this.model = model;
         }
 
@@ -52,7 +52,7 @@ public class OptimizingCompressionModel extends AbstractCompressionModel {
     
     public OptimizingCompressionModel(String[] modelNames) {
         for (String modelName : modelNames) {
-            AbstractCompressionModel model = AbstractCompressionModel.instantiateCompressionModel(modelName);
+            CompressionModel model = CompressionModel.instantiateCompressionModel(modelName);
             results.add(new CompressionResult(model));
         }
     }
@@ -112,7 +112,7 @@ public class OptimizingCompressionModel extends AbstractCompressionModel {
         return getBestPerformingModel().decompress(compressedData);
     }
     
-    public AbstractCompressionModel getBestPerformingModel() {
+    public CompressionModel getBestPerformingModel() {
         int best = sortedResults.get(0).totalCompressedSize;
         return best > totalDataSize ? null : sortedResults.get(0).model;
     }

@@ -29,7 +29,7 @@ public class CompressionTest {
     @Test
     public void testDictionaryOptimizer() throws IOException {
         
-        AbstractCompressionModel compressionModel = new UnifiedFrequencyCompressionModel();
+        CompressionModel compressionModel = new UnifiedFrequencyCompressionModel();
         compressionModel.build(new ArrayDocumentList(PreambleString.getBytes()));
 
         String dictionary = dictionaryToString(compressionModel.getDictionary());
@@ -66,7 +66,7 @@ public class CompressionTest {
         return new String(Arrays.copyOfRange(dictionary, i, dictionary.length));
     }
     
-    private void testModel2(String source, String dictionary, AbstractCompressionModel model) throws IOException {
+    private void testModel2(String source, String dictionary, CompressionModel model) throws IOException {
         byte[] sourceBytes = source.getBytes();
         byte[] dictionaryBytes = dictionary == null ? null : dictionary.getBytes();
         

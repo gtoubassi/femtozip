@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.BitSet;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeReader;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeWriter;
@@ -17,7 +17,7 @@ import org.toubassi.femtozip.substring.SubstringPacker;
 import org.toubassi.femtozip.substring.SubstringPacker.Consumer;
 import org.toubassi.femtozip.substring.SubstringUnpacker;
 
-public class DeflateFrequencyCompressionModel extends AbstractCompressionModel {
+public class DeflateFrequencyCompressionModel extends CompressionModel {
 
     // extra bits for each length code
     private static final int[] NumLengthExtraBits = {

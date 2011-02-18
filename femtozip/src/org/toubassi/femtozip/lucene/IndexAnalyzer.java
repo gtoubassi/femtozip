@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.lucene.index.IndexReader;
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.models.OptimizingCompressionModel;
 import org.toubassi.femtozip.models.OptimizingCompressionModel.CompressionResult;
 import org.toubassi.femtozip.util.FileUtil;
@@ -30,7 +30,7 @@ public class IndexAnalyzer  {
     private String modelPath;
     private String[] models;
     
-    private HashMap<String, AbstractCompressionModel> fieldToModel = new HashMap<String, AbstractCompressionModel>();
+    private HashMap<String, CompressionModel> fieldToModel = new HashMap<String, CompressionModel>();
     
     private int numSamples = 0;
     private int maxDictionarySize = 0;
@@ -67,7 +67,7 @@ public class IndexAnalyzer  {
         }
 
         OptimizingCompressionModel.CompressionResult bestResult = new CompressionResult(new OptimizingCompressionModel());
-        for (Map.Entry<String, AbstractCompressionModel> entry : fieldToModel.entrySet()) {
+        for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
             OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
             bestResult.accumulate(model.getBestPerformingResult());
         }
@@ -81,9 +81,9 @@ public class IndexAnalyzer  {
     }
     
     protected void benchmarkModel(IndexReader reader, long totalDataSize[], long totalCompressedSize[]) throws IOException {
-        for (Map.Entry<String, AbstractCompressionModel> entry : fieldToModel.entrySet()) {
+        for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
             String fieldName = entry.getKey();
-            AbstractCompressionModel model = entry.getValue();
+            CompressionModel model = entry.getValue();
             
             long start = System.currentTimeMillis();
             
@@ -128,7 +128,7 @@ public class IndexAnalyzer  {
         for (File file : dirContents) {
             if (file.getName().endsWith(".fzmodel")) {
                 String fieldName = file.getName().replace(".fzmodel", "");
-                AbstractCompressionModel model = AbstractCompressionModel.load(file.getPath());
+                CompressionModel model = CompressionModel.load(file.getPath());
                 fieldToModel.put(fieldName, model);
             }
         }        
@@ -156,7 +156,7 @@ public class IndexAnalyzer  {
             }
         }
         
-        for (Map.Entry<String, AbstractCompressionModel> entry : fieldToModel.entrySet()) {
+        for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
             String path = modelDir.getPath() + File.separator + entry.getKey()+ ".fzmodel";
             OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
             model.getBestPerformingModel().save(path);

@@ -7,13 +7,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeReader;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeWriter;
 import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 
-public class PureArithCodingCompressionModel extends AbstractCompressionModel {
+public class PureArithCodingCompressionModel extends CompressionModel {
     private FrequencyCodeModel codeModel;
 
     public void load(DataInputStream in) throws IOException {

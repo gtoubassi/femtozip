@@ -7,13 +7,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.toubassi.femtozip.AbstractCompressionModel;
+import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 import org.toubassi.femtozip.coding.huffman.HuffmanDecoder;
 import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
 import org.toubassi.femtozip.coding.huffman.HuffmanModel;
 
-public class PureHuffmanCompressionModel extends AbstractCompressionModel {
+public class PureHuffmanCompressionModel extends CompressionModel {
 
     private HuffmanModel codeModel;
     
