@@ -46,8 +46,6 @@ public class SubstringArray {
                 working.setScore(newOffset, indexes[i], lengths[i], this.scores[i]);
             }
 
-            //TODO make this in place
-            
             // swap (brain transplant) innards
             Object t = working.indexes;
             working.indexes = indexes;

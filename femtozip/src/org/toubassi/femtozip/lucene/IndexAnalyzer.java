@@ -169,6 +169,13 @@ public class IndexAnalyzer  {
     }
     
     public void run(String[] args) throws IOException {
+        
+        System.out.println("Command line arguments:");
+        for (String arg : args) {
+            System.out.println(arg);
+        }
+        System.out.println();
+        
         for (int i = 0, count = args.length; i < count; i++) {
             String arg = args[i];
             
@@ -201,6 +208,8 @@ public class IndexAnalyzer  {
 
         IndexReader reader = IndexReader.open(indexPath);
 
+        long start = System.currentTimeMillis();
+        
         if (operation == Operation.BuildModel) {
             buildModel(reader);
             saveBenchmarkModel();
@@ -224,6 +233,10 @@ public class IndexAnalyzer  {
             System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
             System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
         }
+        
+        long duration = System.currentTimeMillis() - start;
+        
+        System.out.println("Took " + format.format(duration / 1000f) + "s");
         
         reader.close();
     }
