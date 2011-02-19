@@ -7,23 +7,15 @@ public class SuffixArray {
 
     private static final int BUCK = Integer.MIN_VALUE;
 
-    protected byte[] input;
-    protected int[] prefixes;
-    protected int[] lcp;
-    
-    public SuffixArray(byte[] inputBytes) {
-        input = inputBytes;
-    }
-
     private static final int succ(int i, int h, int n) {
         int t = i + h;
         return t >= n ? t - n : t;
     }
         
-    public void compute() {
-        byte buf[] = input;
-        int n = input.length;
-        int p[] = prefixes = new int[n + 1];
+    public static int[] computeSuffixArray(byte[] bytes) {
+        byte buf[] = bytes;
+        int n = bytes.length;
+        int p[] = new int[n + 1];
         
         int[] a, buckets = new int[256*256];
         int i, last, cum, c, cc, ncc, lab, nbuck;
@@ -70,6 +62,7 @@ public class SuffixArray {
         }
         
         ssortit(a, p, n + 1, 2, i, nbuck);
+        return p;
     }
     
     private static final int ssortit(int a[], int p[], int n, int h, int pe, int nbuck) {
@@ -234,11 +227,11 @@ public class SuffixArray {
             qsort2(a, ai + n - r, asucc, r);
     }
     
-    public void computeLCP() {
-        int[] a = prefixes;
-        byte[] s = input;
-        int n = prefixes.length;
-        int[] lcp = this.lcp = new int[n];
+    public static int[] computeLCP(byte[] bytes, int[] suffixArray) {
+        int[] a = suffixArray;
+        byte[] s = bytes;
+        int n = suffixArray.length;
+        int[] lcp = new int[n];
         
         int i, h;
         int[] inv = new int[n];
@@ -263,13 +256,14 @@ public class SuffixArray {
         }
         
         lcp[0] = 0;
+        return lcp;
     }
          
     /**
      * For debugging
      */
-    public void dump(PrintStream out) {
-        int[] p = prefixes;
+    public static void dump(PrintStream out, byte[] bytes, int[] suffixArray, int[] lcp) {
+        int[] p = suffixArray;
         int n = p.length;
         
         for (int i = 0; i < n; i++) {
@@ -277,8 +271,8 @@ public class SuffixArray {
             if (lcp != null) {
                 lcpString = Integer.toString(lcp[i]) + "\t";
             }
-            out.print(prefixes[i] + "\t" + lcpString);
-            out.write(input, prefixes[i], Math.min(40, n - 1 - prefixes[i]));
+            out.print(suffixArray[i] + "\t" + lcpString);
+            out.write(bytes, suffixArray[i], Math.min(40, n - 1 - suffixArray[i]));
             out.println();
         }
     }

@@ -4,17 +4,20 @@ import java.io.PrintStream;
 
 
 
-public class DictionaryOptimizer extends SuffixArray {
+public class DictionaryOptimizer {
 
     private SubstringArray substrings;
+    private byte[] bytes;
+    private int[] suffixArray;
+    private int[] lcp;
     
     public DictionaryOptimizer(byte[] inputBytes) {
-        super(inputBytes);
+        this.bytes = inputBytes;
     }
     
     public byte[] optimize(int desiredLength) {
-        compute();
-        computeLCP();
+        suffixArray = SuffixArray.computeSuffixArray(bytes);
+        lcp = SuffixArray.computeLCP(bytes, suffixArray);
         computeSubstrings();
         return pack(desiredLength);
     }
@@ -23,8 +26,7 @@ public class DictionaryOptimizer extends SuffixArray {
         SubstringArray activeSubstrings = new SubstringArray(128);
         
         substrings = new SubstringArray(1024);
-        int n = this.lcp.length;
-        int[] lcp = this.lcp;
+        int n = lcp.length;
         
         int lastLCP = lcp[0];
         for (int i = 1; i < n; i++) {
@@ -71,7 +73,7 @@ public class DictionaryOptimizer extends SuffixArray {
         for (int i = substrings.size() - 1; i >= 0; i--) {
             boolean alreadyCovered = false;
             for (int j = 0, c = pruned.size(); j < c; j++) {
-                if (pruned.indexOf(j, substrings, i, input, prefixes) != -1) {
+                if (pruned.indexOf(j, substrings, i, bytes, suffixArray) != -1) {
                     
                     alreadyCovered = true;
                     break;
@@ -83,7 +85,7 @@ public class DictionaryOptimizer extends SuffixArray {
             }
             
             for (int j = pruned.size() - 1; j >= 0; j--) {
-                if (substrings.indexOf(i, pruned, j, input, prefixes) != -1) {
+                if (substrings.indexOf(i, pruned, j, bytes, suffixArray) != -1) {
                     size -= pruned.length(j);
                     pruned.remove(j);
                 }
@@ -105,7 +107,7 @@ public class DictionaryOptimizer extends SuffixArray {
                 length += pi;
                 pi = 0;
             }
-            System.arraycopy(input, prefixes[pruned.index(i)], packed, pi, length);
+            System.arraycopy(bytes, suffixArray[pruned.index(i)], packed, pi, length);
         }
         
         if (pi > 0 && size >= desiredLength) {
@@ -122,7 +124,7 @@ public class DictionaryOptimizer extends SuffixArray {
         if (substrings != null) {
             for (int j = substrings.size() - 1; j >= 0; j--) {
                 out.print(substrings.score(j) + "\t");
-                out.write(input, prefixes[substrings.index(j)], Math.min(40, substrings.length(j)));
+                out.write(bytes, suffixArray[substrings.index(j)], Math.min(40, substrings.length(j)));
                 out.println();
             }
         }
