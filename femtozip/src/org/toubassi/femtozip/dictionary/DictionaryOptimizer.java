@@ -109,23 +109,6 @@ public class DictionaryOptimizer {
             }
             pi -= prepend(bytes, suffixArray[pruned.index(i)], packed, pi, length);
         }
-
-        i -= 2; // The last string may have been truncated, so just ignore it for the sanity check
-        while (i >= 0) {
-            int length = pruned.length(i);
-            int index = suffixArray[pruned.index(i)];
-            if (findBytes(bytes, index, packed, length) == -1) {
-                throw new RuntimeException("FAILED to find string : " + i);
-            }
-            
-            i--;
-        }
-        
-        
-        
-        if (pi > 0 && size >= 2*desiredLength) {
-            throw new RuntimeException("FAIL: " + pi + " " + size + " " + desiredLength);
-        }        
         
         return packed;
     }
@@ -152,15 +135,6 @@ public class DictionaryOptimizer {
             }
         }
         return true;
-    }
-    
-    private static int findBytes(byte[] needle, int needleIndex, byte[] haystack, int length) {
-        for (int i = 0, count = haystack.length - length + 1; i < count; i++) {
-            if (byteRangeEquals(needle, needleIndex, haystack, i, length)) {
-                return i; 
-            }
-        }
-        return -1;
     }
     
     /**
