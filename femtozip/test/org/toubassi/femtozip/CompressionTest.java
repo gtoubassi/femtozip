@@ -33,7 +33,7 @@ public class CompressionTest {
         compressionModel.build(new ArrayDocumentList(PreambleString.getBytes()));
 
         String dictionary = dictionaryToString(compressionModel.getDictionary());
-        Assert.assertEquals(" our to , ince, sticure , proity, s of  and  for the  establish e the  the United States", dictionary);
+        Assert.assertEquals(" our to , ince, sticure , proity, s of and for the establish e the United States", dictionary);
         
         compressionModel = new UnifiedFrequencyCompressionModel();
         compressionModel.build(new ArrayDocumentList(PanamaString.getBytes()));

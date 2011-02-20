@@ -92,7 +92,8 @@ public class DictionaryOptimizer {
             }
             pruned.setScore(pruned.size(), substrings.index(i), substrings.length(i), substrings.score(i));
             size += substrings.length(i);
-            if (size >= desiredLength) {
+            // We calculate 2x because when we lay the strings out end to end we will merge common prefix/suffixes
+            if (size >= 2*desiredLength) {
                 break;
             }
         }
@@ -100,21 +101,66 @@ public class DictionaryOptimizer {
         byte[] packed = new byte[desiredLength];
         int pi = desiredLength;
         
-        for (int i = 0, count = pruned.size(); i < count && pi > 0; i++) {
+        int i, count;
+        for (i = 0, count = pruned.size(); i < count && pi > 0; i++) {
             int length = pruned.length(i);
-            pi -= length;
-            if (pi < 0) {
-                length += pi;
-                pi = 0;
+            if (pi - length < 0) {
+                length = pi;
             }
-            System.arraycopy(bytes, suffixArray[pruned.index(i)], packed, pi, length);
+            pi -= prepend(bytes, suffixArray[pruned.index(i)], packed, pi, length);
+        }
+
+        i -= 2; // The last string may have been truncated, so just ignore it for the sanity check
+        while (i >= 0) {
+            int length = pruned.length(i);
+            int index = suffixArray[pruned.index(i)];
+            if (findBytes(bytes, index, packed, length) == -1) {
+                throw new RuntimeException("FAILED to find string : " + i);
+            }
+            
+            i--;
         }
         
-        if (pi > 0 && size >= desiredLength) {
-            System.out.println("FAIL: " + pi + " " + size + " " + desiredLength);
-        }
+        
+        
+        if (pi > 0 && size >= 2*desiredLength) {
+            throw new RuntimeException("FAIL: " + pi + " " + size + " " + desiredLength);
+        }        
         
         return packed;
+    }
+    
+    protected int prepend(byte[] from, int fromIndex, byte[] to, int toIndex, int length) {
+        int l;
+        // See if we have a common suffix/prefix between the string being merged in, and the current strings in the front
+        // of the destination.  For example if we pack " the " and then pack " and ", we should end up with " and the ", not " and  the ".
+        for (l = Math.min(length - 1, to.length - toIndex); l > 0; l--) {
+            if (byteRangeEquals(from, fromIndex + length - l, to, toIndex, l)) {
+                break;
+            }
+        }
+        
+        System.arraycopy(from, fromIndex, to, toIndex - length + l, length - l);
+        return length - l;
+    }
+    
+    private static boolean byteRangeEquals(byte[] bytes1, int index1, byte[] bytes2, int index2, int length) {
+        
+        for (;length > 0; length--, index1++, index2++) {
+            if (bytes1[index1] != bytes2[index2]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private static int findBytes(byte[] needle, int needleIndex, byte[] haystack, int length) {
+        for (int i = 0, count = haystack.length - length + 1; i < count; i++) {
+            if (byteRangeEquals(needle, needleIndex, haystack, i, length)) {
+                return i; 
+            }
+        }
+        return -1;
     }
     
     /**
