@@ -139,17 +139,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     
     protected void buildDictionaryIfUnspecified(DocumentList documents) throws IOException {
         if (dictionary == null) {
-            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-            
-            for (int i = 0, count = documents.size(); i < count; i++) {
-                byte[] document = documents.get(i);
-                bytesOut.write(document);
-            }
-            
-            byte[] bytes = bytesOut.toByteArray();
-            bytesOut = null;
-            
-            DictionaryOptimizer optimizer = new DictionaryOptimizer(bytes);
+            DictionaryOptimizer optimizer = new DictionaryOptimizer(documents);
             dictionary = optimizer.optimize(64*1024);
         }
     }

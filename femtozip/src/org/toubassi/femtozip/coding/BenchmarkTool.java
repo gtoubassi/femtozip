@@ -13,6 +13,7 @@ import org.toubassi.femtozip.util.StreamUtil;
 public class BenchmarkTool {
 
     public static void testHuffman(int[] histogram, byte[] input, boolean allSymbolsSampled) throws IOException {
+        long start = System.nanoTime();
         HuffmanModel huffmanModel = new HuffmanModel(histogram, allSymbolsSampled);
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         HuffmanEncoder huffmanEncoder = new HuffmanEncoder(huffmanModel, bytesOut);
@@ -22,11 +23,14 @@ public class BenchmarkTool {
         
         huffmanEncoder.close();
         
+        long duration = System.nanoTime() - start;
+        
         DecimalFormat format = new DecimalFormat("#.##");
-        System.out.println("Huffman all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*bytesOut.size()/input.length) + " (" + bytesOut.size() + " bytes)");
+        System.out.println("Huffman all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*bytesOut.size()/input.length) + " (" + bytesOut.size() + " bytes) in " + format.format(duration/1000000.0) + "ms");
     }
     
     public static void testArithmetic(int[] histogram, byte[] input, boolean allSymbolsSampled) throws IOException {
+        long start = System.nanoTime();
         FrequencyCodeModel model = new FrequencyCodeModel(histogram, allSymbolsSampled);
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         ArithCodeWriter writer = new ArithCodeWriter(bytesOut, model);
@@ -35,9 +39,11 @@ public class BenchmarkTool {
         }
         
         writer.close();
+
+        long duration = System.nanoTime() - start;
         
         DecimalFormat format = new DecimalFormat("#.##");
-        System.out.println("Huffman all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*bytesOut.size()/input.length) + " (" + bytesOut.size() + " bytes)");
+        System.out.println("Arithmetic all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*bytesOut.size()/input.length) + " (" + bytesOut.size() + " bytes) in " + format.format(duration/1000000.0) + "ms");
     }
     
     public static void main(String[] args) throws IOException {

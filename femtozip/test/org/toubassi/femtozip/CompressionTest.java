@@ -1,6 +1,7 @@
 package org.toubassi.femtozip;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -33,7 +34,7 @@ public class CompressionTest {
         compressionModel.build(new ArrayDocumentList(PreambleString.getBytes()));
 
         String dictionary = dictionaryToString(compressionModel.getDictionary());
-        Assert.assertEquals(" our to , ince, sticure , proity, s of and for the establish e the United States", dictionary);
+        Assert.assertEquals(" our to , ince, sticure and , proity, s of e the for the establish the United States", dictionary);
         
         compressionModel = new UnifiedFrequencyCompressionModel();
         compressionModel.build(new ArrayDocumentList(PanamaString.getBytes()));
@@ -81,5 +82,38 @@ public class CompressionTest {
         String decompressedString = new String(decompressedBytes);
         
         Assert.assertEquals(source, decompressedString);
+    }
+
+    @Test
+    public void testDocumentUniquenessScoring() throws IOException {
+        CompressionModel model = new OffsetNibbleFrequencyCompressionModel();
+        ArrayList<byte[]> documents = new ArrayList<byte[]>();
+        documents.add((new String("garrick1garrick2garrick3garrick4garrick")).getBytes("UTF-8"));
+        documents.add((new String("xtoubassigarrick")).getBytes("UTF-8"));
+        documents.add((new String("ytoubassi")).getBytes("UTF-8"));
+        documents.add((new String("ztoubassi")).getBytes("UTF-8"));
+        
+        model.build(new ArrayDocumentList(documents));
+        
+        String dictionary = dictionaryToString(model.getDictionary());
+        Assert.assertEquals("garricktoubassi", dictionary);
+    }
+
+    @Test
+    public void testNonexistantStrings() throws IOException {
+        CompressionModel model = new OffsetNibbleFrequencyCompressionModel();
+        ArrayList<byte[]> documents = new ArrayList<byte[]>();
+        documents.add((new String("http://espn.de")).getBytes("UTF-8"));
+        documents.add((new String("http://popsugar.de")).getBytes("UTF-8"));
+        documents.add((new String("http://google.de")).getBytes("UTF-8"));
+        documents.add((new String("http://yahoo.de")).getBytes("UTF-8"));
+        documents.add((new String("gtoubassi")).getBytes("UTF-8"));
+        documents.add((new String("gtoubassi")).getBytes("UTF-8"));
+        
+        model.build(new ArrayDocumentList(documents));
+        
+        String dictionary = dictionaryToString(model.getDictionary());
+        // Make sure it doesn't think .dehttp:// is a good one
+        Assert.assertEquals("gtoubassihttp://", dictionary);
     }
 }

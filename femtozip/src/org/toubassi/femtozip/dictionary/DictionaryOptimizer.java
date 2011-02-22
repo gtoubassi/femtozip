@@ -1,7 +1,13 @@
 package org.toubassi.femtozip.dictionary;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.toubassi.femtozip.DocumentList;
 
 
 public class DictionaryOptimizer {
@@ -10,9 +16,19 @@ public class DictionaryOptimizer {
     private byte[] bytes;
     private int[] suffixArray;
     private int[] lcp;
+    private int[] starts;
     
-    public DictionaryOptimizer(byte[] inputBytes) {
-        this.bytes = inputBytes;
+    public DictionaryOptimizer(DocumentList documents) throws IOException {
+        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+        starts = new int[documents.size()];
+        
+        for (int i = 0, count = documents.size(); i < count; i++) {
+            byte[] document = documents.get(i);
+            starts[i] = bytesOut.size();
+            bytesOut.write(document);
+        }
+        
+        bytes = bytesOut.toByteArray();
     }
     
     public byte[] optimize(int desiredLength) {
@@ -24,6 +40,7 @@ public class DictionaryOptimizer {
 
     protected void computeSubstrings() {
         SubstringArray activeSubstrings = new SubstringArray(128);
+        Set<Integer> uniqueDocIds = new HashSet<Integer>();
         
         substrings = new SubstringArray(1024);
         int n = lcp.length;
@@ -45,19 +62,57 @@ public class DictionaryOptimizer {
                         int activeCount = i - activeSubstrings.index(j) + 1;
                         int activeLength = activeSubstrings.length(j);
                         int activeIndex = activeSubstrings.index(j);
+
+                        int scoreCount = activeCount;
+
+                        // Ok we have a string which occurs activeCount times.  The true measure of its
+                        // value is how many unique documents it occurs in, because occurring 1000 times in the same
+                        // document isn't valuable because once it occurs once, subsequent occurrences will reference
+                        // a previous occurring instance in the document.  So for 2 documents: "garrick garrick garrick toubassi",
+                        // "toubassi", the string toubassi is far more valuable in a shared dictionary.  So find out
+                        // how many unique documents this string occurs in.  We do this by taking the start position of
+                        // each occurrence, and then map that back to the document using the "starts" array, and uniquing.
+                        for (int k = activeSubstrings.index(j) - 1; k < i; k++) {
+                            int byteIndex = suffixArray[k];
+                            
+                            // Could make this a lookup table if we are willing to burn an int[bytes.length] but thats a lot
+                            int docIndex = Arrays.binarySearch(starts, byteIndex);
+                            
+                            if (docIndex < 0) {
+                                docIndex = -docIndex - 2;
+                            }
+                            
+                            // While we are at it lets make sure this is a string that actually exists in a single
+                            // document, vs spanning two concatenanted documents.  The idea is that for documents
+                            // "http://espn.com", "http://google.com", "http://yahoo.com", we don't want to consider
+                            // ".comhttp://" to be a legal string.  So make sure the length of this string doesn't
+                            // cross a document boundary for this particular occurrence.
+                            int nextDocStart = docIndex < starts.length - 1 ? starts[docIndex + 1] : bytes.length;
+                            if (activeLength <= nextDocStart - byteIndex) {
+                                uniqueDocIds.add(docIndex);
+                            }
+                        }
+                        
+                        scoreCount = uniqueDocIds.size();
+                        uniqueDocIds.clear();
+
+                        activeSubstrings.remove(j);
+                        
+                        if (scoreCount == 0) {
+                            continue;
+                        }
                         
                         // Don't add redundant strings.  If we just  added ABC, don't add AB if it has the same count.  This cuts down the size of substrings
                         // from growing very large.
                         if (!(lastActiveIndex != -1 && lastActiveIndex == activeIndex && lastActiveCount == activeCount && lastActiveLength > activeLength)) {
 
                             if (activeLength > 3) {
-                                substrings.add(activeIndex, activeLength, activeCount);
+                                substrings.add(activeIndex, activeLength, scoreCount);
                             }
                         }
                         lastActiveIndex = activeIndex;
                         lastActiveLength = activeLength;
                         lastActiveCount = activeCount;
-                        activeSubstrings.remove(j);
                     }
                 }
             }

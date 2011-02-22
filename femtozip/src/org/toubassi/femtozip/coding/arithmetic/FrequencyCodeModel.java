@@ -16,7 +16,7 @@ public class FrequencyCodeModel implements ArithCodeModel {
     public static int[] computeHistogramWithEOFSymbol(byte[] data) {
         int[] histo = new int[256 + 1];
         for (int i = 0, count = data.length; i < count; i++) {
-            histo[data[i]]++;
+            histo[((int)data[i]) & 0xff]++;
         }
         return histo;
     }
