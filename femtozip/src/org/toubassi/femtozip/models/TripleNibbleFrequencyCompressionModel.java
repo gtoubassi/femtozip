@@ -75,6 +75,9 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
         }
     }
     
+    public void endEncoding() {
+    }
+    
     public byte[] decompress(byte[] compressedBytes) {
         try {
             ByteArrayInputStream bytesIn = new ByteArrayInputStream(compressedBytes);
@@ -94,6 +97,7 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
                     unpacker.encodeLiteral(nextSymbol);
                 }
             }
+            unpacker.endEncoding();
             return unpacker.getUnpackedBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -110,6 +114,10 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
         
         public void encodeLiteral(int aByte) {
             literalLengthHistogram[aByte]++;
+        }
+
+        public void endEncoding() {
+            literalLengthHistogram[literalLengthHistogram.length - 1]++;
         }
 
         public void encodeSubstring(int offset, int length) {

@@ -21,6 +21,10 @@ public class GZipDictionaryCompressionModel extends CompressionModel {
         throw new UnsupportedOperationException();
     }
 
+    public void endEncoding() {
+        throw new UnsupportedOperationException();
+    }
+    
     public void build(DocumentList documents) {
     }
 

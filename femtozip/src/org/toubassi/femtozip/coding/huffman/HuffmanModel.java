@@ -22,7 +22,6 @@ public class HuffmanModel {
             }
         }
         
-        histogram[histogram.length - 1] = 1;
         computeHuffmanCoding(histogram);
     }
     

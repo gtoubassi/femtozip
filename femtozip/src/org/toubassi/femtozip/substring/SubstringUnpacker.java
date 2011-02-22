@@ -51,6 +51,9 @@ public class SubstringUnpacker implements SubstringPacker.Consumer {
         }
     }
     
+    public void endEncoding() {
+    }
+    
     private static class ByteOutput extends ByteArrayOutputStream {
         public byte get(int i) {
             return buf[i];

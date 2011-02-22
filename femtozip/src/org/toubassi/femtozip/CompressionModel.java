@@ -144,6 +144,10 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         }
     }
     
+    public interface ModelBuilder extends SubstringPacker.Consumer {
+        public void encodeEOF();
+    }
+    
     public SubstringPacker.Consumer createModelBuilder() {
         return null;
     }

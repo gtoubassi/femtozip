@@ -75,6 +75,9 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
         }
     }
     
+    public void endEncoding() {
+    }
+    
     public byte[] decompress(byte[] compressedBytes) {
         try {
             ByteArrayInputStream bytesIn = new ByteArrayInputStream(compressedBytes);
@@ -93,6 +96,7 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
                     unpacker.encodeLiteral(nextSymbol);
                 }
             }
+            unpacker.endEncoding();
             return unpacker.getUnpackedBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -104,6 +108,10 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
         
         public void encodeLiteral(int aByte) {
             histogram[aByte]++;
+        }
+
+        public void endEncoding() {
+            histogram[histogram.length - 1]++;
         }
 
         public void encodeSubstring(int offset, int length) {

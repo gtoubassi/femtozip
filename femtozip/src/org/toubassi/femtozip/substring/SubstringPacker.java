@@ -12,13 +12,14 @@ public class SubstringPacker {
     public interface Consumer {
         public void encodeLiteral(int aByte);
         public void encodeSubstring(int offset, int length);
+        public void endEncoding();
     }
     
     public SubstringPacker(byte[] dictionary) {
         this.dictionary = dictionary == null ? new byte[0] : dictionary;
     }
     
-    public void pack(byte[] rawBytes, SubstringPacker.Consumer encoder) {
+    public void pack(byte[] rawBytes, SubstringPacker.Consumer consumer) {
         HashMap<Trigraph, ArrayList<Integer>> previousStrings = new HashMap<Trigraph, ArrayList<Integer>>();
 
         byte[] newRawBytes = Arrays.copyOf(dictionary, rawBytes.length + dictionary.length);
@@ -80,7 +81,7 @@ public class SubstringPacker {
             
             if (previousMatchLength > 0 && bestMatchLength <= previousMatchLength) {
                 // We didn't get a match or we got one and the previous match is better
-                encoder.encodeSubstring(-(curr - 1 - previousMatchIndex), previousMatchLength);
+                consumer.encodeSubstring(-(curr - 1 - previousMatchIndex), previousMatchLength);
                 
                 // Make sure locations are added for the match.  This allows repetitions to always
                 // encode the same relative locations which is better for compressing the locations.
@@ -98,7 +99,7 @@ public class SubstringPacker {
                 // We have a match, and we had a previous match, and this one is better.
                 previousMatchIndex = bestMatchIndex;
                 previousMatchLength = bestMatchLength;
-                encoder.encodeLiteral(((int)rawBytes[curr - 1]) & 0xff);
+                consumer.encodeLiteral(((int)rawBytes[curr - 1]) & 0xff);
             }
             else if (bestMatchLength > 0) {
                 // We have a match, but no previous match
@@ -107,9 +108,10 @@ public class SubstringPacker {
             }
             else if (bestMatchLength == 0 && previousMatchLength == 0) {
                 // No match, and no previous match.
-                encoder.encodeLiteral(((int)rawBytes[curr]) & 0xff);
+                consumer.encodeLiteral(((int)rawBytes[curr]) & 0xff);
             }
         }
+        consumer.endEncoding();
     }
 
     private void addTrigraphLocation(HashMap<Trigraph, ArrayList<Integer>> table, Trigraph trigraph, int location) {

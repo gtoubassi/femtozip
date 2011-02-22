@@ -34,6 +34,7 @@ public class PureHuffmanCompressionModel extends CompressionModel {
                 for (int j = 0, jcount = bytes.length; j < jcount; j++) {
                     histogram[((int)bytes[j]) & 0xff]++;
                 }
+                histogram[histogram.length - 1]++;
             }
 
             codeModel = new HuffmanModel(histogram, false);
@@ -52,6 +53,10 @@ public class PureHuffmanCompressionModel extends CompressionModel {
         throw new UnsupportedOperationException();
     }
 
+    public void endEncoding() {
+        throw new UnsupportedOperationException();
+    }
+    
     public void compress(byte[] data, OutputStream out) throws IOException {
         HuffmanEncoder encoder = new HuffmanEncoder(codeModel, out);
         for (int i = 0, count = data.length; i < count; i++) {

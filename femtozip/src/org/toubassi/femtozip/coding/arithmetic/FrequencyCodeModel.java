@@ -14,19 +14,21 @@ public class FrequencyCodeModel implements ArithCodeModel {
     private short[] inverseHistogram;
 
     public static int[] computeHistogramWithEOFSymbol(byte[] data) {
-        int[] histo = new int[256 + 1];
+        int[] histogram = new int[256 + 1];
         for (int i = 0, count = data.length; i < count; i++) {
-            histo[((int)data[i]) & 0xff]++;
+            histogram[((int)data[i]) & 0xff]++;
         }
-        return histo;
+        histogram[histogram.length - 1] = 1; // EOF
+        return histogram;
     }
 
     private static int[] computeHistogram(short[] data, int maxSymbol) {
-        int[] histo = new int[maxSymbol + 1 + 1];   // The array must accommodate [0...maxSymbol] plus the EOF.
+        int[] histogram = new int[maxSymbol + 1 + 1];   // The array must accommodate [0...maxSymbol] plus the EOF.
         for (int i = 0, count = data.length; i < count; i++) {
-            histo[data[i]]++;
+            histogram[data[i]]++;
         }
-        return histo;
+        histogram[histogram.length - 1] = 1; // EOF
+        return histogram;
     }
 
     
@@ -45,15 +47,14 @@ public class FrequencyCodeModel implements ArithCodeModel {
         this(histogram, allSymbolsSampled, true);
     }
     
-    public FrequencyCodeModel(int[] histogram, boolean allSymbolsSampled, boolean needsEOF) {
+    public FrequencyCodeModel(int[] histogram, boolean allSymbolsSampled, boolean hasEOF) {
         int dataLength = 0;
         for (int i = 0, count = histogram.length; i< count; i++) {
             dataLength += histogram[i];
         }
         
-        if (needsEOF) {
+        if (hasEOF) {
             eofIndex = histogram.length - 1;
-            histogram[eofIndex] = 1;
         }
         else {
             eofIndex = -1;

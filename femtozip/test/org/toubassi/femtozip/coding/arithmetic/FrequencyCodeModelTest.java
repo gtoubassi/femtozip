@@ -31,6 +31,7 @@ public class FrequencyCodeModelTest {
         for (count = data.length; i < count; i++) {
             data[i] = (short)(256 + 1 + random.nextInt(25));
         }
+        data[data.length - 1] = 1;
         
         ArithCodeModel model = new FrequencyCodeModel(data, 281, true);
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
@@ -107,23 +108,5 @@ public class FrequencyCodeModelTest {
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Test
-    public void testFun() throws IOException {
-        int[] literalHistogram = new int[256 + 1]; // 256 for each unique literal byte, plus 1 for EOF
-        for (int i = 0; i < 10; i++) {
-            literalHistogram[((int)'0') + i] = 10;
-        }
-        FrequencyCodeModel model = new FrequencyCodeModel(literalHistogram, true);
-        ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-        ArithCodeWriter writer = new ArithCodeWriter(bytesOut, model);
-        
-        for (int i = 0; i < 10; i++) {
-            writer.writeSymbol(((int)'0') + (i % 10));
-        }
-        
-        writer.close();
-        System.out.println(bytesOut.toByteArray().length);
     }
 }

@@ -33,6 +33,7 @@ public class PureArithCodingCompressionModel extends CompressionModel {
                 for (int j = 0, jcount = bytes.length; j < jcount; j++) {
                     histogram[((int)bytes[j]) & 0xff]++;
                 }
+                histogram[histogram.length - 1]++;
             }
             
             codeModel = new FrequencyCodeModel(histogram, false);
@@ -43,11 +44,17 @@ public class PureArithCodingCompressionModel extends CompressionModel {
     }
 
     public void encodeLiteral(int aByte) {
+        throw new UnsupportedOperationException();
     }
 
     public void encodeSubstring(int offset, int length) {
+        throw new UnsupportedOperationException();
     }
 
+    public void endEncoding() {
+        throw new UnsupportedOperationException();
+    }
+    
     public void compress(byte[] data, OutputStream out) throws IOException {
         ArithCodeWriter writer = new ArithCodeWriter(out, codeModel);
         for (int i = 0, count = data.length; i < count; i++) {

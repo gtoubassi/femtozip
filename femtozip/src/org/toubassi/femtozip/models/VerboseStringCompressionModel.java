@@ -44,6 +44,7 @@ public class VerboseStringCompressionModel extends CompressionModel {
                     unpacker.encodeLiteral((int)ch);
                 }
             }
+            unpacker.endEncoding();
             return unpacker.getUnpackedBytes();
         }
         catch (UnsupportedEncodingException e) {
@@ -53,6 +54,9 @@ public class VerboseStringCompressionModel extends CompressionModel {
 
     public void encodeLiteral(int aByte) {
         writer.print((char)aByte);
+    }
+
+    public void endEncoding() {
     }
 
     public void encodeSubstring(int offset, int length) {

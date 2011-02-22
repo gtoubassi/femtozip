@@ -25,6 +25,10 @@ public class NoopCompressionModel extends CompressionModel {
     public void encodeSubstring(int offset, int length) {
         throw new UnsupportedOperationException();
     }
+    
+    public void endEncoding() {
+        throw new UnsupportedOperationException();
+    }
 
     public void build(DocumentList documents) {
     }

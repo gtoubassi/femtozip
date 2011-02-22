@@ -129,6 +129,10 @@ public class OptimizingCompressionModel extends CompressionModel {
         throw new UnsupportedOperationException();
     }
     
+    public void endEncoding() {
+        throw new UnsupportedOperationException();
+    }
+   
     public void aggregateResults(ArrayList<CompressionResult> aggregateResults) {
         if (aggregateResults.size() == 0) {
             for (CompressionResult result : results) {

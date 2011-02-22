@@ -227,6 +227,9 @@ public class DeflateFrequencyCompressionModel extends CompressionModel {
         }
     }
     
+    public void endEncoding() {
+    }
+    
     private void writeExtraBits(int value, int numExtraBits) throws IOException {
         while (numExtraBits > 0) {
             extraBits.set(extraBitCount++, (value & 1) == 1 ? true : false);
@@ -280,6 +283,7 @@ public class DeflateFrequencyCompressionModel extends CompressionModel {
                     unpacker.encodeLiteral(nextSymbol);
                 }
             }
+            unpacker.endEncoding();
             return unpacker.getUnpackedBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -309,6 +313,10 @@ public class DeflateFrequencyCompressionModel extends CompressionModel {
         
         public void encodeLiteral(int aByte) {
             literalLengthHistogram[aByte]++;
+        }
+        
+        public void endEncoding() {
+            literalLengthHistogram[literalLengthHistogram.length - 1]++;
         }
         
         public void encodeSubstring(int offset, int length) {
