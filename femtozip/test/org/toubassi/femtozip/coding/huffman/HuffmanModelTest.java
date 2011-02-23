@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 import org.toubassi.femtozip.coding.huffman.HuffmanDecoder;
 import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
-import org.toubassi.femtozip.coding.huffman.HuffmanModel;
+import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
 
 
 public class HuffmanModelTest {
@@ -32,12 +32,12 @@ public class HuffmanModelTest {
         }
         int[] histogram = FrequencyCodeModel.computeHistogramWithEOFSymbol(dataBytes);
         
-        HuffmanModel model = new HuffmanModel(histogram, allSymbolsSampled);
+        FrequencyHuffmanModel model = new FrequencyHuffmanModel(histogram, allSymbolsSampled);
         
         testDataWithModel(data, model);
     }
 
-    private void testDataWithModel(int[] data, HuffmanModel model) throws IOException {
+    private void testDataWithModel(int[] data, FrequencyHuffmanModel model) throws IOException {
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         HuffmanEncoder encoder = new HuffmanEncoder(model, bytesOut);
         
@@ -70,7 +70,7 @@ public class HuffmanModelTest {
                 histogram[i] = 20 + random.nextInt(10);
             }
             
-            HuffmanModel model = new HuffmanModel(histogram, false);
+            FrequencyHuffmanModel model = new FrequencyHuffmanModel(histogram, false);
 
             int[] data = new int[histogram.length];
             for (int i = 0, count = data.length; i < count; i++) {

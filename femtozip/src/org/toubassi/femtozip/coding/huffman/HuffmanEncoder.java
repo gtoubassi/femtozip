@@ -15,11 +15,11 @@ public class HuffmanEncoder {
     }
     
     public void encodeSymbol(int symbol) throws IOException {
-        model.encoding[symbol].write(bitOut);
+        model.encode(symbol).write(bitOut);
     }
     
     public void close() throws IOException {
-        model.encoding[model.encoding.length - 1].write(bitOut);//EOF
+        model.getCodewordForEOF().write(bitOut);//EOF
         // regrettable we can't flush without closing.  Yes bitoutput has flush
         // but it doesn't write the last fractional bit.  Could add that if we needed.
         bitOut.close();

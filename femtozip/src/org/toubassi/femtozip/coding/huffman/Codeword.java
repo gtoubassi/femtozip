@@ -13,6 +13,10 @@ public class Codeword implements Cloneable {
 
     public Codeword() {
     }
+    
+    public int getSymbol() {
+        return symbol;
+    }
 
     public void load(DataInputStream in) throws IOException {
         value = in.readInt();

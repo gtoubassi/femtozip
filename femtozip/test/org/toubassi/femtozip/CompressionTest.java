@@ -12,6 +12,7 @@ import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
 import org.toubassi.femtozip.models.NibbleFrequencyCompressionModel;
 import org.toubassi.femtozip.models.NoopCompressionModel;
 import org.toubassi.femtozip.models.OffsetNibbleFrequencyCompressionModel;
+import org.toubassi.femtozip.models.OffsetNibbleHuffmanCompressionModel;
 import org.toubassi.femtozip.models.PureArithCodingCompressionModel;
 import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
 import org.toubassi.femtozip.models.SplitFrequencyCompressionModel;
@@ -52,6 +53,7 @@ public class CompressionTest {
         testModel2(PreambleString, PreambleDictionary, new NibbleFrequencyCompressionModel());
         testModel2(PreambleString, PreambleDictionary, new TripleNibbleFrequencyCompressionModel());
         testModel2(PreambleString, PreambleDictionary, new OffsetNibbleFrequencyCompressionModel());
+        testModel2(PreambleString, PreambleDictionary, new OffsetNibbleHuffmanCompressionModel());
         testModel2(PreambleString, PreambleDictionary, new DeflateFrequencyCompressionModel());
         testModel2(PreambleString, PreambleDictionary, new GZipDictionaryCompressionModel());
         testModel2(PreambleString, PreambleDictionary, new GZipCompressionModel());

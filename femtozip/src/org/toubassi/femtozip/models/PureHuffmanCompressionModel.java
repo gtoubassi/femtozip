@@ -11,14 +11,14 @@ import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 import org.toubassi.femtozip.coding.huffman.HuffmanDecoder;
 import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
-import org.toubassi.femtozip.coding.huffman.HuffmanModel;
+import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
 
 public class PureHuffmanCompressionModel extends CompressionModel {
 
-    private HuffmanModel codeModel;
+    private FrequencyHuffmanModel codeModel;
     
     public void load(DataInputStream in) throws IOException {
-        codeModel = new HuffmanModel(in);
+        codeModel = new FrequencyHuffmanModel(in);
     }
 
     public void save(DataOutputStream out) throws IOException {
@@ -37,7 +37,7 @@ public class PureHuffmanCompressionModel extends CompressionModel {
                 histogram[histogram.length - 1]++;
             }
 
-            codeModel = new HuffmanModel(histogram, false);
+            codeModel = new FrequencyHuffmanModel(histogram, false);
         }
         catch (IOException e) {
             throw new RuntimeException(e);

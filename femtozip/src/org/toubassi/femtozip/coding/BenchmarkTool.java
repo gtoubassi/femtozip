@@ -7,14 +7,14 @@ import java.text.DecimalFormat;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeWriter;
 import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
-import org.toubassi.femtozip.coding.huffman.HuffmanModel;
+import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
 import org.toubassi.femtozip.util.StreamUtil;
 
 public class BenchmarkTool {
 
     public static void testHuffman(int[] histogram, byte[] input, boolean allSymbolsSampled) throws IOException {
         long start = System.nanoTime();
-        HuffmanModel huffmanModel = new HuffmanModel(histogram, allSymbolsSampled);
+        FrequencyHuffmanModel huffmanModel = new FrequencyHuffmanModel(histogram, allSymbolsSampled);
         ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
         HuffmanEncoder huffmanEncoder = new HuffmanEncoder(huffmanModel, bytesOut);
         for (int i = 0, count = input.length; i < count; i++) {
