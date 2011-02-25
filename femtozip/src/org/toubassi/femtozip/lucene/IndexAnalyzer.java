@@ -130,6 +130,7 @@ public class IndexAnalyzer extends Tool  {
     }
 
     public void run(String[] args) throws IOException {
+        super.run(args);
         if (operation != Operation.Benchmark && operation != Operation.BuildModel) {
             usage();
         }
