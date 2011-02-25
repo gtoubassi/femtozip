@@ -115,4 +115,8 @@ public class FrequencyHuffmanModel implements HuffmanModel {
     public Codeword decode(int bits) {
         return decoding.decode(bits);
     }
+    
+    public boolean isEOF(Codeword codeword) {
+        return codeword.equals(getCodewordForEOF());
+    }
 }

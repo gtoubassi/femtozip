@@ -10,14 +10,12 @@ public class HuffmanDecoder {
     private HuffmanModel model;
     private long bitBuf;
     private int availableBits;
-    private Codeword eof;
     private boolean endOfStream;
     
     
     public HuffmanDecoder(HuffmanModel model, InputStream in) throws IOException {
         this.in = new BitInput(in);
         this.model = model;
-        eof = model.getCodewordForEOF();
     }
     
     public int decodeSymbol() throws IOException {
@@ -32,7 +30,7 @@ public class HuffmanDecoder {
         }
         
         Codeword decoded = model.decode((int)bitBuf);
-        if (decoded.value == eof.value && decoded.bitLength == eof.bitLength) {
+        if (model.isEOF(decoded)) {
             endOfStream = true;
             return -1;
         }

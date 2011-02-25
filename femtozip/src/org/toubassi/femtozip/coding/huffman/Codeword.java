@@ -30,6 +30,11 @@ public class Codeword implements Cloneable {
         out.writeInt(symbol);
     }
     
+    public boolean equals(Object other) {
+        Codeword o = (Codeword)other;
+        return value == o.value && bitLength == o.bitLength && symbol == o.symbol;
+    }
+    
     public Codeword clone() {
         try {
             Codeword copy = (Codeword)super.clone();

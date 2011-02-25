@@ -2,9 +2,7 @@ package org.toubassi.femtozip.lucene;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,38 +10,25 @@ import java.util.Map;
 
 import org.apache.lucene.index.IndexReader;
 import org.toubassi.femtozip.CompressionModel;
+import org.toubassi.femtozip.Tool;
 import org.toubassi.femtozip.models.OptimizingCompressionModel;
 import org.toubassi.femtozip.models.OptimizingCompressionModel.CompressionResult;
 import org.toubassi.femtozip.util.FileUtil;
 
-public class IndexAnalyzer  {
-    
-    private enum Operation {
-        BuildModel, Benchmark
-    }
-
-    private DecimalFormat format = new DecimalFormat("#.##");
-
-    private Operation operation;
-    
-    private String indexPath;
-    private String modelPath;
-    private String[] models;
+public class IndexAnalyzer extends Tool  {
     
     private HashMap<String, CompressionModel> fieldToModel = new HashMap<String, CompressionModel>();
     
-    private int numSamples = 0;
-    private int maxDictionarySize = 0;
-    
-    protected void buildModel(IndexReader reader) throws IOException {
+    protected void buildModel() throws IOException {
+        
+        IndexReader reader = IndexReader.open(path);
+
         Collection allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
         String[] fieldNames = new String[allFields.size()];
         allFields.toArray(fieldNames);
-
+        
         ArrayList<OptimizingCompressionModel.CompressionResult> aggregateResults = new ArrayList<OptimizingCompressionModel.CompressionResult>();
         for (String fieldName : fieldNames) {
-            long start = System.currentTimeMillis();
-            
             IndexDocumentList trainingDocs = new IndexDocumentList(reader, numSamples, 0, fieldName);
             IndexDocumentList testingDocs = new IndexDocumentList(reader, numSamples, 1, fieldName);
             
@@ -51,20 +36,13 @@ public class IndexAnalyzer  {
                 continue;
             }
             
-            OptimizingCompressionModel model = models == null ? new OptimizingCompressionModel() : new OptimizingCompressionModel(models);
-            fieldToModel.put(fieldName, model);
-            
-            System.out.print("Building model for " + fieldName);
-            
-            model.build(trainingDocs);
-            model.optimize(testingDocs);
-            
-            long duration = Math.round((System.currentTimeMillis() - start)/1000d);
-            System.out.println(" (" + duration + "s)");
-            model.dump();
-            System.out.println();
-            model.aggregateResults(aggregateResults);
-        }
+            System.out.println("Processing field " + fieldName);
+            OptimizingCompressionModel optimizingModel = (OptimizingCompressionModel)buildModel(trainingDocs, testingDocs);
+            optimizingModel.aggregateResults(aggregateResults);
+            fieldToModel.put(fieldName, optimizingModel);
+        }        
+        
+        reader.close();
 
         OptimizingCompressionModel.CompressionResult bestResult = new CompressionResult(new OptimizingCompressionModel());
         for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
@@ -80,12 +58,15 @@ public class IndexAnalyzer  {
         }
     }
     
-    protected void benchmarkModel(IndexReader reader, long totalDataSize[], long totalCompressedSize[]) throws IOException {
+    protected void benchmarkModel() throws IOException {
+        IndexReader reader = IndexReader.open(path);
+        
+        long totalDataSize = 0;
+        long totalCompressedSize = 0;
+        
         for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
             String fieldName = entry.getKey();
             CompressionModel model = entry.getValue();
-            
-            long start = System.currentTimeMillis();
             
             IndexDocumentList docs = new IndexDocumentList(reader, numSamples, 2, fieldName);
 
@@ -93,33 +74,26 @@ public class IndexAnalyzer  {
                 continue;
             }
             
-            System.out.print("Benchmarking " + model.getClass().getSimpleName() + " for " + fieldName);
+            System.out.println("Processing field " + fieldName);
             
-            int dataSize = 0;
-            int compressedSize = 0;
-            for (int i = 0, count = docs.size(); i < count; i++) {
-                byte[] bytes = docs.get(i);
-                
-                byte[] compressed = model.compress(bytes);
-                dataSize += bytes.length;
-                compressedSize += compressed.length;
-                
-                if (true) {
-                    byte[] decompressed = model.decompress(compressed);
-                    if (!Arrays.equals(bytes, decompressed)) {
-                        throw new RuntimeException("Compress/Decompress round trip failed for " + model.getClass().getSimpleName());
-                    }
-                }
-            }
-            
-            totalDataSize[0] += dataSize;
-            totalCompressedSize[0] += compressedSize;
-            
-            String duration = format.format((System.currentTimeMillis() - start)/1000f);
-            String ratio = format.format(100f * compressedSize / dataSize);
-            System.out.println(" in " + duration + "s:  " + ratio  + "% (" + compressedSize + "/" + dataSize + ")");
+            long[] dataSize = new long[1];
+            long[] compressedSize = new long[1];
+            benchmarkModel(model, docs, dataSize, compressedSize);
+            totalDataSize += dataSize[0];
+            totalCompressedSize += compressedSize[0];
         }
         
+        reader.close();
+                    
+        long totalIndexSize = FileUtil.computeSize(new File(path));
+
+        System.out.println("Summary:");
+        System.out.println("Total Index Size: " + totalIndexSize);
+        int numDocs = reader.numDocs();
+        System.out.println("# Documents in Index: " + numDocs);
+        long totalStoredDataSize = Math.round(((double)totalDataSize) * numDocs / numSamples);
+        System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
+        System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
     }
     
     protected void loadBenchmarkModel() throws IOException {
@@ -132,14 +106,6 @@ public class IndexAnalyzer  {
                 fieldToModel.put(fieldName, model);
             }
         }        
-    }
-    
-    protected OptimizingCompressionModel createModel() {
-        OptimizingCompressionModel model = new OptimizingCompressionModel(models);
-        if (maxDictionarySize > 0) {
-            model.setMaxDictionaryLength(maxDictionarySize);
-        }
-        return model;
     }
     
     protected void saveBenchmarkModel() throws IOException {
@@ -166,79 +132,6 @@ public class IndexAnalyzer  {
     protected static void usage() {
         System.out.println("Usage: [--buildmodel|--benchmark] --modelpath path --models [Model1,Model2,...] --numsamples number indexpath");
         System.exit(1);
-    }
-    
-    public void run(String[] args) throws IOException {
-        
-        System.out.println("Command line arguments:");
-        for (String arg : args) {
-            System.out.println(arg);
-        }
-        System.out.println();
-        
-        for (int i = 0, count = args.length; i < count; i++) {
-            String arg = args[i];
-            
-            if (arg.equals("--benchmark")) {
-                operation = Operation.Benchmark;
-            }
-            else if (arg.equals("--buildmodel")) {
-                operation = Operation.BuildModel;
-            }
-            else if (arg.equals("--numsamples")) {
-                numSamples = Integer.parseInt(args[++i]);
-            }
-            else if (arg.equals("--modelpath")) {
-                modelPath = args[++i];
-            }
-            else if (arg.equals("--models")) {
-                models = args[++i].split(",");
-            }
-            else if (arg.equals("--maxdict")) {
-                maxDictionarySize = Integer.parseInt(args[++i]);
-            }
-            else {
-                indexPath = arg;
-            }
-        }
-        
-        if (operation == null || indexPath == null || modelPath == null) {
-            usage();
-        }
-
-        IndexReader reader = IndexReader.open(indexPath);
-
-        long start = System.currentTimeMillis();
-        
-        if (operation == Operation.BuildModel) {
-            buildModel(reader);
-            saveBenchmarkModel();
-        }        
-        else if (operation == Operation.Benchmark) {
-            loadBenchmarkModel();
-            
-            long[] totalDataSizeRef = new long[1];
-            long[] totalCompressedSizeRef = new long[1];
-            benchmarkModel(reader, totalDataSizeRef, totalCompressedSizeRef);
-            long totalDataSize = totalDataSizeRef[0];
-            long totalCompressedSize = totalCompressedSizeRef[0];
-            
-            long totalIndexSize = FileUtil.computeSize(new File(indexPath));
-
-            System.out.println("Summary:");
-            System.out.println("Total Index Size: " + totalIndexSize);
-            int numDocs = reader.numDocs();
-            System.out.println("# Documents in Index: " + numDocs);
-            long totalStoredDataSize = Math.round(((double)totalDataSize) * numDocs / numSamples);
-            System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
-            System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
-        }
-        
-        long duration = System.currentTimeMillis() - start;
-        
-        System.out.println("Took " + format.format(duration / 1000f) + "s");
-        
-        reader.close();
     }
     
     public static void main(String[] args) throws IOException {

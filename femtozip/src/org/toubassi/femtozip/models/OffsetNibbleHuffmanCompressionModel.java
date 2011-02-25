@@ -39,6 +39,7 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
     }
     
     public void compress(byte[] data, OutputStream out) throws IOException {
+        codeModel.reset();
         encoder = new HuffmanEncoder(codeModel, out);
         super.compress(data, out);
         encoder.close();
@@ -80,6 +81,7 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
     public byte[] decompress(byte[] compressedBytes) {
         try {
             ByteArrayInputStream bytesIn = new ByteArrayInputStream(compressedBytes);
+            codeModel.reset();
             HuffmanDecoder decoder = new HuffmanDecoder(codeModel, bytesIn);
             SubstringUnpacker unpacker = new SubstringUnpacker(dictionary);
         

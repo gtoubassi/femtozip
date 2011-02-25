@@ -71,10 +71,6 @@ public class IndexDocumentList implements DocumentList {
         return fieldCounts.length == 0 ? 0 : fieldCounts[fieldCounts.length - 1];
     }
 
-    public String getName(int i) {
-        return "Doc: " + i;
-    }
-
     public byte[] get(int i) throws IOException {
         i++;
         int index = Arrays.binarySearch(fieldCounts, i);
@@ -107,13 +103,5 @@ public class IndexDocumentList implements DocumentList {
         }
         
         return bytes;
-    }
-
-    public void setCompressed(int i, byte[] data) throws IOException {
-        throw new UnsupportedOperationException();
-    }
-
-    public void setDecompressed(int i, byte[] data) throws IOException {
-        throw new UnsupportedOperationException();
     }
 }

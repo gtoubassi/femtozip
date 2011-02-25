@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.toubassi.femtozip.CompressionModel;
@@ -43,7 +44,7 @@ public class OptimizingCompressionModel extends CompressionModel {
     private int totalDataSize;
 
     public OptimizingCompressionModel() {
-        this("DeflateFrequency,GZip,GZipDictionary,NibbleFrequency,OffsetNibbleFrequency,PureArithCoding,PureHuffman,SplitFrequency,TripleNibbleFrequency,UnifiedFrequency,Noop");
+        this("DeflateFrequency,GZip,GZipDictionary,NibbleFrequency,OffsetNibbleFrequency,OffsetNibbleHuffman,PureArithCoding,PureHuffman,SplitFrequency,TripleNibbleFrequency,UnifiedFrequency,Noop");
     }
     
     public OptimizingCompressionModel(String modelNames) {
@@ -92,6 +93,13 @@ public class OptimizingCompressionModel extends CompressionModel {
             for (CompressionResult result : results) {
                 ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
                 result.model.compress(data, bytesOut);
+                
+                if (true) {
+                    byte[] decompressed = result.model.decompress(bytesOut.toByteArray());
+                    if (!Arrays.equals(data, decompressed)) {
+                        throw new RuntimeException("Compress/Decompress round trip failed for " + result.model.getClass().getSimpleName());
+                    }
+                }
                 
                 result.totalCompressedSize += bytesOut.size();
                 result.totalDataSize += data.length;

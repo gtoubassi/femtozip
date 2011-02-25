@@ -1,6 +1,8 @@
 package org.toubassi.femtozip.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class FileUtil {
     
@@ -33,6 +35,18 @@ public class FileUtil {
             }
         }
         return status && file.delete();
+    }
+    
+    public static byte[] readFile(File file) throws IOException {
+        FileInputStream in = new FileInputStream(file);
+        // No need to buffer as StreamUtil.readAll will read in big chunks
+        return StreamUtil.readAll(in);
+    }
+
+    public static byte[] readFile(String path) throws IOException {
+        FileInputStream in = new FileInputStream(path);
+        // No need to buffer as StreamUtil.readAll will read in big chunks
+        return StreamUtil.readAll(in);
     }
 
 }

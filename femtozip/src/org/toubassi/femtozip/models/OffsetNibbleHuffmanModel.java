@@ -42,6 +42,10 @@ public class OffsetNibbleHuffmanModel implements HuffmanModel {
         offsetNibble3Model = new FrequencyHuffmanModel(in);
     }
     
+    public void reset() {
+        state = State.LiteralLengthState;
+    }
+    
     public void save(DataOutputStream out) throws IOException {
         literalLengthModel.save(out);
         offsetNibble0Model.save(out);
@@ -101,5 +105,9 @@ public class OffsetNibbleHuffmanModel implements HuffmanModel {
         default:
             throw new RuntimeException();
         }
+    }
+    
+    public boolean isEOF(Codeword codeword) {
+        return state == State.OffsetNibble0State && getCodewordForEOF().equals(codeword);
     }
 }
