@@ -95,7 +95,7 @@ public class IndexAnalyzer extends Tool  {
         System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
         System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
     }
-    
+
     protected void loadBenchmarkModel() throws IOException {
         File modelDir = new File(modelPath);
         File[] dirContents = modelDir.listFiles();
@@ -128,12 +128,18 @@ public class IndexAnalyzer extends Tool  {
             model.getBestPerformingModel().save(path);
         }
     }
+
+    public void run(String[] args) throws IOException {
+        if (operation != Operation.Benchmark && operation != Operation.BuildModel) {
+            usage();
+        }
+    }
     
-    protected static void usage() {
+    protected void usage() {
         System.out.println("Usage: [--buildmodel|--benchmark] --modelpath path --models [Model1,Model2,...] --numsamples number indexpath");
         System.exit(1);
     }
-    
+
     public static void main(String[] args) throws IOException {
         IndexAnalyzer analyzer = new IndexAnalyzer();
         analyzer.run(args);

@@ -1,6 +1,7 @@
 package org.toubassi.femtozip;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
@@ -9,11 +10,12 @@ import java.util.List;
 import java.util.Random;
 
 import org.toubassi.femtozip.models.OptimizingCompressionModel;
+import org.toubassi.femtozip.util.FileUtil;
 
 public class Tool  {
     
     protected enum Operation {
-        BuildModel, Benchmark
+        BuildModel, Benchmark, Compress, Decompress
     }
 
     protected DecimalFormat format = new DecimalFormat("#.##");
@@ -102,6 +104,59 @@ public class Tool  {
         System.out.println("Summary:");
         System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
     }
+
+    protected void compress(File file) throws IOException {
+        System.out.println("Compressing " + file.getName());
+        byte[] data = FileUtil.readFile(file);
+        byte[] compressed = model.compress(data);
+        
+        File outputFile = new File(file.getPath() + ".fz");
+        FileOutputStream out = new FileOutputStream(outputFile);
+        out.write(compressed);
+        out.close();
+        file.delete();
+    }
+    
+    protected void compress() throws IOException {
+        File file = new File(path);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                compress(f);
+            }
+        }
+        else {
+            compress(file);
+        }
+    }
+
+    protected void decompress(File file) throws IOException {
+        System.out.println("Decompressing " + file.getName());
+        byte[] compressed = FileUtil.readFile(file);
+        byte[] data = model.decompress(compressed);
+        
+        File outputFile = new File(file.getPath().substring(0, file.getPath().length() - 3));
+        FileOutputStream out = new FileOutputStream(outputFile);
+        out.write(data);
+        out.close();
+        file.delete();
+    }
+    
+    protected void decompress() throws IOException {
+        File file = new File(path);
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            for (File f : files) {
+                System.out.println(f);
+                if (f.getName().endsWith(".fz")) {
+                    decompress(f);
+                }
+            }
+        }
+        else {
+            decompress(file);
+        }
+    }
     
     protected void loadBenchmarkModel() throws IOException {
         model = CompressionModel.load(modelPath);
@@ -122,8 +177,8 @@ public class Tool  {
         ((OptimizingCompressionModel)model).getBestPerformingModel().save(modelPath);
     }
     
-    protected static void usage() {
-        System.out.println("Usage: [--buildmodel|--benchmark] --modelpath path --models [Model1,Model2,...] --numsamples number path");
+    protected void usage() {
+        System.out.println("Usage: [--buildmodel|--benchmark|--compress|--decompress] --modelpath path --models [Model1,Model2,...] --numsamples number path");
         System.exit(1);
     }
     
@@ -143,6 +198,12 @@ public class Tool  {
             }
             else if (arg.equals("--buildmodel")) {
                 operation = Operation.BuildModel;
+            }
+            else if (arg.equals("--compress")) {
+                operation = Operation.Compress;
+            }
+            else if (arg.equals("--decompress")) {
+                operation = Operation.Decompress;
             }
             else if (arg.equals("--numsamples")) {
                 numSamples = Integer.parseInt(args[++i]);
@@ -173,8 +234,15 @@ public class Tool  {
         }        
         else if (operation == Operation.Benchmark) {
             loadBenchmarkModel();
-            
             benchmarkModel();
+        }
+        else if (operation == Operation.Compress) {
+            loadBenchmarkModel();
+            compress();
+        }
+        else if (operation == Operation.Decompress) {
+            loadBenchmarkModel();
+            decompress();
         }
         
         long duration = System.currentTimeMillis() - start;
