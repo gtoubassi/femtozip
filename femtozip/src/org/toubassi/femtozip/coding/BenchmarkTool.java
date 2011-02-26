@@ -1,13 +1,17 @@
 package org.toubassi.femtozip.coding;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 
+import org.toubassi.femtozip.coding.arithmetic.ArithCodeReader;
 import org.toubassi.femtozip.coding.arithmetic.ArithCodeWriter;
 import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
-import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
 import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
+import org.toubassi.femtozip.coding.huffman.HuffmanDecoder;
+import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
 import org.toubassi.femtozip.util.StreamUtil;
 
 public class BenchmarkTool {
@@ -24,9 +28,23 @@ public class BenchmarkTool {
         huffmanEncoder.close();
         
         long duration = System.nanoTime() - start;
+
+        byte[] compressedBytes = bytesOut.toByteArray();
         
         DecimalFormat format = new DecimalFormat("#.##");
-        System.out.println("Huffman all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*bytesOut.size()/input.length) + " (" + bytesOut.size() + " bytes) in " + format.format(duration/1000000.0) + "ms");
+        System.out.println("Huffman all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*compressedBytes.length/input.length) + " (" + bytesOut.size() + " bytes) in " + format.format(duration/1000000.0) + "ms");
+        
+        
+        bytesOut.reset();
+        HuffmanDecoder huffmanDecoder = new HuffmanDecoder(huffmanModel, new ByteArrayInputStream(compressedBytes));
+        int symbol;
+        while ((symbol = huffmanDecoder.decodeSymbol()) != -1) {
+            bytesOut.write(symbol);
+        }
+        
+        if (!Arrays.equals(input, bytesOut.toByteArray())) {
+            System.out.println("Error: decoded bytes do not match!!!");
+        }
     }
     
     public static void testArithmetic(int[] histogram, byte[] input, boolean allSymbolsSampled) throws IOException {
@@ -41,9 +59,22 @@ public class BenchmarkTool {
         writer.close();
 
         long duration = System.nanoTime() - start;
+
+        byte[] compressedBytes = bytesOut.toByteArray();
         
         DecimalFormat format = new DecimalFormat("#.##");
-        System.out.println("Arithmetic all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*bytesOut.size()/input.length) + " (" + bytesOut.size() + " bytes) in " + format.format(duration/1000000.0) + "ms");
+        System.out.println("Arithmetic all symbols sampled = " + allSymbolsSampled + ": " + format.format(100f*compressedBytes.length/input.length) + " (" + bytesOut.size() + " bytes) in " + format.format(duration/1000000.0) + "ms");
+
+        bytesOut.reset();
+        ArithCodeReader reader = new ArithCodeReader(new ByteArrayInputStream(compressedBytes), model);
+        int symbol;
+        while ((symbol = reader.readSymbol()) != -1) {
+            bytesOut.write(symbol);
+        }
+        
+        if (!Arrays.equals(input, bytesOut.toByteArray())) {
+            System.out.println("Error: decoded bytes do not match!!!");
+        }
     }
     
     public static void main(String[] args) throws IOException {

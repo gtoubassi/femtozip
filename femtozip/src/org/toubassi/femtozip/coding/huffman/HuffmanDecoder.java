@@ -3,7 +3,7 @@ package org.toubassi.femtozip.coding.huffman;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.colloquial.arithcode.BitInput;
+import com.colloquial.io.BitInput;
 
 public class HuffmanDecoder {
     private BitInput in;

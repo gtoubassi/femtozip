@@ -4,7 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.colloquial.arithcode.BitOutput;
+import com.colloquial.io.BitOutput;
 
 public class Codeword implements Cloneable {
     int value;

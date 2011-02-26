@@ -12,7 +12,18 @@ import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 
 public class GZipDictionaryCompressionModel extends CompressionModel {
+    private byte[] gzipSizedDictionary;
 
+    public void setDictionary(byte[] dictionary) {
+        super.setDictionary(dictionary);
+        if (dictionary.length > (1 << 15) - 1) {
+            gzipSizedDictionary = Arrays.copyOfRange(dictionary, dictionary.length - ((1 << 15) - 1), dictionary.length);
+        }
+        else {
+            gzipSizedDictionary = dictionary;
+        }
+    }
+    
     public void encodeLiteral(int aByte) {
         throw new UnsupportedOperationException();
     }
@@ -38,7 +49,7 @@ public class GZipDictionaryCompressionModel extends CompressionModel {
         try {
             compressor.setLevel(Deflater.BEST_COMPRESSION);
             if (dictionary != null) {
-                compressor.setDictionary(dictionary);
+                compressor.setDictionary(gzipSizedDictionary);
             }
 
             // Give the compressor the data to compress
@@ -66,15 +77,7 @@ public class GZipDictionaryCompressionModel extends CompressionModel {
             while (!decompresser.finished()) {
                 int resultLength = decompresser.inflate(result);
                 if (resultLength == 0 && decompresser.needsDictionary()) {
-                    byte[] dict;
-                    
-                    if (dictionary.length > (1 << 15) - 1) {
-                        dict = Arrays.copyOfRange(dictionary, dictionary.length - ((1 << 15) - 1), dictionary.length);
-                    }
-                    else {
-                        dict = dictionary;
-                    }
-                    decompresser.setDictionary(dict);
+                    decompresser.setDictionary(gzipSizedDictionary);
                 }
                 if (resultLength > 0) {
                     bytesOut.write(result, 0, resultLength);
@@ -87,5 +90,4 @@ public class GZipDictionaryCompressionModel extends CompressionModel {
             throw new RuntimeException(e);
         }
     }
-
 }

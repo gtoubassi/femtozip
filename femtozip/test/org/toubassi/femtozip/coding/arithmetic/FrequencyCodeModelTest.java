@@ -9,11 +9,8 @@ import java.util.Random;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.toubassi.femtozip.coding.arithmetic.ArithCodeReader;
-import org.toubassi.femtozip.coding.arithmetic.ArithCodeWriter;
-import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 
-import com.colloquial.arithcode.ArithCodeModel;
+import com.colloquial.arithcode.ppm.ArithCodeModel;
 
 
 public class FrequencyCodeModelTest {

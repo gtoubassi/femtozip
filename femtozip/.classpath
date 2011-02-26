@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="/lib/lucene-snowball-2.4.1.jar" sourcepath="/lib/lucene-snowball-2.4.1-src.zip"/>
 	<classpathentry kind="lib" path="/lib/lucene-core-2.4.1.jar" sourcepath="/lib/lucene-core-2.4.1-src.zip"/>
 	<classpathentry kind="lib" path="/lib/lucene-memory-2.4.1.jar" sourcepath="/lib/lucene-memory-2.4.1-src.zip"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/arithcode"/>
 	<classpathentry kind="lib" path="/lib/httpclient-4.1.jar"/>
 	<classpathentry kind="lib" path="/lib/httpclient-cache-4.1.jar"/>
 	<classpathentry kind="lib" path="/lib/httpcore-4.1.jar"/>
@@ -17,5 +16,6 @@
 	<classpathentry kind="lib" path="/lib/commons-codec-1.4.jar"/>
 	<classpathentry kind="lib" path="/lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/lib/json-java.jar"/>
+	<classpathentry kind="lib" path="/lib/arithcode-1.2.jar" sourcepath="/lib/arithcode-1.2-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

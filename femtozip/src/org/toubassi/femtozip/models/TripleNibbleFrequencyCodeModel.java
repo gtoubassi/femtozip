@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 
-import com.colloquial.arithcode.ArithCodeModel;
+import com.colloquial.arithcode.ppm.ArithCodeModel;
 
 public class TripleNibbleFrequencyCodeModel implements ArithCodeModel {
     private enum State {

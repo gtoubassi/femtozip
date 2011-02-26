@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.colloquial.arithcode.ArithCodeModel;
+import com.colloquial.arithcode.ppm.ArithCodeModel;
 
 public class FrequencyCodeModel implements ArithCodeModel {
     private int eofIndex;

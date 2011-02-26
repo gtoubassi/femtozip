@@ -4,9 +4,9 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.colloquial.arithcode.ArithCodeModel;
 import com.colloquial.arithcode.ArithEncoder;
-import com.colloquial.arithcode.BitOutput;
+import com.colloquial.arithcode.ppm.ArithCodeModel;
+import com.colloquial.io.BitOutput;
 
 public class ArithCodeWriter {
     private ArithCodeWriter(ArithEncoder encoder, ArithCodeModel model) {

@@ -4,9 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.colloquial.arithcode.ArithCodeModel;
 import com.colloquial.arithcode.ArithDecoder;
-import com.colloquial.arithcode.BitInput;
+import com.colloquial.arithcode.ppm.ArithCodeModel;
+import com.colloquial.io.BitInput;
 
 public class ArithCodeReader {
     
