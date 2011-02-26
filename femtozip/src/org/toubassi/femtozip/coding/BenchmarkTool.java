@@ -29,6 +29,13 @@ import org.toubassi.femtozip.coding.huffman.HuffmanDecoder;
 import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
 import org.toubassi.femtozip.util.StreamUtil;
 
+/**
+ * BenchmarkTool reads from stdin and compresses the input using both
+ * Huffman and Arithmetic coding, reporting results.  The entire input
+ * is read into memory so very large files will require a large java heap.
+ * 
+ * @author gtoubassi
+ */
 public class BenchmarkTool {
 
     public static void testHuffman(int[] histogram, byte[] input, boolean allSymbolsSampled) throws IOException {

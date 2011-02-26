@@ -13,7 +13,6 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  *   
- *   
  *   This file is a Java port of two files found at http://www.cs.dartmouth.edu/~doug/sarray/
  *   
  *   sarray.c: suffixarray generation, written by Sean Quinlan and Sean Doward
