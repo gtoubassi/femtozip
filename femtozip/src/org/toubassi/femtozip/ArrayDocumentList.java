@@ -15,12 +15,24 @@
  */
 package org.toubassi.femtozip;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class ArrayDocumentList implements DocumentList {
     
     private ArrayList<byte[]> docs;
     
+    public ArrayDocumentList(String... documents) {
+        try {
+            this.docs = new ArrayList<byte[]>(documents.length);
+            for (String string : documents) {
+                    docs.add(string.getBytes("UTF-8"));
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ArrayDocumentList(ArrayList<byte[]> documents) {
         this.docs = documents;
     }

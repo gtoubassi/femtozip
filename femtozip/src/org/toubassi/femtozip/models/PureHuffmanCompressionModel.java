@@ -78,7 +78,6 @@ public class PureHuffmanCompressionModel extends CompressionModel {
             encoder.encodeSymbol(((int)data[i]) & 0xff);
         }
         encoder.close();
-        encoder = null;
     }
     
     public byte[] decompress(byte[] compressedData) {

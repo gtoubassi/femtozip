@@ -207,6 +207,20 @@ public class DictionaryOptimizer {
         return true;
     }
     
+    public int getSubstringCount() {
+        return substrings.size();
+    }
+    
+    public int getSubstringScore(int i) {
+        return substrings.score(i);
+    }
+    
+    public byte[] getSubstringBytes(int i) {
+        int index = suffixArray[substrings.index(i)];
+        int length = substrings.length(i);
+        return Arrays.copyOfRange(bytes, index, index + length);
+    }
+    
     /**
      * For debugging
      */

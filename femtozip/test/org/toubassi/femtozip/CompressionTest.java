@@ -48,10 +48,10 @@ public class CompressionTest {
         
         CompressionModel compressionModel = new UnifiedFrequencyCompressionModel();
         compressionModel.build(new ArrayDocumentList(PreambleString.getBytes()));
-
+        
         String dictionary = dictionaryToString(compressionModel.getDictionary());
         Assert.assertEquals(" our to , ince, sticure and , proity, s of e the for the establish the United States", dictionary);
-        
+
         compressionModel = new UnifiedFrequencyCompressionModel();
         compressionModel.build(new ArrayDocumentList(PanamaString.getBytes()));
         
@@ -62,19 +62,19 @@ public class CompressionTest {
     
     @Test
     public void testCompressionModels() throws IOException {
-        testModel2(PreambleString, PreambleDictionary, new VerboseStringCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new UnifiedFrequencyCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new SplitFrequencyCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new NibbleFrequencyCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new TripleNibbleFrequencyCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new OffsetNibbleFrequencyCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new OffsetNibbleHuffmanCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new DeflateFrequencyCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new GZipDictionaryCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new GZipCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new PureArithCodingCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new PureHuffmanCompressionModel());
-        testModel2(PreambleString, PreambleDictionary, new NoopCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new VerboseStringCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new UnifiedFrequencyCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new SplitFrequencyCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new NibbleFrequencyCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new TripleNibbleFrequencyCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new OffsetNibbleFrequencyCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new OffsetNibbleHuffmanCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new DeflateFrequencyCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new GZipDictionaryCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new GZipCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new PureArithCodingCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new PureHuffmanCompressionModel());
+        testModel(PreambleString, PreambleDictionary, new NoopCompressionModel());
     }
     
     private static String dictionaryToString(byte[] dictionary) {
@@ -84,7 +84,7 @@ public class CompressionTest {
         return new String(Arrays.copyOfRange(dictionary, i, dictionary.length));
     }
     
-    private void testModel2(String source, String dictionary, CompressionModel model) throws IOException {
+    private void testModel(String source, String dictionary, CompressionModel model) throws IOException {
         byte[] sourceBytes = source.getBytes();
         byte[] dictionaryBytes = dictionary == null ? null : dictionary.getBytes();
         
