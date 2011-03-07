@@ -109,7 +109,15 @@ public class DictionaryOptimizer {
                         }
                         
                         scoreCount = uniqueDocIds.size();
-                        uniqueDocIds.clear();
+                        
+                        // You might think that its better to just clear uniqueDocIds,
+                        // but actually this set can get very large, and calling clear
+                        // loops over all entries in the internal array and sets them to
+                        // null, doesn't even use Arrays.fill, and unfortunately doesn't
+                        // short circuit out if size is already 0 (which is a common case
+                        // in this code).  Doing: if (uniqueDocIds.size() > 0) uniqueDocIds.clear();
+                        // is still not as fast as just tossing the set overboard.
+                        uniqueDocIds = new HashSet<Integer>();
 
                         activeSubstrings.remove(j);
                         

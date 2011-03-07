@@ -18,9 +18,11 @@ package org.toubassi.femtozip.lucene;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.lucene.index.IndexReader;
@@ -33,10 +35,22 @@ import org.toubassi.femtozip.util.FileUtil;
 public class IndexAnalyzer extends Tool  {
     
     private HashMap<String, CompressionModel> fieldToModel = new HashMap<String, CompressionModel>();
+    private List<String> fields;
+    private long totalIndexSize;
+    private int totalNumDocs;
+    
+    private IndexReader openIndex(String path) throws IOException {
+        IndexReader reader = IndexReader.open(path);
+        
+        totalIndexSize = FileUtil.computeSize(new File(path));
+        totalNumDocs = reader.numDocs();
+
+        return reader;
+    }
     
     protected void buildModel() throws IOException {
         
-        IndexReader reader = IndexReader.open(path);
+        IndexReader reader = openIndex(path);
 
         Collection allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
         String[] fieldNames = new String[allFields.size()];
@@ -44,14 +58,20 @@ public class IndexAnalyzer extends Tool  {
         
         ArrayList<OptimizingCompressionModel.CompressionResult> aggregateResults = new ArrayList<OptimizingCompressionModel.CompressionResult>();
         for (String fieldName : fieldNames) {
+            
+            if (fields != null && !fields.contains(fieldName)) {
+                continue;
+            }
+            
             IndexDocumentList trainingDocs = new IndexDocumentList(reader, numSamples, 0, fieldName);
             IndexDocumentList testingDocs = new IndexDocumentList(reader, numSamples, 1, fieldName);
             
             if (trainingDocs.size() == 0 || testingDocs.size() == 0) {
                 continue;
             }
+
+            System.out.println("Processing field " + fieldName + " (containing " + trainingDocs.size() + " stored fields for " + numSamples + " documents)");
             
-            System.out.println("Processing field " + fieldName);
             OptimizingCompressionModel optimizingModel = (OptimizingCompressionModel)buildModel(trainingDocs, testingDocs);
             optimizingModel.aggregateResults(aggregateResults);
             fieldToModel.put(fieldName, optimizingModel);
@@ -64,6 +84,10 @@ public class IndexAnalyzer extends Tool  {
             OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
             bestResult.accumulate(model.getBestPerformingResult());
         }
+
+        System.out.println("Summary:");
+        System.out.println("Total Index Size: " + totalIndexSize);
+        System.out.println("# Documents in Index: " + totalNumDocs);
         
         System.out.println("Aggregate performance:");
         System.out.println(bestResult);
@@ -74,7 +98,7 @@ public class IndexAnalyzer extends Tool  {
     }
     
     protected void benchmarkModel() throws IOException {
-        IndexReader reader = IndexReader.open(path);
+        IndexReader reader = openIndex(path);
         
         long totalDataSize = 0;
         long totalCompressedSize = 0;
@@ -83,13 +107,17 @@ public class IndexAnalyzer extends Tool  {
             String fieldName = entry.getKey();
             CompressionModel model = entry.getValue();
             
+            if (fields != null && !fields.contains(fieldName)) {
+                continue;
+            }
+            
             IndexDocumentList docs = new IndexDocumentList(reader, numSamples, 2, fieldName);
 
             if (docs.size() == 0) {
                 continue;
             }
             
-            System.out.println("Processing field " + fieldName);
+            System.out.println("Processing field " + fieldName + " (containing " + docs.size() + " stored fields for " + numSamples + " documents)");
             
             long[] dataSize = new long[1];
             long[] compressedSize = new long[1];
@@ -100,13 +128,10 @@ public class IndexAnalyzer extends Tool  {
         
         reader.close();
                     
-        long totalIndexSize = FileUtil.computeSize(new File(path));
-
         System.out.println("Summary:");
         System.out.println("Total Index Size: " + totalIndexSize);
-        int numDocs = reader.numDocs();
-        System.out.println("# Documents in Index: " + numDocs);
-        long totalStoredDataSize = Math.round(((double)totalDataSize) * numDocs / numSamples);
+        System.out.println("# Documents in Index: " + totalNumDocs);
+        long totalStoredDataSize = Math.round(((double)totalDataSize) * totalNumDocs / numSamples);
         System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
         System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
     }
@@ -145,7 +170,16 @@ public class IndexAnalyzer extends Tool  {
     }
 
     public void run(String[] args) throws IOException {
+        for (int i = 0, count = args.length; i < count; i++) {
+            String arg = args[i];
+            
+            if (arg.equals("--fields")) {
+                fields = Arrays.asList(args[++i].split(","));
+            }
+        }
+        
         super.run(args);
+
         if (operation != Operation.Benchmark && operation != Operation.BuildModel) {
             usage();
         }

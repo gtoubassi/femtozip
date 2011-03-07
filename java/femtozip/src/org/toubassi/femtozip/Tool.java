@@ -54,6 +54,7 @@ public class Tool  {
         System.out.print("Building model...");
         
         model.build(trainingDocs);
+        
         ((OptimizingCompressionModel)model).optimize(testingDocs);
 
         long duration = Math.round((System.currentTimeMillis() - start)/1000d);

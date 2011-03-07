@@ -59,7 +59,7 @@ public class OptimizingCompressionModel extends CompressionModel {
     private int totalDataSize;
 
     public OptimizingCompressionModel() {
-        this("DeflateFrequency,GZip,GZipDictionary,NibbleFrequency,OffsetNibbleFrequency,OffsetNibbleHuffman,PureArithCoding,PureHuffman,SplitFrequency,TripleNibbleFrequency,UnifiedFrequency,Noop");
+        this("DeflateFrequency,GZip,GZipDictionary,NibbleFrequency,OffsetNibbleFrequency,OffsetNibbleHuffman,PureArithCoding,PureHuffman,SplitFrequency,TripleNibbleFrequency,UnifiedFrequency,Noop,VariableInt");
     }
     
     public OptimizingCompressionModel(String modelNames) {
@@ -84,7 +84,7 @@ public class OptimizingCompressionModel extends CompressionModel {
     @Override
     public void build(DocumentList documents) throws IOException {
         buildDictionaryIfUnspecified(documents);
-
+        
         for (CompressionResult result : results) {
             
             // No need to recompute this over and over.  This assumes all types of compression model

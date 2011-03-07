@@ -85,7 +85,7 @@ public class IndexDocumentList implements DocumentList {
     public int size() {
         return fieldCounts.length == 0 ? 0 : fieldCounts[fieldCounts.length - 1];
     }
-
+    
     public byte[] get(int i) throws IOException {
         i++;
         int index = Arrays.binarySearch(fieldCounts, i);

@@ -33,6 +33,7 @@ import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
 import org.toubassi.femtozip.models.SplitFrequencyCompressionModel;
 import org.toubassi.femtozip.models.TripleNibbleFrequencyCompressionModel;
 import org.toubassi.femtozip.models.UnifiedFrequencyCompressionModel;
+import org.toubassi.femtozip.models.VariableIntCompressionModel;
 import org.toubassi.femtozip.models.VerboseStringCompressionModel;
 
 
@@ -62,19 +63,23 @@ public class CompressionTest {
     
     @Test
     public void testCompressionModels() throws IOException {
-        testModel(PreambleString, PreambleDictionary, new VerboseStringCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new UnifiedFrequencyCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new SplitFrequencyCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new NibbleFrequencyCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new TripleNibbleFrequencyCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new OffsetNibbleFrequencyCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new OffsetNibbleHuffmanCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new DeflateFrequencyCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new GZipDictionaryCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new GZipCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new PureArithCodingCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new PureHuffmanCompressionModel());
-        testModel(PreambleString, PreambleDictionary, new NoopCompressionModel());
+        String[][] testPairs = {{PreambleString, PreambleDictionary}, {"",""}};
+        for (String[] testPair : testPairs) {
+            testModel(testPair[0], testPair[1], new VerboseStringCompressionModel());
+            testModel(testPair[0], testPair[1], new UnifiedFrequencyCompressionModel());
+            testModel(testPair[0], testPair[1], new SplitFrequencyCompressionModel());
+            testModel(testPair[0], testPair[1], new NibbleFrequencyCompressionModel());
+            testModel(testPair[0], testPair[1], new TripleNibbleFrequencyCompressionModel());
+            testModel(testPair[0], testPair[1], new OffsetNibbleFrequencyCompressionModel());
+            testModel(testPair[0], testPair[1], new OffsetNibbleHuffmanCompressionModel());
+            testModel(testPair[0], testPair[1], new DeflateFrequencyCompressionModel());
+            testModel(testPair[0], testPair[1], new GZipDictionaryCompressionModel());
+            testModel(testPair[0], testPair[1], new GZipCompressionModel());
+            testModel(testPair[0], testPair[1], new PureArithCodingCompressionModel());
+            testModel(testPair[0], testPair[1], new PureHuffmanCompressionModel());
+            testModel(testPair[0], testPair[1], new NoopCompressionModel());
+            testModel(testPair[0], testPair[1], new VariableIntCompressionModel());
+        }
     }
     
     private static String dictionaryToString(byte[] dictionary) {
@@ -132,5 +137,23 @@ public class CompressionTest {
         String dictionary = dictionaryToString(model.getDictionary());
         // Make sure it doesn't think .dehttp:// is a good one
         Assert.assertEquals("gtoubassihttp://", dictionary);
+    }
+    
+    @Test
+    public void testVariableIntCompressionModel() throws IOException {
+        String source = "12345";
+        byte[] sourceBytes = source.getBytes("UTF-8");
+        VariableIntCompressionModel model = new VariableIntCompressionModel();
+        model.build(new ArrayDocumentList(sourceBytes));
+        
+        byte[] compressedBytes = model.compress(sourceBytes);
+
+        Assert.assertEquals(2, compressedBytes.length);
+
+        byte[] decompressedBytes = model.decompress(compressedBytes);
+        String decompressedString = new String(decompressedBytes);
+        
+        Assert.assertEquals(source, decompressedString);
+        
     }
 }
