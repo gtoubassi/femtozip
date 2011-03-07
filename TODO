@@ -1,0 +1,22 @@
+
+Thread safety.  Both of these are problems
+	OffsetNibbleHuffmanCompressionModel.encoder
+	OffsetNibbleHuffmanModel.state
+
+Make SubstringPacker faster
+
+C++ version of OptimizingCompressionModel
+
+C++ model save/load
+
+C++ Tool for analyzing payloads
+
+Tool (C++) for generating a sample payload
+
+Java JNI interface to native
+
+Memory leak/corruption testing on C++ port (valgrind?)
+
+Perf benchmarking vs gzip/deflate
+
+
