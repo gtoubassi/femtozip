@@ -19,7 +19,10 @@
  *  generated to mimic letter frequencies in english ('e' is more common than
  *  'q') to accurately measure effects of huffman coding.  gzip on individual
  *  payloads has a net *increase* in file size, while the femtozip compressor
- *  compresses to about 33% of size.
+ *  compresses to about 33% of size.  Example document:
+ *
+ *  {"first":"lbrdtar","last":"srroaori tsrg","email":"htch lnnh  @gmail.com","gender":"f","bday":"2000-7-19"}
+ *
  */
 #include <iostream>
 #include <fstream>
