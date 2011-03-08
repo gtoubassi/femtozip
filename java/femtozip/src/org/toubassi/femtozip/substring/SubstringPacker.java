@@ -54,7 +54,9 @@ public class SubstringPacker {
                 bestMatchLength = matchLength[0];
                 hash.getBestMatch(curr, rawBytes, matchIndex, matchLength);
                 
-                if (matchLength[0] > bestMatchLength) {
+                // Note the >= because we prefer a match that is nearer (and a match
+                // in the string being compressed is always closer than one from the dict).
+                if (matchLength[0] >= bestMatchLength) {
                     bestMatchIndex = matchIndex[0] + dictLen;
                     bestMatchLength = matchLength[0];
                 }

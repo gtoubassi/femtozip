@@ -67,6 +67,20 @@ public class SubstringPackerTest {
         Assert.assertEquals("garrick toubassi <-17,8><-25,16>", pack("garrick toubassi garrick garrick toubassi"));
     }
     
+    
+    @Test
+    public void testPreferNearerMatches() throws UnsupportedEncodingException {
+        // Simple, no dict
+        Assert.assertEquals("the <-4,4>x<-6,4>", pack("the the x the"));
+        
+        // Have a match both in the dict and local, and prefer the local one
+        // because we match dicts and local separately (since dict is prehashed)
+        // this was actually a bug at one point.
+        Assert.assertEquals("<-7,7> <-8,7>", pack("garrick garrick", "garrick"));
+        
+    }
+
+    
     private String pack(String s) {
         return pack(s, null);
     }

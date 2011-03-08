@@ -65,20 +65,20 @@ public class CompressionTest {
     public void testCompressionModels() throws IOException {
         String[][] testPairs = {{PreambleString, PreambleDictionary}, {"",""}};
         for (String[] testPair : testPairs) {
-            testModel(testPair[0], testPair[1], new VerboseStringCompressionModel());
-            testModel(testPair[0], testPair[1], new UnifiedFrequencyCompressionModel());
-            testModel(testPair[0], testPair[1], new SplitFrequencyCompressionModel());
-            testModel(testPair[0], testPair[1], new NibbleFrequencyCompressionModel());
-            testModel(testPair[0], testPair[1], new TripleNibbleFrequencyCompressionModel());
-            testModel(testPair[0], testPair[1], new OffsetNibbleFrequencyCompressionModel());
-            testModel(testPair[0], testPair[1], new OffsetNibbleHuffmanCompressionModel());
-            testModel(testPair[0], testPair[1], new DeflateFrequencyCompressionModel());
-            testModel(testPair[0], testPair[1], new GZipDictionaryCompressionModel());
-            testModel(testPair[0], testPair[1], new GZipCompressionModel());
-            testModel(testPair[0], testPair[1], new PureArithCodingCompressionModel());
-            testModel(testPair[0], testPair[1], new PureHuffmanCompressionModel());
-            testModel(testPair[0], testPair[1], new NoopCompressionModel());
-            testModel(testPair[0], testPair[1], new VariableIntCompressionModel());
+            testModel(testPair[0], testPair[1], new VerboseStringCompressionModel(), testPair[0].length() == 0 ? -1 : 363);
+            testModel(testPair[0], testPair[1], new UnifiedFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 208);
+            testModel(testPair[0], testPair[1], new SplitFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 200);
+            testModel(testPair[0], testPair[1], new NibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 185);
+            testModel(testPair[0], testPair[1], new TripleNibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 185);
+            testModel(testPair[0], testPair[1], new OffsetNibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 199);
+            testModel(testPair[0], testPair[1], new OffsetNibbleHuffmanCompressionModel(), testPair[0].length() == 0 ? -1 : 205);
+            testModel(testPair[0], testPair[1], new DeflateFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 184);
+            testModel(testPair[0], testPair[1], new GZipDictionaryCompressionModel(), testPair[0].length() == 0 ? -1 : 204);
+            testModel(testPair[0], testPair[1], new GZipCompressionModel(), testPair[0].length() == 0 ? -1 : 210);
+            testModel(testPair[0], testPair[1], new PureArithCodingCompressionModel(), testPair[0].length() == 0 ? -1 : 207);
+            testModel(testPair[0], testPair[1], new PureHuffmanCompressionModel(), testPair[0].length() == 0 ? -1 : 211);
+            testModel(testPair[0], testPair[1], new NoopCompressionModel(), testPair[0].length() == 0 ? -1 : 327);
+            testModel(testPair[0], testPair[1], new VariableIntCompressionModel(), testPair[0].length() == 0 ? -1 : 333);
         }
     }
     
@@ -89,7 +89,7 @@ public class CompressionTest {
         return new String(Arrays.copyOfRange(dictionary, i, dictionary.length));
     }
     
-    private void testModel(String source, String dictionary, CompressionModel model) throws IOException {
+    private void testModel(String source, String dictionary, CompressionModel model, int expectedSize) throws IOException {
         byte[] sourceBytes = source.getBytes();
         byte[] dictionaryBytes = dictionary == null ? null : dictionary.getBytes();
         
@@ -97,6 +97,10 @@ public class CompressionTest {
         model.build(new ArrayDocumentList(sourceBytes));
         
         byte[] compressedBytes = model.compress(sourceBytes);
+        
+        if (expectedSize >= 0) {
+            Assert.assertEquals(expectedSize, compressedBytes.length);
+        }
         
         System.out.println(sourceBytes.length + " compressed to " + compressedBytes.length + " using " + model.getClass().getSimpleName());
 
