@@ -41,6 +41,8 @@ public class Tool  {
     protected String modelPath;
     protected String[] models;
     protected CompressionModel model;
+    protected boolean preload;
+    protected boolean verify;
     
     protected int numSamples = 0;
     protected int maxDictionarySize = 0;
@@ -88,7 +90,7 @@ public class Tool  {
             dataSize += bytes.length;
             compressedSize += compressed.length;
             
-            if (true) {
+            if (verify) {
                 byte[] decompressed = model.decompress(compressed);
                 if (!Arrays.equals(bytes, decompressed)) {
                     throw new RuntimeException("Compress/Decompress round trip failed for " + model.getClass().getSimpleName());
@@ -109,16 +111,19 @@ public class Tool  {
         List<String> files = Arrays.asList(dir.list());
         Collections.shuffle(files, new Random(1234567890)); // Avoid any bias in ordering of the files
         numSamples = Math.min(numSamples, files.size());
-        FileDocumentList docs = new FileDocumentList(path, files.subList(0, numSamples));
+        FileDocumentList docs = new FileDocumentList(path, files.subList(0, numSamples), preload);
 
+        long start = System.currentTimeMillis();
         long[] totalDataSizeRef = new long[1];
         long[] totalCompressedSizeRef = new long[1];
         benchmarkModel(model, docs, totalDataSizeRef, totalCompressedSizeRef);
         long totalCompressedSize = totalCompressedSizeRef[0];
         long totalDataSize = totalDataSizeRef[0];
+        long duration = System.currentTimeMillis() - start;
         
         System.out.println("Summary:");
         System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
+        System.out.println("Compression took " + format.format(duration / 1000f) + "s");
     }
 
     protected void compress(File file) throws IOException {
@@ -229,6 +234,12 @@ public class Tool  {
             }
             else if (arg.equals("--models")) {
                 models = args[++i].split(",");
+            }
+            else if (arg.equals("--preload")) {
+                preload = true;
+            }
+            else if (args.equals("--verify")) {
+                verify = true;
             }
             else if (arg.equals("--maxdict")) {
                 maxDictionarySize = Integer.parseInt(args[++i]);

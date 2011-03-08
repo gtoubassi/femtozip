@@ -17,6 +17,7 @@ package org.toubassi.femtozip;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.toubassi.femtozip.util.FileUtil;
@@ -25,14 +26,25 @@ import org.toubassi.femtozip.util.FileUtil;
 public class FileDocumentList implements DocumentList {
     private String basePath;
     private List<String> files;
+    private List<byte[]> data;
     
-    public FileDocumentList(List<String> files) {
-        this(null, files);
+    public FileDocumentList(List<String> files) throws IOException {
+        this(null, files, false);
     }
 
-    public FileDocumentList(String basePath, List<String> files) {
+    public FileDocumentList(String basePath, List<String> files) throws IOException {
+        this(basePath, files, false);
+    }
+    
+    public FileDocumentList(String basePath, List<String> files, boolean preload) throws IOException {
         this.basePath = basePath;
         this.files = files;
+        if (preload) {
+            data = new ArrayList<byte[]>(files.size());
+            for (int i = 0, count = files.size(); i < count; i++) {
+                data.add(loadFile(i));
+            }
+        }
     }
 
     public int size() {
@@ -40,6 +52,10 @@ public class FileDocumentList implements DocumentList {
     }
     
     public byte[] get(int i) throws IOException {
+        return data != null ? data.get(i) : loadFile(i);
+    }
+    
+    private byte[] loadFile(int i) throws IOException {
         String path = basePath == null ? files.get(i) : (basePath + File.separator + files.get(i));
         return FileUtil.readFile(path);
     }
