@@ -34,6 +34,7 @@ import org.toubassi.femtozip.util.StreamUtil;
 public abstract class CompressionModel implements SubstringPacker.Consumer {
     
     protected byte[] dictionary;
+    protected SubstringPacker packer;
     private int maxDictionaryLength;
 
     public static CompressionModel instantiateCompressionModel(String modelName) {
@@ -66,6 +67,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
             dictionary = Arrays.copyOfRange(dictionary, dictionary.length - maxDictionaryLength, dictionary.length);
         }
         this.dictionary = dictionary;
+        packer = null;
     }
     
     public byte[] getDictionary() {
@@ -78,6 +80,13 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     
     public void setMaxDictionaryLength(int length) {
         maxDictionaryLength = length;
+    }
+    
+    protected SubstringPacker getSubstringPacker() {
+        if (packer == null) {
+            packer = new SubstringPacker(getDictionary());
+        }
+        return packer;
     }
     
     public void load(DataInputStream in) throws IOException {
@@ -146,8 +155,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     }
     
     public void compress(byte[] data, OutputStream out) throws IOException {
-        SubstringPacker packer = new SubstringPacker(dictionary);
-        packer.pack(data, this);
+        getSubstringPacker().pack(data, this);
     }
     
     public abstract byte[] decompress(byte[] compressedData);

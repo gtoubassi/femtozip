@@ -80,18 +80,25 @@ public class Tool  {
 
     protected void benchmarkModel(CompressionModel model, DocumentList docs, long totalDataSize[], long totalCompressedSize[]) throws IOException {
         System.out.print("Benchmarking " + model.getClass().getSimpleName() + " ");
-        
+
+        long compressTime = 0;
+        long decompressTime = 0;
         int dataSize = 0;
         int compressedSize = 0;
         for (int i = 0, count = docs.size(); i < count; i++) {
             byte[] bytes = docs.get(i);
             
+            long startCompress = System.nanoTime();
             byte[] compressed = model.compress(bytes);
+            compressTime += System.nanoTime() - startCompress;
+
             dataSize += bytes.length;
             compressedSize += compressed.length;
             
             if (verify) {
+                long startDecompress = System.nanoTime();
                 byte[] decompressed = model.decompress(compressed);
+                decompressTime += System.nanoTime() - startDecompress;
                 if (!Arrays.equals(bytes, decompressed)) {
                     throw new RuntimeException("Compress/Decompress round trip failed for " + model.getClass().getSimpleName());
                 }
@@ -101,9 +108,10 @@ public class Tool  {
         totalDataSize[0] += dataSize;
         totalCompressedSize[0] += compressedSize;
 
+        decompressTime /= 1000000;
+        compressTime /= 1000000;
         String ratio = format.format(100f * compressedSize / dataSize);
-        System.out.println(ratio  + "% (" + compressedSize + "/" + dataSize + ")\n");
-
+        System.out.println(ratio  + "% (" + compressedSize + "/" + dataSize + "  compressed:" + compressTime + "ms" + (verify ? (" decompress:" + decompressTime + "ms") : "") + ")\n");
     }
     
     protected void benchmarkModel() throws IOException {
@@ -238,7 +246,7 @@ public class Tool  {
             else if (arg.equals("--preload")) {
                 preload = true;
             }
-            else if (args.equals("--verify")) {
+            else if (arg.equals("--verify")) {
                 verify = true;
             }
             else if (arg.equals("--maxdict")) {

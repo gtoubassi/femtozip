@@ -30,7 +30,7 @@ public class SubstringPackerTest {
         Assert.assertEquals("<-7,7> toubassi", pack("garrick toubassi", "garrick"));
         Assert.assertEquals("garrick <-16,8>", pack("garrick toubassi", "toubassi"));
         Assert.assertEquals("<-7,7> <-24,8>", pack("garrick toubassi", "toubassi garrick"));
-        Assert.assertEquals("<-3,7>", pack("aaaaaaa", "aaa"));
+        Assert.assertEquals("a<-1,6>", pack("aaaaaaa", "aaaa"));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class SubstringPackerTest {
             byte[] compressed = model.compress(bytes);
             byte[] decompressed = model.decompress(compressed);
             
-            Assert.assertArrayEquals(bytes, decompressed);
+            Assert.assertEquals("Compressed: " + (new String(compressed, "UTF-8")), s, new String(decompressed, "UTF-8"));
             
             return new String(compressed, "UTF-8");
         }

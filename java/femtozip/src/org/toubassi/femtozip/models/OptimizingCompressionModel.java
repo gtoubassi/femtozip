@@ -99,7 +99,6 @@ public class OptimizingCompressionModel extends CompressionModel {
      * Should be a different set of documents from those used to build
      */
     public void optimize(DocumentList documents) throws IOException {
-        
         for (int i = 0, count = documents.size(); i < count; i++) {
             byte[] data = documents.get(i);
             
