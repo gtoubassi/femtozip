@@ -40,6 +40,8 @@ public:
     CompressionModel();
     virtual ~CompressionModel();
 
+    virtual const char *typeName() = 0;
+
     virtual void setDictionary(const char *dictionary, int length);
     virtual const char *getDictionary(int& length);
 

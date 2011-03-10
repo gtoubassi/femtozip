@@ -21,6 +21,7 @@
  */
 
 #include "CompressionModel.h"
+#include "DictionaryOptimizer.h"
 
 namespace femtozip {
 
@@ -29,10 +30,15 @@ CompressionModel::CompressionModel() : dict(0), dictLen(0) {
 }
 
 CompressionModel::~CompressionModel() {
+    if (dict) {
+        delete[] dict;
+    }
 }
 
 void CompressionModel::setDictionary(const char *dictionary, int length) {
-    dict = dictionary;
+    char *d = new char[length];
+    memcpy(d, dictionary, length);
+    dict = d;
     dictLen = length;
 }
 
@@ -66,6 +72,11 @@ SubstringPacker::Consumer *CompressionModel::buildEncodingModel(DocumentList& do
 }
 
 void CompressionModel::buildDictionaryIfUnspecified(DocumentList& documents) {
+    if (!dict) {
+        DictionaryOptimizer optimizer(documents);
+        string dictionary = optimizer.optimize(64*1024);
+        setDictionary(dictionary.c_str(), dictionary.length());
+    }
 }
 
 

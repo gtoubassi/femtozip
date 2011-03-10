@@ -28,18 +28,18 @@ using namespace std;
 
 namespace femtozip {
 
-CStringDocumentList::CStringDocumentList(vector<const char *> paths) {
-    files = paths;
+CStringDocumentList::CStringDocumentList(vector<const char *> strs) {
+    strings = strs;
 }
 
-CStringDocumentList::CStringDocumentList(const char *path1, ...) {
-    files.push_back(path1);
+CStringDocumentList::CStringDocumentList(const char *str1, ...) {
+    strings.push_back(str1);
 
     va_list ap;
-    va_start(ap, path1);
-    const char *path;
-    while ((path = va_arg(ap, const char *)) != 0) {
-        files.push_back(path);
+    va_start(ap, str1);
+    const char *str;
+    while ((str = va_arg(ap, const char *)) != 0) {
+        strings.push_back(str);
     }
     va_end(ap);
 }
@@ -48,14 +48,14 @@ CStringDocumentList::~CStringDocumentList() {
 }
 
 int CStringDocumentList::size() {
-    return files.size();
+    return strings.size();
 }
 
 const char *CStringDocumentList::get(int i, int& length) {
-    const char *path = files[i];
-    length = strlen(path);
+    const char *str = strings[i];
+    length = strlen(str);
     char *copy = new char[length + 1];
-    return strcpy(copy, path);
+    return strcpy(copy, str);
 }
 
 }

@@ -41,6 +41,8 @@ public:
     PureHuffmanCompressionModel();
     virtual ~PureHuffmanCompressionModel();
 
+    virtual const char *typeName() { return "PureHuffman"; };
+
     virtual void build(DocumentList& documents);
     virtual void encodeLiteral(int aByte);
     virtual void encodeSubstring(int offset, int length);

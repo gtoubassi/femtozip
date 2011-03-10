@@ -66,8 +66,11 @@ void DictionaryOptimizer::computeSubstrings() {
     int n = suffixArray.size(); // Same as lcp size
 
     int lastLCP = lcpArray[0];
-    for (int i = 1; i < n; i++) {
-        int currentLCP = lcpArray[i];
+    for (int i = 1; i <= n; i++) {
+        // Note we need to process currently existing runs, so we do that by acting like we hit an LCP of 0 at the end.
+        // That is why the we loop i <= n vs i < n.  Otherwise runs that exist at the end of the suffixarray/lcp will
+        // never be "cashed in" and counted in the substrings.  DictionaryOptimizerTest has a unit test for this.
+        int currentLCP = i == n ? 0 : lcpArray[i];
 
         if (currentLCP > lastLCP) {
             // The order here is important so we can optimize adding redundant strings below.

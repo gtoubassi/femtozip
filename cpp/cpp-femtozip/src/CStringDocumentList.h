@@ -33,11 +33,11 @@ namespace femtozip {
 class CStringDocumentList: public femtozip::DocumentList {
 
 protected:
-    vector<const char *> files;
+    vector<const char *> strings;
 
 public:
-    explicit CStringDocumentList(vector<const char *> paths);
-    explicit CStringDocumentList(const char *path1, ...);
+    explicit CStringDocumentList(vector<const char *> strs);
+    explicit CStringDocumentList(const char *str1, ...);
 
     virtual ~CStringDocumentList();
 

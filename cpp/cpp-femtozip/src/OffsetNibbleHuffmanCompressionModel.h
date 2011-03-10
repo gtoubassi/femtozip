@@ -42,6 +42,8 @@ public:
     OffsetNibbleHuffmanCompressionModel();
     virtual ~OffsetNibbleHuffmanCompressionModel();
 
+    virtual const char *typeName() { return "OffsetNibbleHuffman"; };
+
     virtual void build(DocumentList& documents);
     virtual SubstringPacker::Consumer *createModelBuilder();
 

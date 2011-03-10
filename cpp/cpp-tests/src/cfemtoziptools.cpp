@@ -33,6 +33,7 @@
 #include <CompressionModel.h>
 #include <PureHuffmanCompressionModel.h>
 #include <OffsetNibbleHuffmanCompressionModel.h>
+#include <OptimizingCompressionModel.h>
 
 using namespace std;
 using namespace femtozip;
@@ -60,19 +61,30 @@ void reportTestResults() {
 }
 
 void testDictionaryOptimizerPack() {
-    CStringDocumentList docs(PreambleString.c_str(), 0);
-    DictionaryOptimizer optimizer(docs);
-    string dict = optimizer.optimize(64*1024);
-    assertTrue(dict == "ce, in to sticure our, pros of and ity, e the for the establish the United States", string("Dict for US preamble wrong") + dict);
+    {
+        CStringDocumentList docs(PreambleString.c_str(), NULL);
+        DictionaryOptimizer optimizer(docs);
+        string dict = optimizer.optimize(64*1024);
+        assertTrue(dict == "ce, in to sticure our, pros of and ity, e the for the establish the United States", string("Dict for US preamble wrong") + dict);
+    }
 
-    CStringDocumentList docs2(PanamaString.c_str(), 0);
-    DictionaryOptimizer optimizer2(docs2);
-    dict = optimizer2.optimize(64*1024);
-    assertTrue(dict == "an a ", string("Dict for panama wrong") + dict);
+    {
+        CStringDocumentList docs2(PanamaString.c_str(), NULL);
+        DictionaryOptimizer optimizer2(docs2);
+        string dict = optimizer2.optimize(64*1024);
+        assertTrue(dict == "an a ", string("Dict for panama wrong") + dict);
+    }
+
+    {
+        CStringDocumentList docs("11111", "11111", "00000", NULL);
+        DictionaryOptimizer optimizer(docs);
+        string dict = optimizer.optimize(64*1024);
+        assertTrue(dict == "000011111", string("wrong dict: ") + dict);
+    }
 }
 
 void testDocumentList() {
-    CStringDocumentList docs("hello", "there", "how are you", 0);
+    CStringDocumentList docs("hello", "there", "how are you", NULL);
 
     assertTrue(docs.size() == 3, "Wrong doc count for doclist expected 3, was");
     int length;
@@ -285,7 +297,7 @@ void testModel(const char *source, const char *dictionary, CompressionModel& mod
     }
 
     model.setDictionary(dictionary, strlen(dictionary));
-    CStringDocumentList documents(source, 0);
+    CStringDocumentList documents(source, NULL);
     model.build(documents);
 
     ostringstream out;
@@ -308,6 +320,45 @@ void testCompressionModels() {
     testModel(PreambleString.c_str(), PreambleDictionary.c_str(), offsetNibble, "OffsetNibble", 205);
 }
 
+void testOptimizingCompressionModel() {
+    {
+        OptimizingCompressionModel model;
+        CStringDocumentList docs("20161","14219","29477","53380","10626","64782","32972","9313",NULL);
+        model.build(docs);
+        CStringDocumentList trainingDocs("62245","34581","36887","58862","39095","19604","42623","25609", NULL);
+        model.optimize(trainingDocs);
+
+        const char *buf = "330539321547621098083609223674246055";
+        ostringstream out;
+        model.compress(buf, strlen(buf), out);
+        string compressed = out.str();
+
+        ostringstream out2;
+        model.decompress(compressed.c_str(), compressed.length(), out2);
+        string decompressed = out2.str();
+        assertTrue(decompressed == buf, string("Mismatched string got: '") + decompressed + "' expected '" + buf);
+        assertTrue(strcmp("PureHuffman", model.getBestPerformingModel()->typeName()) == 0, "Expected PureHuffman for binary data");
+    }
+    {
+        OptimizingCompressionModel model;
+        CStringDocumentList docs("http://en.wikipedia.org", "http://www.yahoo.com", "http://mail.google.com", NULL);
+        model.build(docs);
+        model.optimize(docs);
+
+        const char *buf = "http://www.popsugar.com/?page=1";
+        ostringstream out;
+        model.compress(buf, strlen(buf), out);
+        string compressed = out.str();
+
+        ostringstream out2;
+        model.decompress(compressed.c_str(), compressed.length(), out2);
+        string decompressed = out2.str();
+        assertTrue(decompressed == buf, string("Mismatched string got: '") + decompressed + "' expected '" + buf);
+        assertTrue(strcmp("OffsetNibbleHuffman", model.getBestPerformingModel()->typeName()) == 0, "Expected OffsetNibbleHuffman for text data");
+    }
+
+}
+
 
 int main() {
 
@@ -322,6 +373,8 @@ int main() {
     testHuffman();
 
     testCompressionModels();
+
+    testOptimizingCompressionModel();
 
     reportTestResults();
 	return 0;

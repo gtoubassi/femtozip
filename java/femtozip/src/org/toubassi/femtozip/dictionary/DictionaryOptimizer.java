@@ -61,8 +61,11 @@ public class DictionaryOptimizer {
         int n = lcp.length;
         
         int lastLCP = lcp[0];
-        for (int i = 1; i < n; i++) {
-            int currentLCP = lcp[i];
+        for (int i = 1; i <= n; i++) {
+            // Note we need to process currently existing runs, so we do that by acting like we hit an LCP of 0 at the end.
+            // That is why the we loop i <= n vs i < n.  Otherwise runs that exist at the end of the suffixarray/lcp will
+            // never be "cashed in" and counted in the substrings.  DictionaryOptimizerTest has a unit test for this.
+            int currentLCP = i == n ? 0 : lcp[i];
             
             if (currentLCP > lastLCP) {
                 // The order here is important so we can optimize adding redundant strings below.
@@ -77,8 +80,6 @@ public class DictionaryOptimizer {
                         int activeCount = i - activeSubstrings.index(j) + 1;
                         int activeLength = activeSubstrings.length(j);
                         int activeIndex = activeSubstrings.index(j);
-
-                        int scoreCount = activeCount;
 
                         // Ok we have a string which occurs activeCount times.  The true measure of its
                         // value is how many unique documents it occurs in, because occurring 1000 times in the same
@@ -108,7 +109,7 @@ public class DictionaryOptimizer {
                             }
                         }
                         
-                        scoreCount = uniqueDocIds.size();
+                        int scoreCount = uniqueDocIds.size();
                         
                         // You might think that its better to just clear uniqueDocIds,
                         // but actually this set can get very large, and calling clear
@@ -227,6 +228,18 @@ public class DictionaryOptimizer {
         int index = suffixArray[substrings.index(i)];
         int length = substrings.length(i);
         return Arrays.copyOfRange(bytes, index, index + length);
+    }
+    
+    /**
+     * For debugging
+     */
+    public void dumpSuffixArray(PrintStream out) {
+        for (int i = 0; i < suffixArray.length; i++) {
+            out.print(suffixArray[i] + "\t");
+            out.print(lcp[i] + "\t");
+            out.write(bytes, suffixArray[i], Math.min(40, bytes.length - suffixArray[i]));
+            out.println();
+        }
     }
     
     /**
