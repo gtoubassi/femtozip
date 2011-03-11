@@ -34,6 +34,8 @@
 #include <PureHuffmanCompressionModel.h>
 #include <OffsetNibbleHuffmanCompressionModel.h>
 #include <OptimizingCompressionModel.h>
+#include <GZipCompressionModel.h>
+#include <GZipDictionaryCompressionModel.h>
 
 using namespace std;
 using namespace femtozip;
@@ -91,14 +93,17 @@ void testDocumentList() {
     const char *buf = docs.get(0, length);
     assertTrue(length == 5, "Wrong length for doc 0");
     assertTrue(memcmp("hello", buf, length) == 0, "Wrong bytes for doc 0");
+    delete[] buf;
 
     buf = docs.get(1, length);
     assertTrue(length == 5, "Wrong length for doc 1");
     assertTrue(memcmp("there", buf, length) == 0, "Wrong bytes for doc 1");
+    delete[] buf;
 
     buf = docs.get(2, length);
     assertTrue(length == 11, "Wrong length for doc 2");
     assertTrue(memcmp("how are you", buf, length) == 0, "Wrong bytes for doc 2");
+    delete[] buf;
 }
 
 void testPack(const char *expected, const char *buf, const char *dict = "") {
@@ -291,7 +296,7 @@ void testHuffman() {
     }
 }
 
-void testModel(const char *source, const char *dictionary, CompressionModel& model, const char *modelName, size_t expectedSize) {
+void testModel(const char *source, const char *dictionary, CompressionModel& model, size_t expectedSize) {
     if (!dictionary) {
         dictionary = "";
     }
@@ -304,20 +309,24 @@ void testModel(const char *source, const char *dictionary, CompressionModel& mod
     model.compress(source, strlen(source), out);
     string compressed = out.str();
 
-    assertTrue(compressed.length() == expectedSize, string("Wrong compressed size for ") + modelName);
+    assertTrue(compressed.length() == expectedSize, string("Wrong compressed size for ") + model.typeName());
 
     ostringstream out2;
     model.decompress(compressed.c_str(), compressed.length(), out2);
     string decompressed = out2.str();
 
-    assertTrue(decompressed == source, string("Mismatched string got: '") + decompressed + "' expected '" + source + "' for " + modelName);
+    assertTrue(decompressed == source, string("Mismatched string got: '") + decompressed + "' expected '" + source + "' for " + model.typeName());
 }
 
 void testCompressionModels() {
     PureHuffmanCompressionModel pureHuffman;
-    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), pureHuffman, "PureHuffman", 211);
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), pureHuffman, 211);
     OffsetNibbleHuffmanCompressionModel offsetNibble;
-    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), offsetNibble, "OffsetNibble", 205);
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), offsetNibble, 205);
+    GZipCompressionModel gzipModel;
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipModel, 210);
+    GZipDictionaryCompressionModel gzipDictModel;
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipDictModel, 204);
 }
 
 void testOptimizingCompressionModel() {
@@ -359,6 +368,20 @@ void testOptimizingCompressionModel() {
 
 }
 
+void testGZipModel() {
+    GZipCompressionModel model;
+    ostringstream out;
+    const char *buf = "1111111111111111111111111111111112111111";
+    model.compress(buf, strlen(buf), out);
+    string compressed = out.str();
+
+    ostringstream out2;
+    model.decompress(compressed.c_str(), compressed.length(), out2);
+    string decompressed = out2.str();
+
+    assertTrue(decompressed == buf, string("GZ round trip failed") + decompressed);
+}
+
 
 int main() {
 
@@ -375,6 +398,8 @@ int main() {
     testCompressionModels();
 
     testOptimizingCompressionModel();
+
+    testGZipModel();
 
     reportTestResults();
 	return 0;

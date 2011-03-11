@@ -27,17 +27,21 @@
 #include "OptimizingCompressionModel.h"
 #include "OffsetNibbleHuffmanCompressionModel.h"
 #include "PureHuffmanCompressionModel.h"
+#include "GZipCompressionModel.h"
+#include "GZipDictionaryCompressionModel.h"
 
 using namespace std;
 
 namespace femtozip {
 
 OptimizingCompressionModel::OptimizingCompressionModel() {
+    totalDataSize = 0;
     results.push_back(CompressionResult(new OffsetNibbleHuffmanCompressionModel()));
     results.push_back(CompressionResult(new PureHuffmanCompressionModel()));
 }
 
 OptimizingCompressionModel::OptimizingCompressionModel(vector<string>& models) {
+    totalDataSize = 0;
     for (vector<string>::iterator i = models.begin(); i != models.end(); i++) {
         CompressionModel *model;
 
@@ -46,6 +50,12 @@ OptimizingCompressionModel::OptimizingCompressionModel(vector<string>& models) {
         }
         else if (*i == "OFfsetNibbleHuffman") {
             model = new OffsetNibbleHuffmanCompressionModel();
+        }
+        else if (*i == "GZip") {
+            model = new GZipCompressionModel();
+        }
+        else if (*i == "GZipDictionary") {
+            model = new GZipDictionaryCompressionModel();
         }
         else {
             throw "Unknown model";
@@ -76,6 +86,7 @@ void OptimizingCompressionModel::build(DocumentList& documents) {
 }
 
 void OptimizingCompressionModel::optimize(DocumentList& documents) {
+    totalDataSize = 0;
     for (int i = 0, count = documents.size(); i < count; i++) {
         int length;
         const char *buf = documents.get(i, length);
@@ -99,6 +110,8 @@ void OptimizingCompressionModel::optimize(DocumentList& documents) {
             result->totalCompressedSize += compressed.size();
             result->totalDataSize += length;
         }
+
+        delete[] buf;
     }
 
     sortedResults = results;
@@ -115,8 +128,7 @@ void OptimizingCompressionModel::decompress(const char *buf, int length, ostream
 }
 
 CompressionModel *OptimizingCompressionModel::getBestPerformingModel() {
-    int best = sortedResults[0].totalCompressedSize;
-    return best > totalDataSize ? 0 : sortedResults[0].model;
+    return sortedResults[0].model;
 }
 
 OptimizingCompressionModel::CompressionResult &OptimizingCompressionModel::getBestPerformingResult() {

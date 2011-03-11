@@ -54,7 +54,13 @@ DictionaryOptimizer::~DictionaryOptimizer() {
 string DictionaryOptimizer::optimize(int desiredLength) {
     suffixArray.resize(bytes.size() + 1);
     bsarray(reinterpret_cast<const uchar *>(&bytes[0]), &suffixArray[0], bytes.size());
-    lcpArray = lcp(&suffixArray[0], &bytes[0], bytes.size() + 1);
+
+    // Due to the extra terminator symbol that bsarray puts, suffixArray is actually 1 bigger, and bytes
+    // needs to allow access to a character in the terminator's position
+    bytes.push_back('\0');
+    lcpArray = lcp(&suffixArray[0], &bytes[0], bytes.size());
+    bytes.pop_back();
+
     computeSubstrings();
     return pack(desiredLength);
 }
@@ -101,7 +107,7 @@ void DictionaryOptimizer::computeSubstrings() {
                         // Could make this a lookup table if we are willing to burn an int[bytes.size()] but thats a lot
                         vector<int>::iterator docStart = lower_bound(starts.begin(), starts.end(), byteIndex);
 
-                        if (*docStart != byteIndex) {
+                        if (docStart == starts.end() || *docStart != byteIndex) {
                             docStart--;
                         }
                         int docIndex = *docStart;

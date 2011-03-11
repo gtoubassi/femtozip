@@ -66,6 +66,7 @@ SubstringPacker::Consumer *CompressionModel::buildEncodingModel(DocumentList& do
         int length;
         const char * docBytes = documents.get(i, length);
         modelBuildingPacker.pack(docBytes, length, *modelBuilder);
+        delete[] docBytes;
     }
 
     return modelBuilder;

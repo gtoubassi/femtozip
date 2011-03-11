@@ -34,6 +34,9 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.debug.267085261" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.debug">
 								<option defaultValue="true" id="macosx.cpp.link.macosx.so.debug.option.shared.47161595" name="Shared (-dynamiclib)" superClass="macosx.cpp.link.macosx.so.debug.option.shared" valueType="boolean"/>
+								<option id="macosx.cpp.link.option.libs.238436067" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="z"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.macosx.cpp.linker.input.109495650" superClass="cdt.managedbuild.tool.macosx.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -61,6 +64,8 @@
 					</sourceEntries>
 				</configuration>
 			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 			<storageModule moduleId="scannerConfiguration">
 				<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 				<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
@@ -226,8 +231,8 @@
 						</scannerInfoProvider>
 					</profile>
 				</scannerConfigBuildInfo>
-				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1992223577;cdt.managedbuild.tool.gnu.c.compiler.input.1436288410">
-					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.1841622238;cdt.managedbuild.tool.gnu.cpp.compiler.input.453715979">
+					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 					<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 						<buildOutputProvider>
 							<openAction enabled="true" filePath=""/>
@@ -309,8 +314,8 @@
 						</scannerInfoProvider>
 					</profile>
 				</scannerConfigBuildInfo>
-				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.1841622238;cdt.managedbuild.tool.gnu.cpp.compiler.input.453715979">
-					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1992223577;cdt.managedbuild.tool.gnu.c.compiler.input.1436288410">
+					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 					<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 						<buildOutputProvider>
 							<openAction enabled="true" filePath=""/>
@@ -476,7 +481,6 @@
 					</profile>
 				</scannerConfigBuildInfo>
 			</storageModule>
-			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 		<cconfiguration id="cdt.managedbuild.config.macosx.so.release.1605610998">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.macosx.so.release.1605610998" moduleId="org.eclipse.cdt.core.settings" name="Release">
@@ -536,6 +540,8 @@
 					</sourceEntries>
 				</configuration>
 			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+			<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 			<storageModule moduleId="scannerConfiguration">
 				<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 				<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
@@ -701,8 +707,8 @@
 						</scannerInfoProvider>
 					</profile>
 				</scannerConfigBuildInfo>
-				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1992223577;cdt.managedbuild.tool.gnu.c.compiler.input.1436288410">
-					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.1841622238;cdt.managedbuild.tool.gnu.cpp.compiler.input.453715979">
+					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 					<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 						<buildOutputProvider>
 							<openAction enabled="true" filePath=""/>
@@ -784,8 +790,8 @@
 						</scannerInfoProvider>
 					</profile>
 				</scannerConfigBuildInfo>
-				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.release.1841622238;cdt.managedbuild.tool.gnu.cpp.compiler.input.453715979">
-					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+				<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.macosx.so.release.1605610998;cdt.managedbuild.config.macosx.so.release.1605610998.;cdt.managedbuild.tool.gnu.c.compiler.macosx.so.release.1992223577;cdt.managedbuild.tool.gnu.c.compiler.input.1436288410">
+					<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 					<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
 						<buildOutputProvider>
 							<openAction enabled="true" filePath=""/>
@@ -951,7 +957,6 @@
 					</profile>
 				</scannerConfigBuildInfo>
 			</storageModule>
-			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">

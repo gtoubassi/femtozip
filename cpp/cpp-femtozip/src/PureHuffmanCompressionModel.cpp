@@ -48,6 +48,7 @@ void PureHuffmanCompressionModel::build(DocumentList& documents) {
             histogram[((int)bytes[j]) & 0xff]++;
         }
         histogram[histogram.size() - 1]++; // EOF
+        delete[] bytes;
     }
 
     codeModel = new FrequencyHuffmanModel(histogram, false);
