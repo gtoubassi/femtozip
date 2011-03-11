@@ -26,6 +26,7 @@
 #include <iostream>
 #include "SubstringPacker.h"
 #include "DocumentList.h"
+#include "DataIO.h"
 
 namespace femtozip {
 
@@ -39,6 +40,9 @@ protected:
 public:
     CompressionModel();
     virtual ~CompressionModel();
+
+    virtual void load(DataInput& in);
+    virtual void save(DataOutput& out);
 
     virtual const char *typeName() = 0;
 

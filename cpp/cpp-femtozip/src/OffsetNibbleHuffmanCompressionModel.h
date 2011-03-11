@@ -42,6 +42,9 @@ public:
     OffsetNibbleHuffmanCompressionModel();
     virtual ~OffsetNibbleHuffmanCompressionModel();
 
+    virtual void load(DataInput& in);
+    virtual void save(DataOutput& out);
+
     virtual const char *typeName() { return "OffsetNibbleHuffman"; };
 
     virtual void build(DocumentList& documents);

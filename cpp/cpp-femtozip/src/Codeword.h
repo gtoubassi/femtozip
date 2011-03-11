@@ -24,6 +24,7 @@
 #define CODEWORD_H_
 
 #include "BitOutput.h"
+#include "DataIO.h"
 
 namespace femtozip {
 
@@ -34,6 +35,16 @@ public:
     int symbol;
 
     Codeword() :value(0), bitLength(0), symbol(-1) {};
+
+    virtual void load(DataInput& in) {
+        in >> value;
+        in >> bitLength;
+        in >> symbol;
+    }
+
+    virtual void save(DataOutput& out) {
+        out << value << bitLength << symbol;
+    }
 
     inline void appendBit(int v) {
         value |= (0x1 & v) << bitLength;

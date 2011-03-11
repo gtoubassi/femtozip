@@ -35,6 +35,24 @@ CompressionModel::~CompressionModel() {
     }
 }
 
+void CompressionModel::load(DataInput& in) {
+    in >> dictLen;
+    dict = 0;
+    if (dictLen > 0) {
+        char *d = new char[dictLen];
+        in.read(d, dictLen);
+        dict = d;
+    }
+
+}
+
+void CompressionModel::save(DataOutput& out) {
+    out << dictLen;
+    if (dictLen > 0) {
+        out.write(dict, dictLen);
+    }
+}
+
 void CompressionModel::setDictionary(const char *dictionary, int length) {
     char *d = new char[length];
     memcpy(d, dictionary, length);

@@ -42,8 +42,12 @@ public:
 
     static void computeHistogramWithEOFSymbol(vector<int>& histogram, const char *data, int len);
 
+    FrequencyHuffmanModel();
     FrequencyHuffmanModel(vector<int>& histogram, bool allSymbolsSampled);
     virtual ~FrequencyHuffmanModel();
+
+    virtual void load(DataInput& in);
+    virtual void save(DataOutput& out);
 
     virtual Codeword& getCodewordForEOF();
     virtual Codeword& encode(int symbol);

@@ -72,6 +72,9 @@ void FrequencyHuffmanModel::computeHistogramWithEOFSymbol(vector<int>& histogram
     histogram[histogram.size() - 1] = 1; // EOF
 }
 
+FrequencyHuffmanModel::FrequencyHuffmanModel() {
+}
+
 FrequencyHuffmanModel::FrequencyHuffmanModel(vector<int>& histogram, bool allSymbolsSampled) {
     if (!allSymbolsSampled) {
         for (vector<int>::iterator i = histogram.begin(); i != histogram.end(); i++) {
@@ -85,6 +88,25 @@ FrequencyHuffmanModel::FrequencyHuffmanModel(vector<int>& histogram, bool allSym
 }
 
 FrequencyHuffmanModel::~FrequencyHuffmanModel() {
+}
+
+
+void FrequencyHuffmanModel::load(DataInput& in) {
+    int len;
+    in >> len;
+    encoding.resize(len);
+    for (vector<Codeword>::iterator i = encoding.begin(); i != encoding.end(); i++) {
+        i->load(in);
+    }
+    decoding.load(in);
+}
+
+void FrequencyHuffmanModel::save(DataOutput& out) {
+    out << ((int)encoding.size());
+    for (vector<Codeword>::iterator i = encoding.begin(); i != encoding.end(); i++) {
+        i->save(out);
+    }
+    decoding.save(out);
 }
 
 void FrequencyHuffmanModel::computeHuffmanCoding(vector<int>& histogram) {

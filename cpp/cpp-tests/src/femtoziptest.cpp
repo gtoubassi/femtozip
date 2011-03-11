@@ -16,6 +16,7 @@
 //============================================================================
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -36,6 +37,7 @@
 #include <OptimizingCompressionModel.h>
 #include <GZipCompressionModel.h>
 #include <GZipDictionaryCompressionModel.h>
+#include <DataIO.h>
 
 using namespace std;
 using namespace femtozip;
@@ -296,7 +298,7 @@ void testHuffman() {
     }
 }
 
-void testModel(const char *source, const char *dictionary, CompressionModel& model, size_t expectedSize) {
+void testModel(const char *source, const char *dictionary, CompressionModel& model, CompressionModel& modelReload, size_t expectedSize) {
     if (!dictionary) {
         dictionary = "";
     }
@@ -311,22 +313,30 @@ void testModel(const char *source, const char *dictionary, CompressionModel& mod
 
     assertTrue(compressed.length() == expectedSize, string("Wrong compressed size for ") + model.typeName());
 
+    ostringstream modelOut;
+    DataOutput dataOut(modelOut);
+    model.save(dataOut);
+    dataOut.flush();
+    istringstream modelIn(modelOut.str());
+    DataInput dataIn(modelIn);
+    modelReload.load(dataIn);
+
     ostringstream out2;
-    model.decompress(compressed.c_str(), compressed.length(), out2);
+    modelReload.decompress(compressed.c_str(), compressed.length(), out2);
     string decompressed = out2.str();
 
-    assertTrue(decompressed == source, string("Mismatched string got: '") + decompressed + "' expected '" + source + "' for " + model.typeName());
+    assertTrue(decompressed == source, string("Mismatched string got: '") + decompressed + "' expected '" + source + "' for " + modelReload.typeName());
 }
 
 void testCompressionModels() {
-    PureHuffmanCompressionModel pureHuffman;
-    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), pureHuffman, 211);
-    OffsetNibbleHuffmanCompressionModel offsetNibble;
-    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), offsetNibble, 205);
-    GZipCompressionModel gzipModel;
-    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipModel, 210);
-    GZipDictionaryCompressionModel gzipDictModel;
-    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipDictModel, 204);
+    PureHuffmanCompressionModel pureHuffman, pureHuffman1;
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), pureHuffman, pureHuffman1, 211);
+    OffsetNibbleHuffmanCompressionModel offsetNibble, offsetNibble1;
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), offsetNibble, offsetNibble1, 205);
+    GZipCompressionModel gzipModel, gzipModel1;
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipModel, gzipModel1, 210);
+    GZipDictionaryCompressionModel gzipDictModel, gzipDictModel1;
+    testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipDictModel, gzipDictModel1, 204);
 }
 
 void testOptimizingCompressionModel() {
@@ -382,6 +392,52 @@ void testGZipModel() {
     assertTrue(decompressed == buf, string("GZ round trip failed") + decompressed);
 }
 
+void testDataIO() {
+
+    ostringstream outstr;
+    DataOutput out(outstr);
+
+    out << false << true << 0 << 1 << -1 << 2000000000 << -2000000001 << 100000000000L << -100000000000L << ((short)20000) << ((short)-20001) << string("San Francisco");
+    out.write("12345", 5);
+    out.flush();
+
+    istringstream instr(outstr.str());
+    DataInput in(instr);
+
+    bool b;
+    short s;
+    int i;
+    long l;
+    string str;
+    char buf[12];
+
+    in >> b;
+    assertTrue(b == false, "Expected false");
+    in >> b;
+    assertTrue(b == true, "Expected true");
+    in >> i;
+    assertTrue(i == 0, "Expected 0");
+    in >> i;
+    assertTrue(i == 1, "Expected 1");
+    in >> i;
+    assertTrue(i == -1, "Expected -1");
+    in >> i;
+    assertTrue(i == 2000000000, "Expected 2000000000");
+    in >> i;
+    assertTrue(i == -2000000001, "Expected -2000000001");
+    in >> l;
+    assertTrue(l == 100000000000L, "Expected 100000000000L");
+    in >> l;
+    assertTrue(l == -100000000000L, "Expected -100000000000L");
+    in >> s;
+    assertTrue(s == (short)20000, "Expected 20000");
+    in >> s;
+    assertTrue(s == (short)-20001, "Expected -20001");
+    in >> str;
+    assertTrue(str == "San Francisco", "Expected San Francisco");
+    in.read(buf, 5);
+    assertTrue(strncmp(buf, "12345", 5) == 0, "Expected 12345");
+}
 
 int main() {
 
@@ -401,7 +457,10 @@ int main() {
 
     testGZipModel();
 
+    testDataIO();
+
     reportTestResults();
+
 	return 0;
 }
 

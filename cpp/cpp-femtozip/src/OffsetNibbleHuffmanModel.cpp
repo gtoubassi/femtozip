@@ -24,6 +24,10 @@
 
 namespace femtozip {
 
+OffsetNibbleHuffmanModel::OffsetNibbleHuffmanModel() {
+
+}
+
 OffsetNibbleHuffmanModel::OffsetNibbleHuffmanModel(FrequencyHuffmanModel *literalLengthModel,
         FrequencyHuffmanModel *offsetNibble0Model,
         FrequencyHuffmanModel *offsetNibble1Model,
@@ -45,6 +49,28 @@ OffsetNibbleHuffmanModel::~OffsetNibbleHuffmanModel() {
     delete offsetNibble1Model;
     delete offsetNibble2Model;
     delete offsetNibble3Model;
+}
+
+void OffsetNibbleHuffmanModel::load(DataInput& in) {
+    literalLengthModel = new FrequencyHuffmanModel();
+    offsetNibble0Model = new FrequencyHuffmanModel();
+    offsetNibble1Model = new FrequencyHuffmanModel();
+    offsetNibble2Model = new FrequencyHuffmanModel();
+    offsetNibble3Model = new FrequencyHuffmanModel();
+
+    literalLengthModel->load(in);
+    offsetNibble0Model->load(in);
+    offsetNibble1Model->load(in);
+    offsetNibble2Model->load(in);
+    offsetNibble3Model->load(in);
+}
+
+void OffsetNibbleHuffmanModel::save(DataOutput& out) {
+    literalLengthModel->save(out);
+    offsetNibble0Model->save(out);
+    offsetNibble1Model->save(out);
+    offsetNibble2Model->save(out);
+    offsetNibble3Model->save(out);
 }
 
 void OffsetNibbleHuffmanModel::reset() {

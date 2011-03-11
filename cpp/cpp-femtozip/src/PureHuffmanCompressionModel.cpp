@@ -39,6 +39,24 @@ PureHuffmanCompressionModel::~PureHuffmanCompressionModel() {
     }
 }
 
+void PureHuffmanCompressionModel::load(DataInput& in) {
+    CompressionModel::load(in);
+    bool hasModel;
+    in >> hasModel;
+    if (hasModel) {
+        codeModel = new FrequencyHuffmanModel();
+        codeModel->load(in);
+    }
+}
+
+void PureHuffmanCompressionModel::save(DataOutput& out) {
+    CompressionModel::save(out);
+    out << (codeModel ? true : false);
+    if (codeModel) {
+        codeModel->save(out);
+    }
+}
+
 void PureHuffmanCompressionModel::build(DocumentList& documents) {
     vector<int> histogram(256, 0);
     for (int i = 0, count = documents.size(); i < count; i++) {

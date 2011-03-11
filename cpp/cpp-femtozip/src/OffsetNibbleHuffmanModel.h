@@ -43,6 +43,7 @@ protected:
     State state; // XXX Thread Safety!.
 
 public:
+    OffsetNibbleHuffmanModel();
     OffsetNibbleHuffmanModel(FrequencyHuffmanModel *literalLengthModel,
             FrequencyHuffmanModel *offsetNibble0Model,
             FrequencyHuffmanModel *offsetNibble1Model,
@@ -50,6 +51,9 @@ public:
             FrequencyHuffmanModel *offsetNibble3Model);
 
     virtual ~OffsetNibbleHuffmanModel();
+
+    virtual void load(DataInput& in);
+    virtual void save(DataOutput& out);
 
     void reset();
 

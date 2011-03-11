@@ -82,7 +82,7 @@ struct OffsetNibbleHuffmanModelBuilder : public SubstringPacker::Consumer {
 };
 
 
-OffsetNibbleHuffmanCompressionModel::OffsetNibbleHuffmanCompressionModel() {
+OffsetNibbleHuffmanCompressionModel::OffsetNibbleHuffmanCompressionModel() : codeModel(0), encoder(0) {
 }
 
 OffsetNibbleHuffmanCompressionModel::~OffsetNibbleHuffmanCompressionModel() {
@@ -94,6 +94,23 @@ OffsetNibbleHuffmanCompressionModel::~OffsetNibbleHuffmanCompressionModel() {
     }
 }
 
+void OffsetNibbleHuffmanCompressionModel::load(DataInput& in) {
+    CompressionModel::load(in);
+    bool hasModel;
+    in >> hasModel;
+    if (hasModel) {
+        codeModel = new OffsetNibbleHuffmanModel();
+        codeModel->load(in);
+    }
+}
+
+void OffsetNibbleHuffmanCompressionModel::save(DataOutput& out) {
+    CompressionModel::save(out);
+    out << (codeModel ? true : false);
+    if (codeModel) {
+        codeModel->save(out);
+    }
+}
 
 void OffsetNibbleHuffmanCompressionModel::build(DocumentList& documents) {
     buildDictionaryIfUnspecified(documents);
