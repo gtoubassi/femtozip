@@ -36,7 +36,7 @@ namespace femtozip {
 class OffsetNibbleHuffmanCompressionModel : public CompressionModel {
 private:
     OffsetNibbleHuffmanModel *codeModel;
-    HuffmanEncoder *encoder; // XXX threading
+    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder; // XXX threading
 
 public:
     OffsetNibbleHuffmanCompressionModel();

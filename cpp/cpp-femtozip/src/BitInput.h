@@ -39,7 +39,7 @@ public:
     BitInput(istream& input) : in(input), buffer(0), count(0) {};
 
     // 0, 1, or -1 for eof
-    int readBit() {
+    inline int readBit() {
         if (count == 0) {
             // Should I check eof before I call get?
             in.get(buffer);

@@ -151,6 +151,7 @@ void decompress() {
         long start = getTimeMillis();
         model->decompress(buf, length, outstr);
         duration += (getTimeMillis() - start);
+        /*
         string decompressedData = outstr.str();
 
         string compressedFile = *i;
@@ -167,6 +168,7 @@ void decompress() {
             remove(i->c_str());
         }
         file.close();
+        */
 
         delete[] buf;
     }

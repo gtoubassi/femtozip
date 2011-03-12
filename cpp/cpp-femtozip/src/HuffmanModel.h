@@ -27,9 +27,9 @@
 
 namespace femtozip {
 
-class HuffmanModel {
+class HuffmanModelX {
 public:
-    virtual ~HuffmanModel() {}
+    virtual ~HuffmanModelX() {}
     virtual Codeword& getCodewordForEOF() = 0;
     virtual Codeword& encode(int symbol) = 0;
     virtual Codeword& decode(int bits) = 0;

@@ -44,7 +44,12 @@ public:
     SubstringUnpacker(const char *dictionary, int length, vector<char>& output);
     ~SubstringUnpacker();
 
-    void encodeLiteral(int aByte);
+    void reserve(int size);
+
+    inline void encodeLiteral(int aByte) {
+        out.push_back((char)aByte);
+    }
+
     void encodeSubstring(int offset, int length);
     void endEncoding();
 };

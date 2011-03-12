@@ -125,7 +125,7 @@ SubstringPacker::Consumer *OffsetNibbleHuffmanCompressionModel::createModelBuild
 
 void OffsetNibbleHuffmanCompressionModel::compress(const char *buf, int length, ostream& out) {
     codeModel->reset();
-    encoder = new HuffmanEncoder(out, *codeModel);
+    encoder = new HuffmanEncoder<OffsetNibbleHuffmanModel>(out, *codeModel);
     CompressionModel::compress(buf, length, out);
     encoder->finish();
     delete encoder;
@@ -161,9 +161,10 @@ void OffsetNibbleHuffmanCompressionModel::decompress(const char *buf, int length
 
     codeModel->reset();
 
-    HuffmanDecoder decoder(in, *codeModel);
+    HuffmanDecoder<OffsetNibbleHuffmanModel> decoder(in, *codeModel);
     vector<char> outVector; //XXX performance.  Unpacker should pump right into out
     SubstringUnpacker unpacker(dict, dictLen, outVector);
+    unpacker.reserve(5*length);
 
     int nextSymbol;
     while ((nextSymbol = decoder.decodeSymbol()) != -1) {

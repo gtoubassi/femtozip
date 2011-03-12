@@ -24,17 +24,6 @@
 
 namespace femtozip {
 
-HuffmanEncoder::HuffmanEncoder(ostream& output, HuffmanModel& model) : bitOut(output), model(model) {
-}
-
-void HuffmanEncoder::encodeSymbol(int symbol) {
-    model.encode(symbol).write(bitOut);
-}
-
-void HuffmanEncoder::finish() {
-    model.getCodewordForEOF().write(bitOut); //EOF
-    bitOut.flush();
-}
 
 }
 

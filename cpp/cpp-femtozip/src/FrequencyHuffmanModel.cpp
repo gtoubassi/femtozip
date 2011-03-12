@@ -161,20 +161,4 @@ void FrequencyHuffmanModel::computeHuffmanCoding(vector<int>& histogram) {
     delete queue2[0];
 }
 
-Codeword& FrequencyHuffmanModel::getCodewordForEOF() {
-    return encoding[encoding.size() - 1];
-}
-
-Codeword& FrequencyHuffmanModel::encode(int symbol) {
-    return encoding[symbol];
-}
-
-Codeword& FrequencyHuffmanModel::decode(int bits) {
-    return decoding.decode(bits);
-}
-
-bool FrequencyHuffmanModel::isEOF(Codeword& codeword) {
-    return codeword == getCodewordForEOF();
-}
-
 }

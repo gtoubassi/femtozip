@@ -28,7 +28,7 @@
 
 namespace femtozip {
 
-class OffsetNibbleHuffmanModel: public femtozip::HuffmanModel {
+class OffsetNibbleHuffmanModel  {
 protected:
 
     enum State {
@@ -50,17 +50,70 @@ public:
             FrequencyHuffmanModel *offsetNibble2Model,
             FrequencyHuffmanModel *offsetNibble3Model);
 
-    virtual ~OffsetNibbleHuffmanModel();
+    ~OffsetNibbleHuffmanModel();
 
-    virtual void load(DataInput& in);
-    virtual void save(DataOutput& out);
+    void load(DataInput& in);
+    void save(DataOutput& out);
 
     void reset();
 
-    virtual Codeword& getCodewordForEOF();
-    virtual Codeword& encode(int symbol);
-    virtual Codeword& decode(int bits);
-    virtual bool isEOF(Codeword& codeword);
+    inline Codeword& getCodewordForEOF() {
+        return literalLengthModel->getCodewordForEOF();
+    }
+
+    inline Codeword& encode(int symbol) {
+        switch (state) {
+        case LiteralLengthState:
+            if (symbol > 255) {
+                state = OffsetNibble0State;
+            }
+            return literalLengthModel->encode(symbol);
+        case OffsetNibble0State:
+            state = OffsetNibble1State;
+            return offsetNibble0Model->encode(symbol);
+        case OffsetNibble1State:
+            state = OffsetNibble2State;
+            return offsetNibble1Model->encode(symbol);
+        case OffsetNibble2State:
+            state = OffsetNibble3State;
+            return offsetNibble2Model->encode(symbol);
+        case OffsetNibble3State:
+            state = LiteralLengthState;
+            return offsetNibble3Model->encode(symbol);
+        default:
+            throw "encode: illegal state";
+        }
+    }
+
+    inline Codeword& decode(int bits) {
+        switch (state) {
+        case LiteralLengthState:{
+                Codeword& codeword = literalLengthModel->decode(bits);
+                if (codeword.symbol > 255) {
+                    state = OffsetNibble0State;
+                }
+                return codeword;
+            }
+        case OffsetNibble0State:
+            state = OffsetNibble1State;
+            return offsetNibble0Model->decode(bits);
+        case OffsetNibble1State:
+            state = OffsetNibble2State;
+            return offsetNibble1Model->decode(bits);
+        case OffsetNibble2State:
+            state = OffsetNibble3State;
+            return offsetNibble2Model->decode(bits);
+        case OffsetNibble3State:
+            state = LiteralLengthState;
+            return offsetNibble3Model->decode(bits);
+        default:
+            throw "encode: illegal state";
+        }
+    }
+
+    inline bool isEOF(Codeword& codeword) {
+        return state == OffsetNibble0State && getCodewordForEOF() == codeword;
+    }
 };
 
 }

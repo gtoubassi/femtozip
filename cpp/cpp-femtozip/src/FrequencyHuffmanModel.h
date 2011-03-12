@@ -30,7 +30,7 @@
 
 namespace femtozip {
 
-class FrequencyHuffmanModel : public HuffmanModel {
+class FrequencyHuffmanModel {
 
 protected:
     vector<Codeword> encoding;
@@ -44,15 +44,26 @@ public:
 
     FrequencyHuffmanModel();
     FrequencyHuffmanModel(vector<int>& histogram, bool allSymbolsSampled);
-    virtual ~FrequencyHuffmanModel();
+    ~FrequencyHuffmanModel();
 
-    virtual void load(DataInput& in);
-    virtual void save(DataOutput& out);
+    void load(DataInput& in);
+    void save(DataOutput& out);
 
-    virtual Codeword& getCodewordForEOF();
-    virtual Codeword& encode(int symbol);
-    virtual Codeword& decode(int bits);
-    virtual bool isEOF(Codeword& codeword);
+    inline Codeword& getCodewordForEOF() {
+        return encoding[encoding.size() - 1];
+    }
+
+    inline Codeword& encode(int symbol) {
+        return encoding[symbol];
+    }
+
+    inline Codeword& decode(int bits) {
+        return decoding.decode(bits);
+    }
+
+    inline bool isEOF(Codeword& codeword) {
+        return codeword == getCodewordForEOF();
+    }
 };
 
 }

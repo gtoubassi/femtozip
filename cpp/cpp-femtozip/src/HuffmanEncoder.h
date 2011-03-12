@@ -25,20 +25,27 @@
 
 #include <iostream>
 #include "BitOutput.h"
-#include "HuffmanModel.h"
 
 namespace femtozip {
 
-class HuffmanEncoder {
+template <class T> class HuffmanEncoder {
 protected:
     BitOutput bitOut;
-    HuffmanModel& model;
+    T& model;
 
 public:
-    HuffmanEncoder(ostream& output, HuffmanModel& model);
+    HuffmanEncoder(ostream& output, T& model) : bitOut(output), model(model) {
+    }
 
-    void encodeSymbol(int symbol);
-    void finish();
+    inline void encodeSymbol(int symbol) {
+        model.encode(symbol).write(bitOut);
+    }
+
+    inline void finish() {
+        model.getCodewordForEOF().write(bitOut); //EOF
+        bitOut.flush();
+    }
+
 
 };
 

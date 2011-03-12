@@ -77,7 +77,7 @@ void PureHuffmanCompressionModel::encodeSubstring(int offset, int length) { thro
 void PureHuffmanCompressionModel::endEncoding() { throw "PureHuffmanModel::endEncoding should not be invoked";}
 
 void PureHuffmanCompressionModel::compress(const char *buf, int length, ostream& out) {
-    HuffmanEncoder encoder(out, *codeModel);
+    HuffmanEncoder<FrequencyHuffmanModel> encoder(out, *codeModel);
     for (int i = 0; i < length; i++) {
         encoder.encodeSymbol(((int)buf[i]) & 0xff);
     }
@@ -89,7 +89,7 @@ void PureHuffmanCompressionModel::decompress(const char *buf, int length, ostrea
     NoCopyReadOnlyStreamBuf readBuf(const_cast<char *>(buf), length);
     istream in(&readBuf);
 
-    HuffmanDecoder decoder(in, *codeModel);
+    HuffmanDecoder<FrequencyHuffmanModel> decoder(in, *codeModel);
 
     int nextSymbol;
     while ((nextSymbol = decoder.decodeSymbol()) != -1) {

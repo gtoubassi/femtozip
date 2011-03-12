@@ -126,7 +126,6 @@ void testPack(const char *expected, const char *buf, const char *dict = "") {
             assertTrue(strncmp(buf, &unpackedBytes[0], strlen(buf)) == 0, "Could not roundtrip packed string");
         }
     }
-
 }
 
 void testSubstringPacker() {

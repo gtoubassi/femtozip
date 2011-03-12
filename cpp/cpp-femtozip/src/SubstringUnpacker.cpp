@@ -36,8 +36,8 @@ SubstringUnpacker::SubstringUnpacker(const char *dictionary, int length, vector<
 SubstringUnpacker::~SubstringUnpacker() {
 }
 
-void SubstringUnpacker::encodeLiteral(int aByte) {
-    out.push_back((char)aByte);
+void SubstringUnpacker::reserve(int size) {
+    out.reserve(size);
 }
 
 void SubstringUnpacker::encodeSubstring(int offset, int length) {
