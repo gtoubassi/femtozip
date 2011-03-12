@@ -41,8 +41,9 @@ public:
 
     virtual ~CStringDocumentList();
 
-    int size();
-    const char *get(int i, int& length);
+    virtual int size();
+    virtual const char *get(int i, int& length);
+    virtual void release(const char *buf);
 };
 
 }

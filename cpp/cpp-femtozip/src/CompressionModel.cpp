@@ -20,10 +20,48 @@
  *      Author: gtoubassi
  */
 
+#include <iostream>
 #include "CompressionModel.h"
 #include "DictionaryOptimizer.h"
+#include "PureHuffmanCompressionModel.h"
+#include "OffsetNibbleHuffmanCompressionModel.h"
+#include "GZipCompressionModel.h"
+#include "GZipDictionaryCompressionModel.h"
+
+using namespace std;
 
 namespace femtozip {
+
+CompressionModel *CompressionModel::createModel(const string& type) {
+    if (type == "PureHuffman") {
+        return new PureHuffmanCompressionModel();
+    }
+    else if (type == "OffsetNibbleHuffman") {
+        return new OffsetNibbleHuffmanCompressionModel();
+    }
+    else if (type == "GZip") {
+        return new GZipCompressionModel();
+    }
+    else if (type == "GZipDictionary") {
+        return new GZipDictionaryCompressionModel();
+    }
+    else {
+        throw "Unknown model";
+    }
+}
+
+void CompressionModel::saveModel(CompressionModel& model, DataOutput& out) {
+    out << string(model.typeName());
+    model.save(out);
+}
+
+CompressionModel *CompressionModel::loadModel(DataInput& in) {
+    string type;
+    in >> type;
+    CompressionModel *model = createModel(type);
+    model->load(in);
+    return model;
+}
 
 CompressionModel::CompressionModel() : dict(0), dictLen(0) {
 
@@ -84,7 +122,7 @@ SubstringPacker::Consumer *CompressionModel::buildEncodingModel(DocumentList& do
         int length;
         const char * docBytes = documents.get(i, length);
         modelBuildingPacker.pack(docBytes, length, *modelBuilder);
-        delete[] docBytes;
+        documents.release(docBytes);
     }
 
     return modelBuilder;

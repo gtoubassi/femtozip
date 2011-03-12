@@ -27,6 +27,7 @@
 #include <string>
 
 #include "DocumentList.h"
+#include "FileUtil.h"
 
 using namespace std;
 
@@ -34,14 +35,31 @@ namespace femtozip {
 
 class FileDocumentList: public femtozip::DocumentList {
 protected:
+    class FileData {
+    public:
+        const char *data;
+        int length;
+
+        FileData(const char *path) {
+            data = FileUtil::readFully(path, length);
+        }
+
+        ~FileData() {
+            delete[] data;
+        }
+    };
+
 	vector<string> files;
+	bool preload;
+	vector<FileData *> data;
 
 public:
-	explicit FileDocumentList(vector<string>& paths);
+	explicit FileDocumentList(vector<string>& paths, bool preload = false);
 	virtual ~FileDocumentList();
 
 	virtual int size();
 	virtual const char *get(int i, int& length);
+    virtual void release(const char *buf);
 };
 
 }

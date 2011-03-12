@@ -42,26 +42,18 @@ OptimizingCompressionModel::OptimizingCompressionModel() {
 
 OptimizingCompressionModel::OptimizingCompressionModel(vector<string>& models) {
     totalDataSize = 0;
-    for (vector<string>::iterator i = models.begin(); i != models.end(); i++) {
-        CompressionModel *model;
+    if (models.size() == 0) {
+        results.push_back(CompressionResult(new OffsetNibbleHuffmanCompressionModel()));
+        results.push_back(CompressionResult(new PureHuffmanCompressionModel()));
+    }
+    else {
+        for (vector<string>::iterator i = models.begin(); i != models.end(); i++) {
+            CompressionModel *model;
 
-        if (*i == "PureHuffman") {
-            model = new PureHuffmanCompressionModel();
+            model = CompressionModel::createModel(*i);
+            CompressionResult result(model);
+            results.push_back(result);
         }
-        else if (*i == "OFfsetNibbleHuffman") {
-            model = new OffsetNibbleHuffmanCompressionModel();
-        }
-        else if (*i == "GZip") {
-            model = new GZipCompressionModel();
-        }
-        else if (*i == "GZipDictionary") {
-            model = new GZipDictionaryCompressionModel();
-        }
-        else {
-            throw "Unknown model";
-        }
-        CompressionResult result(model);
-        results.push_back(result);
     }
 }
 
@@ -69,6 +61,14 @@ OptimizingCompressionModel::~OptimizingCompressionModel() {
     for (vector<CompressionResult>::iterator i = results.begin(); i != results.end(); i++) {
         delete i->model;
     }
+}
+
+void OptimizingCompressionModel::load(DataInput& in) {
+    throw "OptimizingCompressionModel::load unsupported";
+}
+
+void OptimizingCompressionModel::save(DataOutput& out) {
+    throw "OptimizingCompressionModel::save unsupported";
 }
 
 void OptimizingCompressionModel::build(DocumentList& documents) {
@@ -111,7 +111,7 @@ void OptimizingCompressionModel::optimize(DocumentList& documents) {
             result->totalDataSize += length;
         }
 
-        delete[] buf;
+        documents.release(buf);
     }
 
     sortedResults = results;

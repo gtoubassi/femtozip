@@ -54,8 +54,11 @@ int CStringDocumentList::size() {
 const char *CStringDocumentList::get(int i, int& length) {
     const char *str = strings[i];
     length = strlen(str);
-    char *copy = new char[length + 1];
-    return strcpy(copy, str);
+    return str;
 }
+
+void CStringDocumentList::release(const char *buf) {
+}
+
 
 }

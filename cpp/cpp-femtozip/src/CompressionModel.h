@@ -38,6 +38,10 @@ protected:
     virtual void buildDictionaryIfUnspecified(DocumentList& documents);
 
 public:
+    static CompressionModel *createModel(const string& type);
+    static void saveModel(CompressionModel& model, DataOutput& out);
+    static CompressionModel *loadModel(DataInput& in);
+
     CompressionModel();
     virtual ~CompressionModel();
 

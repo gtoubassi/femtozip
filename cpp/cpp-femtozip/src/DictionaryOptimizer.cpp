@@ -43,7 +43,7 @@ DictionaryOptimizer::DictionaryOptimizer(DocumentList& documents) {
             bytes.resize(bytes.size() + length);
             memcpy(&bytes[currSize], buf, length);
         }
-        delete[] buf;
+        documents.release(buf);
     }
 }
 

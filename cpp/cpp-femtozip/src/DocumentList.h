@@ -32,6 +32,7 @@ public:
 
 	virtual int size() = 0;
 	virtual const char *get(int i, int& length) = 0;
+	virtual void release(const char *buf) = 0;
 };
 
 }

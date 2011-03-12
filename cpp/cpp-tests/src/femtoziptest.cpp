@@ -95,17 +95,17 @@ void testDocumentList() {
     const char *buf = docs.get(0, length);
     assertTrue(length == 5, "Wrong length for doc 0");
     assertTrue(memcmp("hello", buf, length) == 0, "Wrong bytes for doc 0");
-    delete[] buf;
+    docs.release(buf);
 
     buf = docs.get(1, length);
     assertTrue(length == 5, "Wrong length for doc 1");
     assertTrue(memcmp("there", buf, length) == 0, "Wrong bytes for doc 1");
-    delete[] buf;
+    docs.release(buf);
 
     buf = docs.get(2, length);
     assertTrue(length == 11, "Wrong length for doc 2");
     assertTrue(memcmp("how are you", buf, length) == 0, "Wrong bytes for doc 2");
-    delete[] buf;
+    docs.release(buf);
 }
 
 void testPack(const char *expected, const char *buf, const char *dict = "") {

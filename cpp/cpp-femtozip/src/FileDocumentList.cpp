@@ -24,16 +24,24 @@
 #include <fstream>
 
 #include "FileDocumentList.h"
+#include "FileUtil.h"
 
 using namespace std;
 
 namespace femtozip {
 
-FileDocumentList::FileDocumentList(vector<string>& paths) {
-    files = paths;
+FileDocumentList::FileDocumentList(vector<string>& paths, bool preload) : files(paths), preload(preload) {
+    if (preload) {
+        for (vector<string>::iterator i = paths.begin(); i != paths.end(); i++) {
+            data.push_back(new FileData(i->c_str()));
+        }
+    }
 }
 
 FileDocumentList::~FileDocumentList() {
+    for (vector<FileData *>::iterator i = data.begin(); i != data.end(); i++) {
+        delete[] *i;
+    }
 }
 
 int FileDocumentList::size() {
@@ -41,21 +49,19 @@ int FileDocumentList::size() {
 }
 
 const char *FileDocumentList::get(int i, int& length) {
-    ifstream file(files[i].c_str(), ios::in | ios::binary | ios::ate);
-    if (file.is_open()) {
-        streampos size = file.tellg();
-        char *buf = new char[size];
-        file.seekg(0, ios::beg);
-        file.read(buf, size);
-        file.close();
-
-        length = size;
-
-        return buf;
-    } else {
-        cout << "Unable to open file " << files[i];
+    if (preload) {
+        length = data[i]->length;
+        return data[i]->data;
     }
-    return 0;
+    else {
+        return FileUtil::readFully(files[i].c_str(), length);
+    }
+}
+
+void FileDocumentList::release(const char *buf) {
+    if (!preload) {
+        delete[] buf;
+    }
 }
 
 }

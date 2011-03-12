@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include "CompressionModel.h"
+#include "DataIO.h"
 
 using namespace std;
 
@@ -54,9 +55,12 @@ public:
     OptimizingCompressionModel();
     OptimizingCompressionModel(vector<string>& models);
 
-    virtual const char *typeName() { return "Optimizing"; };
-
     virtual ~OptimizingCompressionModel();
+
+    virtual void load(DataInput& in);
+    virtual void save(DataOutput& out);
+
+    virtual const char *typeName() { return "Optimizing"; };
 
     virtual void build(DocumentList& documents);
     virtual void optimize(DocumentList& documents);
