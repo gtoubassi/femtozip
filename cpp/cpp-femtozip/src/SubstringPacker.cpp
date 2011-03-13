@@ -28,7 +28,7 @@ using namespace std;
 
 namespace femtozip {
 
-static const int MinimumMatchLength = Prefix::PrefixLength;
+static const int MinimumMatchLength = PrefixHash::PrefixLength;
 
 
 SubstringPacker::SubstringPacker(const char *dictionary, int length) {
@@ -62,7 +62,7 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
         const char *bestMatch = 0;
         int bestMatchLength = 0;
 
-        if (curr + Prefix::PrefixLength - 1 < end) {
+        if (curr + PrefixHash::PrefixLength - 1 < end) {
             dictHash->getBestMatch(curr, buf, bufLen, bestMatch, bestMatchLength);
             const char *localMatch;
             int localMatchLength;
@@ -98,7 +98,7 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
             // encode the same relative locations which is better for compressing the locations.
             const char *endMatch = curr - 1 + previousMatchLength;
             curr++;
-            while (curr < endMatch && curr + Prefix::PrefixLength < end) {
+            while (curr < endMatch && curr + PrefixHash::PrefixLength < end) {
                 hash.put(curr);
                 curr++;
             }

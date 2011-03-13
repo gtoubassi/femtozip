@@ -17,11 +17,8 @@
 #ifndef PREFIXHASH_H_
 #define PREFIXHASH_H_
 
-#include <ext/hash_map>
 #include <vector>
-#include "Prefix.h"
 
-using namespace __gnu_cxx;
 using namespace std;
 
 namespace femtozip {
@@ -30,16 +27,21 @@ class PrefixHash {
 protected:
     const char *buf;
     int length;
-    hash_map<Prefix, vector<Prefix> *, HashPrefix> previousStrings;
+    int *hash;
+    int hashCapacity;
+    int *heap;
+
+    int index(const char *p);
+    int index(int i);
 
 public:
+    static const int PrefixLength = 4;
+
     PrefixHash(const char *buf, int length, bool addToHash);
     virtual ~PrefixHash();
 
     void getBestMatch(const char *target, const char *targetBuf, int targetBufLen, const char *& bestMatch, int& bestMatchLength);
     void put(const char *p);
-
-    void checkit();
 };
 
 }

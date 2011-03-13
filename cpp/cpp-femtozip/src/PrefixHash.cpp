@@ -22,38 +22,41 @@ using namespace std;
 namespace femtozip {
 
 PrefixHash::PrefixHash(const char *buf, int length, bool addToHash) : buf(buf), length(length) {
+    hashCapacity = 1.5 * length;
+    hash = new int[hashCapacity];
+    memset(hash, -1, hashCapacity * sizeof(int));
+    heap = new int[length];
+    memset(heap, -1, length * sizeof(int));
     if (addToHash) {
-        for (const char *p = buf, *end = buf + length - Prefix::PrefixLength; p < end; p++) {
+        for (const char *p = buf, *end = buf + length - PrefixLength; p < end; p++) {
             put(p);
         }
     }
 }
 
 PrefixHash::~PrefixHash() {
-    for (hash_map<Prefix, vector<Prefix> *, HashPrefix>::iterator i = previousStrings.begin(); i != previousStrings.end(); i++) {
-        delete i->second;
+    if (hash) {
+        delete[] hash;
+    }
+    if (heap) {
+        delete[] heap;
     }
 }
 
-inline vector<Prefix> *getPrefixLocations(hash_map<Prefix, vector<Prefix> *, HashPrefix>& table, Prefix prefix) {
-    hash_map<Prefix, vector<Prefix> *, HashPrefix>::iterator i = table.find(prefix);
-    if (i == table.end()) {
-        vector<Prefix> *v = new vector<Prefix>;
-        table[prefix] = v;
-        return v;
-    }
-    return i->second;
+int PrefixHash::index(const char *p) {
+    int index = (*reinterpret_cast<const unsigned int *>(p));
+    return index % hashCapacity;
 }
 
-inline vector<Prefix> *checkPrefixLocations(const hash_map<Prefix, vector<Prefix> *, HashPrefix>& table, Prefix prefix) {
-    hash_map<Prefix, vector<Prefix> *, HashPrefix>::const_iterator i = table.find(prefix);
-    return i == table.end() ? 0 : i->second;
+int PrefixHash::index(int i) {
+    return index(buf + i);
 }
 
 void PrefixHash::put(const char *p) {
-    Prefix prefix(p);
-    vector<Prefix> *v = getPrefixLocations(previousStrings, prefix);
-    v->push_back(prefix);
+    int hashIndex = index(p);
+    int index = (int)(p - buf);
+    heap[index] = hash[hashIndex];
+    hash[hashIndex] = index;
 }
 
 
@@ -65,20 +68,16 @@ void PrefixHash::getBestMatch(const char *target, const char *targetBuf, int tar
         return;
     }
 
-    vector<Prefix> *list = checkPrefixLocations(previousStrings, Prefix(target));
-    if (!list) {
-        return;
-    }
-
-    for (vector<Prefix>::reverse_iterator i = list->rbegin(); i != list->rend(); i++) {
-        Prefix candidate = *i;
+    int targetHashIndex = index(target);
+    int candidate = hash[targetHashIndex];
+    while (candidate != -1) {
 
         int distance;
         if (targetBuf != buf) {
-            distance = buf + length - candidate.prefix + target - targetBuf;
+            distance = length - candidate + target - targetBuf;
         }
         else {
-            distance = target - candidate.prefix;
+            distance = target - targetBuf - candidate;
         }
         if (distance > (2<<15)-1) {
             // Since we are iterating over nearest offsets first, once we pass 64k
@@ -87,9 +86,9 @@ void PrefixHash::getBestMatch(const char *target, const char *targetBuf, int tar
         }
 
         const char *maxMatchJ = min(target + 255, targetBuf + targetBufLen);
-        const char *maxMatchK = min(candidate.prefix + 255, buf + length);
+        const char *maxMatchK = min(buf + candidate + 255, buf + length);
         const char *j, *k;
-        for (j = target + Prefix::PrefixLength, k = candidate.prefix + Prefix::PrefixLength; j < maxMatchJ && k < maxMatchK; j++, k++) {
+        for (j = target, k = buf + candidate; j < maxMatchJ && k < maxMatchK; j++, k++) {
             if (*j != *k) {
                 break;
             }
@@ -97,9 +96,11 @@ void PrefixHash::getBestMatch(const char *target, const char *targetBuf, int tar
 
         int matchLength = j - target;
         if (matchLength > bestMatchLength) {
-            bestMatch = candidate.prefix;
+            bestMatch = buf + candidate;
             bestMatchLength = matchLength;
         }
+
+        candidate = heap[candidate];
     }
 }
 

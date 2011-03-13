@@ -3,7 +3,6 @@
 	<name>cpp-tests</name>
 	<comment></comment>
 	<projects>
-		<project>cpp-femtozip</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
