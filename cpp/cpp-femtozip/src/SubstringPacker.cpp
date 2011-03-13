@@ -23,62 +23,34 @@
 #include <vector>
 
 #include "SubstringPacker.h"
-#include "Prefix.h"
 
 using namespace std;
-using namespace __gnu_cxx;
 
-/*
- * XXX Performance considerations
- *
- * 1. Don't copy the dictionary. haha
- * 2. Prehash the dictionary ala sdch
- * 2. avoid dynamic memory allocation of the prefix lists.
- * 3. avoid virtualized encoding.  use templates?
- * 4. Is the hash fast enough?  gzip uses rolling hash, we are using raw int case followed by implicit modulo?
- */
 namespace femtozip {
 
 static const int MinimumMatchLength = Prefix::PrefixLength;
 
 
 SubstringPacker::SubstringPacker(const char *dictionary, int length) {
-    dict = dictionary;
-    dictLen = length;
+    if (!dictionary) {
+        dict = "";
+        dictLen = 0;
+    }
+    else {
+        dict = dictionary;
+        dictLen = length;
+    }
+    dictHash = new PrefixHash(dict, dictLen, true);
 }
 
 SubstringPacker::~SubstringPacker() {
-}
-
-
-inline vector<Prefix> *getPrefixLocations(hash_map<Prefix, vector<Prefix> *, HashPrefix>& table, Prefix prefix) {
-    vector<Prefix> *v = table[prefix];
-    if (!v) {
-        v = new vector<Prefix>;
-        table[prefix] = v;
+    if (dictHash) {
+        delete dictHash;
     }
-    return v;
 }
-
-inline void addPrefixLocation(hash_map<Prefix, vector<Prefix> *, HashPrefix>& table, Prefix prefix) {
-    vector<Prefix> *v = getPrefixLocations(table, prefix);
-    v->push_back(prefix);
-}
-
 
 void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
-    hash_map<Prefix, vector<Prefix> *, HashPrefix> previousStrings;
-
-    int totalLen = dictLen + bufLen;
-    char *newRawBytes = new char[totalLen];
-    memcpy(newRawBytes, dict, dictLen);
-    memcpy(newRawBytes + dictLen, buf, bufLen);
-
-    buf = newRawBytes;
-
-    for (const char *p = buf, *end = buf + dictLen - 2; p < end; p++) {
-        addPrefixLocation(previousStrings, Prefix(p));
-    }
+    PrefixHash hash(buf, bufLen, false);
 
     const char *previousMatch = 0;
     int previousMatchLength = 0;
@@ -86,42 +58,24 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
     const char *curr;
     const char *end;
 
-    for (curr = buf + dictLen, end = buf + totalLen; curr < end; curr++) {
+    for (curr = buf, end = buf + bufLen; curr < end; curr++) {
         const char *bestMatch = 0;
         int bestMatchLength = 0;
 
         if (curr + Prefix::PrefixLength - 1 < end) {
-            vector<Prefix> *matches = getPrefixLocations(previousStrings, Prefix(curr));
+            dictHash->getBestMatch(curr, buf, bufLen, bestMatch, bestMatchLength);
+            const char *localMatch;
+            int localMatchLength;
+            hash.getBestMatch(curr, buf, bufLen, localMatch, localMatchLength);
 
-            // find the best match
-            // Always check nearest indexes first.
-            for (vector<Prefix>::reverse_iterator i = matches->rbegin(); i != matches->rend(); i++) {
-                const char *currMatch = i->prefix;
-
-                // Make sure we are within 64k.  This is arbitrary, but is
-                // used in the symbol encoding stage (8 bits for match length, 16 bits for match offset)
-                if (curr - currMatch > (2<<15)-1) {
-                    // Since we are iterating over nearest offsets first, once we pass 64k
-                    // we know the rest are over 64k too.
-                    break;
-                }
-
-                // We know the first Prefix::PrefixLength bytes already match since they share the same prefix.
-                const char *j, *k, *maxMatch;
-                for (j = curr + Prefix::PrefixLength, k = currMatch + Prefix::PrefixLength, maxMatch = min(curr + 255, end); j < maxMatch; j++, k++) {
-                    if (*j != *k) {
-                        break;
-                    }
-                }
-
-                int matchLength = k - currMatch;
-                if (matchLength > bestMatchLength) {
-                    bestMatch = currMatch;
-                    bestMatchLength = matchLength;
-                }
+            // Note the >= because we prefer a match that is nearer (and a match
+            // in the string being compressed is always closer than one from the dict).
+            if (localMatchLength >= bestMatchLength) {
+                bestMatch = localMatch;
+                bestMatchLength = localMatchLength;
             }
 
-            matches->push_back(Prefix(curr));
+            hash.put(curr);
         }
 
         if (bestMatchLength < MinimumMatchLength) {
@@ -131,15 +85,21 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
 
         if (previousMatchLength > 0 && bestMatchLength <= previousMatchLength) {
             // We didn't get a match or we got one and the previous match is better
-            consumer.encodeSubstring(-(curr - 1 - previousMatch), previousMatchLength);
+            if (previousMatch >= dict && previousMatch < dict + dictLen) {
+                // Match is in the dictionary
+                consumer.encodeSubstring(-((curr - buf) - 1 + dict + dictLen - previousMatch), previousMatchLength);
+            }
+            else {
+                // Match is in the string itself (local)
+                consumer.encodeSubstring(-(curr - 1 - previousMatch), previousMatchLength);
+            }
 
             // Make sure locations are added for the match.  This allows repetitions to always
             // encode the same relative locations which is better for compressing the locations.
-            //XXX
             const char *endMatch = curr - 1 + previousMatchLength;
             curr++;
             while (curr < endMatch && curr + Prefix::PrefixLength < end) {
-                addPrefixLocation(previousStrings, Prefix(curr));
+                hash.put(curr);
                 curr++;
             }
             curr = endMatch - 1; // Make sure 'curr' is pointing to the last processed byte so it is at the right place in the next iteration
@@ -163,13 +123,6 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
         }
     }
     consumer.endEncoding();
-
-    // Clean up memory
-
-    for (hash_map<Prefix, vector<Prefix> *, HashPrefix>::iterator i = previousStrings.begin(); i != previousStrings.end(); i++) {
-        delete i->second;
-    }
-    delete[] buf;
 }
 
 }

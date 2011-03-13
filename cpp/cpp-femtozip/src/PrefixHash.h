@@ -13,46 +13,35 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-/*
- * SubstringPacker.h
- *
- *  Created on: Mar 2, 2011
- *      Author: gtoubassi
- */
 
-#ifndef SUBSTRINGPACKER_H_
-#define SUBSTRINGPACKER_H_
+#ifndef PREFIXHASH_H_
+#define PREFIXHASH_H_
 
-#include <string>
-#include "PrefixHash.h"
+#include <ext/hash_map>
+#include <vector>
+#include "Prefix.h"
 
+using namespace __gnu_cxx;
 using namespace std;
 
 namespace femtozip {
 
-class SubstringPacker {
-
-private:
-    const char *dict;
-    int dictLen;
-    PrefixHash *dictHash;
+class PrefixHash {
+protected:
+    const char *buf;
+    int length;
+    hash_map<Prefix, vector<Prefix> *, HashPrefix> previousStrings;
 
 public:
+    PrefixHash(const char *buf, int length, bool addToHash);
+    virtual ~PrefixHash();
 
-    class Consumer {
-    public:
-        virtual void encodeLiteral(int aByte) = 0;
-        virtual void encodeSubstring(int offset, int length) = 0;
-        virtual void endEncoding() = 0;
-    };
+    void getBestMatch(const char *target, const char *targetBuf, int targetBufLen, const char *& bestMatch, int& bestMatchLength);
+    void put(const char *p);
 
-    SubstringPacker(const char *dictionary, int length);
-    ~SubstringPacker();
-
-    void pack(const char *bytes, int length, Consumer& consumer);
+    void checkit();
 };
-
 
 }
 
-#endif /* SUBSTRINGPACKER_H_ */
+#endif /* PREFIXHASH_H_ */

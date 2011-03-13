@@ -42,7 +42,7 @@ Operation operation = None;
 vector<string> models;
 vector<string> paths;
 bool verbose = false;
-bool preload = false;
+bool benchmark = false;
 
 long getTimeMillis() {
     timeval tim;
@@ -86,11 +86,13 @@ void buildModel() {
     model.optimize(pass2Docs);
 
     long duration = getTimeMillis() - start;
-    if (verbose) {
-        cout <<"Done in " << setprecision(6) << (duration / 1000.0) << "s" << endl;
+    if (verbose || benchmark) {
+        cout <<"Model built in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
     }
 
-    saveModel(*model.getBestPerformingModel());
+    if (!benchmark) {
+        saveModel(*model.getBestPerformingModel());
+    }
 }
 
 void compress() {
@@ -111,23 +113,26 @@ void compress() {
         long start = getTimeMillis();
         model->compress(buf, length, outstr);
         duration += (getTimeMillis() - start);
-        string compressedData = outstr.str();
 
-        string compressedFile = *i + ".fz";
-        ofstream file(compressedFile.c_str(), ios::out | ios::binary | ios::trunc);
-        if (file.is_open()) {
-            file.write(compressedData.c_str(), compressedData.length());
-            if (file.good()) {
-                remove(i->c_str());
+        if (!benchmark) {
+            string compressedData = outstr.str();
+
+            string compressedFile = *i + ".fz";
+            ofstream file(compressedFile.c_str(), ios::out | ios::binary | ios::trunc);
+            if (file.is_open()) {
+                file.write(compressedData.c_str(), compressedData.length());
+                if (file.good()) {
+                    remove(i->c_str());
+                }
+                file.close();
             }
-            file.close();
         }
 
         delete[] buf;
     }
 
-    if (verbose) {
-        cout <<"Done in " << setprecision(6) << (duration / 1000.0) << "s" << endl;
+    if (verbose || benchmark) {
+        cout <<"Compression performed in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
     }
 
     delete model;
@@ -151,30 +156,31 @@ void decompress() {
         long start = getTimeMillis();
         model->decompress(buf, length, outstr);
         duration += (getTimeMillis() - start);
-        /*
-        string decompressedData = outstr.str();
 
-        string compressedFile = *i;
-        string uncompressedFile = compressedFile;
-        if (compressedFile.length() > 3) {
-            size_t extension = compressedFile.find_last_of(".fz", string::npos, 3);
-            if (extension == compressedFile.length() - 1) {
-                uncompressedFile = compressedFile.substr(0, extension - 2);
+        if (!benchmark) {
+            string decompressedData = outstr.str();
+
+            string compressedFile = *i;
+            string uncompressedFile = compressedFile;
+            if (compressedFile.length() > 3) {
+                size_t extension = compressedFile.find_last_of(".fz", string::npos, 3);
+                if (extension == compressedFile.length() - 1) {
+                    uncompressedFile = compressedFile.substr(0, extension - 2);
+                }
             }
+            ofstream file(uncompressedFile.c_str(), ios::out | ios::binary | ios::trunc);
+            file.write(decompressedData.c_str(), decompressedData.length());
+            if (file.good() && uncompressedFile != compressedFile) {
+                remove(i->c_str());
+            }
+            file.close();
         }
-        ofstream file(uncompressedFile.c_str(), ios::out | ios::binary | ios::trunc);
-        file.write(decompressedData.c_str(), decompressedData.length());
-        if (file.good() && uncompressedFile != compressedFile) {
-            remove(i->c_str());
-        }
-        file.close();
-        */
 
         delete[] buf;
     }
 
-    if (verbose) {
-        cout <<"Done in " << setprecision(6) << (duration / 1000.0) << "s" << endl;
+    if (verbose || benchmark) {
+        cout <<"Decompression performed in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
     }
 
     delete model;
@@ -185,7 +191,7 @@ void usage(const string& error = "") {
     if (error.length() > 0) {
         cout << error << endl << endl;
     }
-    cout << "usage: --model <path> --build|compress|decompress [--models model1,model2,...] [--verbose] [--preload] <path> ..." << endl;
+    cout << "usage: --model <path> --build|compress|decompress [--models model1,model2,...] [--verbose] [--benchmark] <path> ..." << endl;
     cout << "       if path is a directory all files in the specified directory are used" << endl;
     if (error.length() > 0) {
         exit(1);
@@ -216,8 +222,8 @@ void parseArgs(int argc, const char **argv) {
         else if (strcmp("--verbose", arg) == 0) {
             verbose = true;
         }
-        else if (strcmp("--preload", arg) == 0) {
-            preload = true;
+        else if (strcmp("--benchmark", arg) == 0) {
+            benchmark = true;
         }
         else if (strcmp("--models", arg) == 0) {
             string modelNames = argv[++i];

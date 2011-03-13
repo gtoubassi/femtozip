@@ -63,25 +63,31 @@ CompressionModel *CompressionModel::loadModel(DataInput& in) {
     return model;
 }
 
-CompressionModel::CompressionModel() : dict(0), dictLen(0) {
-
+CompressionModel::CompressionModel() : dict(0), dictLen(0), packer(0) {
 }
 
 CompressionModel::~CompressionModel() {
+    if (packer) {
+        delete packer;
+        packer = 0;
+    }
     if (dict) {
         delete[] dict;
     }
 }
 
 void CompressionModel::load(DataInput& in) {
-    in >> dictLen;
-    dict = 0;
-    if (dictLen > 0) {
-        char *d = new char[dictLen];
-        in.read(d, dictLen);
-        dict = d;
+    int length;
+    in >> length;
+    char *d = 0;
+    if (length > 0) {
+        d = new char[length];
+        in.read(d, length);
     }
-
+    setDictionary(d, length);
+    if (d) {
+        delete[] d;
+    }
 }
 
 void CompressionModel::save(DataOutput& out) {
@@ -92,11 +98,29 @@ void CompressionModel::save(DataOutput& out) {
 }
 
 void CompressionModel::setDictionary(const char *dictionary, int length) {
-    char *d = new char[length];
-    memcpy(d, dictionary, length);
-    dict = d;
-    dictLen = length;
+    if (length) {
+        char *d = new char[length];
+        memcpy(d, dictionary, length);
+        dict = d;
+        dictLen = length;
+    }
+    else {
+        dict = 0;
+        dictLen = 0;
+    }
+    if (packer) {
+        delete packer;
+        packer = 0;
+    }
 }
+
+SubstringPacker *CompressionModel::getSubstringPacker() {
+    if (!packer) {
+        packer = new SubstringPacker(dict, dictLen);
+    }
+    return packer;
+}
+
 
 const char *CompressionModel::getDictionary(int& length) {
     length = dictLen;
@@ -104,9 +128,7 @@ const char *CompressionModel::getDictionary(int& length) {
 }
 
 void CompressionModel::compress(const char *buf, int length, ostream& out) {
-    SubstringPacker packer(dict, dictLen);
-    packer.pack(buf, length, *this);
-
+    getSubstringPacker()->pack(buf, length, *this);
 }
 
 SubstringPacker::Consumer *CompressionModel::createModelBuilder() {

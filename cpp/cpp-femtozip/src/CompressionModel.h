@@ -34,8 +34,10 @@ class CompressionModel : public SubstringPacker::Consumer {
 protected:
     const char *dict;
     int dictLen;
+    SubstringPacker *packer;
 
     virtual void buildDictionaryIfUnspecified(DocumentList& documents);
+    SubstringPacker *getSubstringPacker();
 
 public:
     static CompressionModel *createModel(const string& type);

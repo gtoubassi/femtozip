@@ -145,7 +145,7 @@ void testSubstringPacker() {
     testPack("<-7,7> toubassi", "garrick toubassi", "garrick");
     testPack("garrick <-16,8>", "garrick toubassi", "toubassi");
     testPack("<-7,7> <-24,8>", "garrick toubassi", "toubassi garrick");
-    testPack("<-3,7>", "aaaaaaa", "aaa");
+    testPack("a<-1,6>", "aaaaaaa", "aaaa");
 
     // Run length encoding
     testPack("a", "a");
@@ -233,9 +233,9 @@ void testBitIO() {
     }
 }
 
-void huffmanEncodeStringWithModel(vector<int>& data, HuffmanModel& model) {
+template <class T> void huffmanEncodeStringWithModel(vector<int>& data, T& model) {
     ostringstream out;
-    HuffmanEncoder encoder(out, model);
+    HuffmanEncoder<T> encoder(out, model);
 
     for (vector<int>::iterator i = data.begin(); i != data.end(); i++) {
         encoder.encodeSymbol(*i);
@@ -243,7 +243,7 @@ void huffmanEncodeStringWithModel(vector<int>& data, HuffmanModel& model) {
     encoder.finish();
 
     istringstream in(out.str());
-    HuffmanDecoder decoder(in, model);
+    HuffmanDecoder<T> decoder(in, model);
     vector<int> decompressed;
     int symbol;
     while ((symbol = decoder.decodeSymbol()) != -1) {
@@ -266,7 +266,7 @@ void huffmanEncodeString(const char *string, bool allSymbolsSampled) {
     FrequencyHuffmanModel::computeHistogramWithEOFSymbol(histogram, string, strlen(string));
     FrequencyHuffmanModel model(histogram, allSymbolsSampled);
 
-    huffmanEncodeStringWithModel(data, model);
+    huffmanEncodeStringWithModel<FrequencyHuffmanModel>(data, model);
 }
 
 void testHuffman() {
@@ -292,7 +292,7 @@ void testHuffman() {
                 data[i] = abs(rand()) % (histogram.size() - 1); // -1 so we don't emit EOF mid stream!
             }
 
-            huffmanEncodeStringWithModel(data, model);
+            huffmanEncodeStringWithModel<FrequencyHuffmanModel>(data, model);
         }
     }
 }

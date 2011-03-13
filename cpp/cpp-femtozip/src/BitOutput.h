@@ -33,31 +33,35 @@ class BitOutput {
 
 private:
     ostream& out;
-    char buffer;
+    long buffer;
     int count;
 
+
+    inline void flushBuffer() {
+        while (count > 0) {
+            out.put(buffer & 0xff);
+            buffer >>= 8;
+            count -= 8;
+        }
+        buffer = 0;
+        count = 0;
+    }
 
 public:
     BitOutput(ostream& output) : out(output), buffer(0), count(0) {};
 
-    void writeBit(int bit) {
+    inline void writeBit(int bit) {
         if (bit) {
-            buffer |= (1 << count);
+            buffer |= (1L << count);
         }
         count++;
-        if (count == 8) {
-            out.put(buffer);
-            buffer = 0;
-            count = 0;
+        if (count == 64) {
+            flushBuffer();
         }
     }
 
-    void flush() {
-        if (count > 0) {
-            out.put(buffer);
-            buffer = 0;
-            count = 0;
-        }
+    inline void flush() {
+        flushBuffer();
         out.flush();
     }
 };
