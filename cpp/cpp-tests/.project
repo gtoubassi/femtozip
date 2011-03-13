@@ -3,6 +3,7 @@
 	<name>cpp-tests</name>
 	<comment></comment>
 	<projects>
+		<project>cpp-femtozip</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -31,7 +32,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${workspace_loc:/cpp-tests/Debug}</value>
+					<value>${workspace_loc:/cpp-tests/Release}</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>

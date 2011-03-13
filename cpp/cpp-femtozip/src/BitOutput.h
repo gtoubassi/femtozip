@@ -29,6 +29,9 @@ using namespace std;
 
 namespace femtozip {
 
+//XXX Performance: Kill stream based BitInput/Output in favor of raw buffer/length?
+// stream overhead shows up in instruments and the higher layers assume its
+// all in memory already so why get fancy?
 class BitOutput {
 
 private:
@@ -39,6 +42,10 @@ private:
 
     inline void flushBuffer() {
         while (count > 0) {
+            //XXX Perf. Note this is not helping perf to buffer into a long
+            // and write each byte.  Need to write the entire long as
+            // a single write(&buffer, sizeof(buffer)).  Problem is
+            // endianness comes into play.
             out.put(buffer & 0xff);
             buffer >>= 8;
             count -= 8;

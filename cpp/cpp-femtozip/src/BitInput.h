@@ -29,6 +29,9 @@ using namespace std;
 
 namespace femtozip {
 
+//XXX Performance: Kill stream based BitInput/Output in favor of raw buffer/length?
+// stream overhead shows up in instruments and the higher layers assume its
+// all in memory already so why get fancy?
 class BitInput {
 private:
     istream& in;
