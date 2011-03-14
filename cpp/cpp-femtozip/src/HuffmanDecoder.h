@@ -38,7 +38,7 @@ protected:
     bool endOfStream;
 
 public:
-    HuffmanDecoder(istream& input, T& model) : bitIn(input), model(model) {
+    HuffmanDecoder(const char *buf, int length, T& model) : bitIn(buf, length), model(model) {
         bitBuf = 0;
         availableBits = 0;
         endOfStream = false;

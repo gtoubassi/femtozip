@@ -77,24 +77,29 @@ void PureHuffmanCompressionModel::encodeSubstring(int offset, int length) { thro
 void PureHuffmanCompressionModel::endEncoding() { throw "PureHuffmanModel::endEncoding should not be invoked";}
 
 void PureHuffmanCompressionModel::compress(const char *buf, int length, ostream& out) {
-    HuffmanEncoder<FrequencyHuffmanModel> encoder(out, *codeModel);
+    vector<char> outbuf; // Should we propagate this up to the outer levels?
+    outbuf.reserve(length);
+    HuffmanEncoder<FrequencyHuffmanModel> encoder(outbuf, *codeModel);
     for (int i = 0; i < length; i++) {
         encoder.encodeSymbol(((int)buf[i]) & 0xff);
     }
     encoder.finish();
+    if (outbuf.size() > 0) {
+        out.write(&outbuf[0], outbuf.size());
+    }
 }
 
 
 void PureHuffmanCompressionModel::decompress(const char *buf, int length, ostream& out){
-    NoCopyReadOnlyStreamBuf readBuf(const_cast<char *>(buf), length);
-    istream in(&readBuf);
-
-    HuffmanDecoder<FrequencyHuffmanModel> decoder(in, *codeModel);
+    HuffmanDecoder<FrequencyHuffmanModel> decoder(buf, length, *codeModel);
+    vector<char> outVector; //XXX performance.  Unpacker should pump right into out
+    outVector.reserve(4 * length);
 
     int nextSymbol;
     while ((nextSymbol = decoder.decodeSymbol()) != -1) {
-        out.put((char)nextSymbol);
+        outVector.push_back((char)nextSymbol);
     }
+    out.write(&outVector[0], outVector.size()); // XXX performance - lame.
 }
 
 }

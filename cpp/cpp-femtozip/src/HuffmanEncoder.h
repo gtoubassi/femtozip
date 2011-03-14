@@ -34,7 +34,7 @@ protected:
     T& model;
 
 public:
-    HuffmanEncoder(ostream& output, T& model) : bitOut(output), model(model) {
+    HuffmanEncoder(vector<char>& output, T& model) : bitOut(output), model(model) {
     }
 
     inline void encodeSymbol(int symbol) {

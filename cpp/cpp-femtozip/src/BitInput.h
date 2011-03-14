@@ -23,32 +23,27 @@
 #ifndef BITINPUT_H_
 #define BITINPUT_H_
 
-#include <iostream>
-
-using namespace std;
-
 namespace femtozip {
 
-//XXX Performance: Kill stream based BitInput/Output in favor of raw buffer/length?
-// stream overhead shows up in instruments and the higher layers assume its
-// all in memory already so why get fancy?
 class BitInput {
 private:
-    istream& in;
+    const char *currIn;
+    const char *end;
     char buffer;
     int count;
 
 public:
-    BitInput(istream& input) : in(input), buffer(0), count(0) {};
+    BitInput(const char *buf, int length) : currIn(buf), end(buf + length), buffer(0), count(0) {};
 
     // 0, 1, or -1 for eof
     inline int readBit() {
         if (count == 0) {
-            // Should I check eof before I call get?
-            in.get(buffer);
-            if (in.eof()) {
+            if (currIn == end) {
+                // eof;
                 return -1;
             }
+            buffer = *currIn;
+            currIn++;
             count = 8;
         }
         int bit = buffer & 1;

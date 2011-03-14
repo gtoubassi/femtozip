@@ -166,21 +166,19 @@ void testSubstringPacker() {
 void testBitIO() {
     // Test empty file eof
     {
-        istringstream in;
-        BitInput bitIn(in);
+        BitInput bitIn("", 0);
         int bit = bitIn.readBit();
         assertTrue(bit == -1, "Didn't get eof from empty bit stream");
     }
 
     // Write 1 bit, read 1 bit
     {
-        ostringstream out;
+        vector<char> out;
         BitOutput bitOut(out);
         bitOut.writeBit(1);
         bitOut.flush();
 
-        istringstream in(out.str());
-        BitInput bitIn(in);
+        BitInput bitIn(&out[0], out.size());
         assertTrue(bitIn.readBit() == 1, "Expected 1 from bit input");
         for (int i = 0; i < 7; i++) {
             assertTrue(bitIn.readBit() == 0, "Expected 0 from bit input");
@@ -192,15 +190,14 @@ void testBitIO() {
 
     // Write N bits (from 1 to 256), make sure we get eof after
     for (int j = 1; j <= 256; j++) {
-        ostringstream out;
+        vector<char> out;
         BitOutput bitOut(out);
         for (int i = 0; i < j; i++) {
             bitOut.writeBit(i & 1);
         }
         bitOut.flush();
 
-        istringstream in(out.str());
-        BitInput bitIn(in);
+        BitInput bitIn(&out[0], out.size());
         for (int i = 0; i < j; i++) {
             int bit = bitIn.readBit();
             assertTrue(bit == (i & 1), string("Got wrong bit ") + (bit ? "1" : "0"));
@@ -216,15 +213,14 @@ void testBitIO() {
 
     // Write 8 bits all 1s
     {
-        ostringstream out;
+        vector<char> out;
         BitOutput bitOut(out);
         for (int i = 0; i < 8; i++) {
             bitOut.writeBit(1);
         }
         bitOut.flush();
 
-        istringstream in(out.str());
-        BitInput bitIn(in);
+        BitInput bitIn(&out[0], out.size());
         for (int i = 0; i < 8; i++) {
             int bit = bitIn.readBit();
             assertTrue(bit == 1, string("Got wrong bit ") + (bit ? "1" : "0"));
@@ -234,7 +230,7 @@ void testBitIO() {
 }
 
 template <class T> void huffmanEncodeStringWithModel(vector<int>& data, T& model) {
-    ostringstream out;
+    vector<char> out;
     HuffmanEncoder<T> encoder(out, model);
 
     for (vector<int>::iterator i = data.begin(); i != data.end(); i++) {
@@ -242,8 +238,7 @@ template <class T> void huffmanEncodeStringWithModel(vector<int>& data, T& model
     }
     encoder.finish();
 
-    istringstream in(out.str());
-    HuffmanDecoder<T> decoder(in, model);
+    HuffmanDecoder<T> decoder(&out[0], out.size(), model);
     vector<int> decompressed;
     int symbol;
     while ((symbol = decoder.decodeSymbol()) != -1) {
