@@ -17,7 +17,7 @@ package org.toubassi.femtozip.substring;
 
 
 public class SubstringPacker {
-    private static final int MinimumMatchLength = 4;
+    private static final int MinimumMatchLength = PrefixHash.PrefixLength;
     
     private byte[] dictionary;
     private PrefixHash dictHash;
@@ -48,7 +48,7 @@ public class SubstringPacker {
             int bestMatchIndex = 0;
             int bestMatchLength = 0;
             
-            if (curr + 3 < count) {
+            if (curr + PrefixHash.PrefixLength - 1 < count) {
                 dictHash.getBestMatch(curr, rawBytes, matchIndex, matchLength);
                 bestMatchIndex = matchIndex[0];
                 bestMatchLength = matchLength[0];
@@ -76,7 +76,7 @@ public class SubstringPacker {
                 // encode the same relative locations which is better for compressing the locations.
                 int endMatch = curr - 1 + previousMatchLength;
                 curr++;
-                while (curr < endMatch && curr + 3 < count) {
+                while (curr < endMatch && curr + PrefixHash.PrefixLength < count) {
                     hash.put(curr);
                     curr++;
                 }

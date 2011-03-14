@@ -19,6 +19,8 @@ import java.util.Arrays;
 
 public class PrefixHash {
     
+    public static final int PrefixLength = 4;
+    
     private byte[] buffer;
     int[] hash;
     int[] heap;
@@ -30,17 +32,14 @@ public class PrefixHash {
         heap = new int[buf.length];
         Arrays.fill(heap, -1);
         if (addToHash) {
-            for (int i = 0, count = buf.length - 3; i < count; i++) {
+            for (int i = 0, count = buf.length - PrefixLength; i < count; i++) {
                 put(i);
             }
         }
     }
     
     private int hashIndex(byte[] buf, int i) {
-        int code = 0;
-        code = buf[i];
-        code = buf[i + 1] + ((code << 5) - code);
-        code = buf[i + 2] + ((code << 5) - code);
+        int code = buf[i] | (buf[i + 1] << 8) | (buf[i + 2] << 16) | (buf[i + 3] << 24);
         return code % hash.length;
     }
 
