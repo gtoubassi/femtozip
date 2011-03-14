@@ -15,18 +15,20 @@
  */
 package org.toubassi.femtozip.substring;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Arrays;
 
 public class PrefixHash {
     
     private byte[] buffer;
-    private HashMap<Trigraph, List<Integer>> hash;
+    int[] hash;
+    int[] heap;
     
     public PrefixHash(byte[] buf, boolean addToHash) {
         buffer = buf;
-        hash  = new HashMap<Trigraph, List<Integer>>(buf.length);
+        hash = new int[(int)(1.5 * buf.length)];
+        Arrays.fill(hash, -1);
+        heap = new int[buf.length];
+        Arrays.fill(heap, -1);
         if (addToHash) {
             for (int i = 0, count = buf.length - 3; i < count; i++) {
                 put(i);
@@ -34,14 +36,19 @@ public class PrefixHash {
         }
     }
     
+    private int hashIndex(byte[] buf, int i) {
+        int code = 0;
+        code = buf[i];
+        code = buf[i + 1] + ((code << 5) - code);
+        code = buf[i + 2] + ((code << 5) - code);
+        return code % hash.length;
+    }
+
+    
     public void put(int index) {
-        Trigraph trigraph = new Trigraph(buffer[index], buffer[index + 1], buffer[index + 2]);
-        List<Integer> list = hash.get(trigraph);
-        if (list == null) {
-            list = new ArrayList<Integer>();
-            hash.put(trigraph, list);
-        }
-        list.add(index);
+        int hashIndex = hashIndex(buffer, index);
+        heap[index] = hash[hashIndex];
+        hash[hashIndex] = index;
     }
 
     public final void getBestMatch(int index, byte[] targetBuf, int[] bestMatchIndex, int[] bestMatchLength) {
@@ -57,15 +64,9 @@ public class PrefixHash {
         
         int targetBufLen = targetBuf.length;
 
-        Trigraph trigraph = new Trigraph(targetBuf[index], targetBuf[index + 1], targetBuf[index + 2]);
-        List<Integer> list = hash.get(trigraph);
-        if (list == null) {
-            return;
-        }
-        
-        for (int i = list.size() - 1; i >= 0; i--) {
-            int candidateIndex = list.get(i);
-            
+        int targetHashIndex = hashIndex(targetBuf, index);
+        int candidateIndex = hash[targetHashIndex];
+        while (candidateIndex != -1) {
             int distance;
             if (targetBuf != buf) {
                 distance = index + bufLen - candidateIndex;
@@ -93,6 +94,7 @@ public class PrefixHash {
                 bestMatchIndex[0] = candidateIndex;
                 bestMatchLength[0] = matchLength;
             }
+            candidateIndex = heap[candidateIndex];
         }
     }
     
