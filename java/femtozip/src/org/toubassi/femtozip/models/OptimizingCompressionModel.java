@@ -59,7 +59,7 @@ public class OptimizingCompressionModel extends CompressionModel {
     private int totalDataSize;
 
     public OptimizingCompressionModel() {
-        this("DeflateFrequency,GZip,GZipDictionary,NibbleFrequency,OffsetNibbleFrequency,OffsetNibbleHuffman,PureArithCoding,PureHuffman,SplitFrequency,TripleNibbleFrequency,UnifiedFrequency,Noop,VariableInt");
+        this("GZip,GZipDictionary,NibbleFrequency,OffsetNibbleFrequency,OffsetNibbleHuffman,PureArithCoding,PureHuffman,SplitFrequency,TripleNibbleFrequency,UnifiedFrequency,Noop,VariableInt");
     }
     
     public OptimizingCompressionModel(String modelNames) {
@@ -143,15 +143,15 @@ public class OptimizingCompressionModel extends CompressionModel {
         return sortedResults.get(0);
     }
     
-    public void encodeLiteral(int aByte) {
+    public void encodeLiteral(int aByte, Object context) {
         throw new UnsupportedOperationException();
     }
 
-    public void encodeSubstring(int offset, int length) {
+    public void encodeSubstring(int offset, int length, Object context) {
         throw new UnsupportedOperationException();
     }
     
-    public void endEncoding() {
+    public void endEncoding(Object context) {
         throw new UnsupportedOperationException();
     }
    

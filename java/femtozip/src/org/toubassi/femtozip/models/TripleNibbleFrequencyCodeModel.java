@@ -23,7 +23,7 @@ import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 
 import com.colloquial.arithcode.ppm.ArithCodeModel;
 
-public class TripleNibbleFrequencyCodeModel implements ArithCodeModel {
+public class TripleNibbleFrequencyCodeModel implements ArithCodeModel, Cloneable {
     private enum State {
         LiteralLengthState, LengthNibble1State, OffsetNibble0State, OffsetNibble1State, OffsetNibble2State, OffsetNibble3State;
     }
@@ -69,6 +69,15 @@ public class TripleNibbleFrequencyCodeModel implements ArithCodeModel {
         offsetNibble3Model.save(out);
     }
 
+    public TripleNibbleFrequencyCodeModel createModel() {
+        try {
+            return (TripleNibbleFrequencyCodeModel)clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
     @Override
     public int totalCount() {
         switch (state) {

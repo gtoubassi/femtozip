@@ -26,7 +26,7 @@ public class SubstringUnpacker implements SubstringPacker.Consumer {
         this.dictionary = dictionary == null ? new byte[0] : dictionary;
     }
     
-    public void encodeLiteral(int aByte) {
+    public void encodeLiteral(int aByte, Object context) {
         bytesOut.write(aByte);
     }
     
@@ -38,7 +38,7 @@ public class SubstringUnpacker implements SubstringPacker.Consumer {
         return unpackedBytes;
     }
 
-    public void encodeSubstring(int offset, int length) {
+    public void encodeSubstring(int offset, int length, Object context) {
         int currentIndex = bytesOut.size();
         if (currentIndex + offset < 0) {
             int startDict = currentIndex + offset + dictionary.length;
@@ -66,7 +66,7 @@ public class SubstringUnpacker implements SubstringPacker.Consumer {
         }
     }
     
-    public void endEncoding() {
+    public void endEncoding(Object context) {
     }
     
     private static class ByteOutput extends ByteArrayOutputStream {

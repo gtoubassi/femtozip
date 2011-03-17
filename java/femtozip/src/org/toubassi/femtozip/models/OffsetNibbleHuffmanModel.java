@@ -23,7 +23,7 @@ import org.toubassi.femtozip.coding.huffman.Codeword;
 import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
 import org.toubassi.femtozip.coding.huffman.HuffmanModel;
 
-public class OffsetNibbleHuffmanModel implements HuffmanModel {
+public class OffsetNibbleHuffmanModel implements HuffmanModel, Cloneable {
 
     private enum State {
         LiteralLengthState, OffsetNibble0State, OffsetNibble1State, OffsetNibble2State, OffsetNibble3State;
@@ -57,8 +57,13 @@ public class OffsetNibbleHuffmanModel implements HuffmanModel {
         offsetNibble3Model = new FrequencyHuffmanModel(in);
     }
     
-    public void reset() {
-        state = State.LiteralLengthState;
+    public OffsetNibbleHuffmanModel createModel() {
+        try {
+            return (OffsetNibbleHuffmanModel)clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public void save(DataOutputStream out) throws IOException {

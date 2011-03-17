@@ -60,15 +60,15 @@ public class PureHuffmanCompressionModel extends CompressionModel {
     }
     
     
-    public void encodeLiteral(int aByte) {
+    public void encodeLiteral(int aByte, Object context) {
         throw new UnsupportedOperationException();
     }
 
-    public void encodeSubstring(int offset, int length) {
+    public void encodeSubstring(int offset, int length, Object context) {
         throw new UnsupportedOperationException();
     }
 
-    public void endEncoding() {
+    public void endEncoding(Object context) {
         throw new UnsupportedOperationException();
     }
     

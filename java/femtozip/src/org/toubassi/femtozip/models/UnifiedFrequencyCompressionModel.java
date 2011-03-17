@@ -33,7 +33,6 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
     private static final int SUBSTRING_SYMBOL = 256;
 
     private FrequencyCodeModel codeModel;
-    private ArithCodeWriter writer;
 
     public void load(DataInputStream in) throws IOException {
         super.load(in);
@@ -55,14 +54,12 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
     }
     
     public void compress(byte[] data, OutputStream out) throws IOException {
-        writer = new ArithCodeWriter(out, codeModel);
-        super.compress(data, out);
-        writer.close();
-        writer = null;
+        getSubstringPacker().pack(data, this, new ArithCodeWriter(out, codeModel));
     }
     
-    public void encodeLiteral(int aByte) {
+    public void encodeLiteral(int aByte, Object context) {
         try {
+            ArithCodeWriter writer = (ArithCodeWriter)context;
             writer.writeSymbol(aByte);
         }
         catch (IOException e) {
@@ -70,8 +67,9 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
         }
     }
 
-    public void encodeSubstring(int offset, int length) {
+    public void encodeSubstring(int offset, int length, Object context) {
         try {
+            ArithCodeWriter writer = (ArithCodeWriter)context;
             writer.writeSymbol(SUBSTRING_SYMBOL);
         
             if (length < 1 || length > 255) {
@@ -90,7 +88,13 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
         }
     }
     
-    public void endEncoding() {
+    public void endEncoding(Object context) {
+        try {
+            ArithCodeWriter writer = (ArithCodeWriter)context;
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public byte[] decompress(byte[] compressedBytes) {
@@ -105,13 +109,13 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
                     int length = reader.readSymbol();
                     int offset = reader.readSymbol() | (reader.readSymbol() << 8);
                     offset = -offset;
-                    unpacker.encodeSubstring(offset, length);
+                    unpacker.encodeSubstring(offset, length, null);
                 }
                 else {
-                    unpacker.encodeLiteral(nextSymbol);
+                    unpacker.encodeLiteral(nextSymbol, null);
                 }
             }
-            unpacker.endEncoding();
+            unpacker.endEncoding(null);
             return unpacker.getUnpackedBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -121,15 +125,15 @@ public class UnifiedFrequencyCompressionModel extends CompressionModel implement
     private static class ModelBuilder implements SubstringPacker.Consumer {
         int[] histogram = new int[256 + 1 + 1]; // 256 for each unique byte, 1 for marking the start of a substring reference, and 1 for EOF.
         
-        public void encodeLiteral(int aByte) {
+        public void encodeLiteral(int aByte, Object context) {
             histogram[aByte]++;
         }
 
-        public void endEncoding() {
+        public void endEncoding(Object context) {
             histogram[histogram.length - 1]++;
         }
 
-        public void encodeSubstring(int offset, int length) {
+        public void encodeSubstring(int offset, int length, Object context) {
             histogram[SUBSTRING_SYMBOL]++;
             
             if (length < 1 || length > 255) {

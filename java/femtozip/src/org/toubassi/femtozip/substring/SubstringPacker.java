@@ -23,9 +23,9 @@ public class SubstringPacker {
     private PrefixHash dictHash;
     
     public interface Consumer {
-        public void encodeLiteral(int aByte);
-        public void encodeSubstring(int offset, int length);
-        public void endEncoding();
+        public void encodeLiteral(int aByte, Object context);
+        public void encodeSubstring(int offset, int length, Object context);
+        public void endEncoding(Object context);
     }
     
     public SubstringPacker(byte[] dictionary) {
@@ -33,7 +33,7 @@ public class SubstringPacker {
         dictHash = new PrefixHash(dictionary, true);
     }
     
-    public void pack(byte[] rawBytes, SubstringPacker.Consumer consumer) {
+    public void pack(byte[] rawBytes, SubstringPacker.Consumer consumer, Object consumerContext) {
         PrefixHash hash = new PrefixHash(rawBytes, false);
         int dictLen = dictionary.length;
 
@@ -70,7 +70,7 @@ public class SubstringPacker {
             
             if (previousMatchLength > 0 && bestMatchLength <= previousMatchLength) {
                 // We didn't get a match or we got one and the previous match is better
-                consumer.encodeSubstring(-(curr + dictLen - 1 - previousMatchIndex), previousMatchLength);
+                consumer.encodeSubstring(-(curr + dictLen - 1 - previousMatchIndex), previousMatchLength, consumerContext);
                 
                 // Make sure locations are added for the match.  This allows repetitions to always
                 // encode the same relative locations which is better for compressing the locations.
@@ -87,7 +87,7 @@ public class SubstringPacker {
                 // We have a match, and we had a previous match, and this one is better.
                 previousMatchIndex = bestMatchIndex;
                 previousMatchLength = bestMatchLength;
-                consumer.encodeLiteral(((int)rawBytes[curr - 1]) & 0xff);
+                consumer.encodeLiteral(((int)rawBytes[curr - 1]) & 0xff, consumerContext);
             }
             else if (bestMatchLength > 0) {
                 // We have a match, but no previous match
@@ -96,10 +96,10 @@ public class SubstringPacker {
             }
             else if (bestMatchLength == 0 && previousMatchLength == 0) {
                 // No match, and no previous match.
-                consumer.encodeLiteral(((int)rawBytes[curr]) & 0xff);
+                consumer.encodeLiteral(((int)rawBytes[curr]) & 0xff, consumerContext);
             }
         }
-        consumer.endEncoding();
+        consumer.endEncoding(consumerContext);
     }
 
 }

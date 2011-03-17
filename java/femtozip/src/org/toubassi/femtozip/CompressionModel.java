@@ -155,7 +155,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     }
     
     public void compress(byte[] data, OutputStream out) throws IOException {
-        getSubstringPacker().pack(data, this);
+        getSubstringPacker().pack(data, this, null);
     }
     
     public abstract byte[] decompress(byte[] compressedData);
@@ -176,7 +176,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
             SubstringPacker modelBuildingPacker = new SubstringPacker(dictionary);
             SubstringPacker.Consumer modelBuilder = createModelBuilder();
             for (int i = 0, count = documents.size(); i < count; i++) {
-                modelBuildingPacker.pack(documents.get(i), modelBuilder);
+                modelBuildingPacker.pack(documents.get(i), modelBuilder, null);
             }
             
             return modelBuilder;

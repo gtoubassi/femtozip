@@ -25,17 +25,12 @@ import org.toubassi.femtozip.DocumentList;
 import org.toubassi.femtozip.substring.SubstringUnpacker;
 
 public class VerboseStringCompressionModel extends CompressionModel {
-    private PrintWriter writer;
-
     public void build(DocumentList documents) throws IOException {
         buildDictionaryIfUnspecified(documents);
     }
 
     public void compress(byte[] data, OutputStream out) throws IOException {
-        writer = new PrintWriter(out);
-        super.compress(data, out);
-        writer.close();
-        writer = null;
+        getSubstringPacker().pack(data, this, new PrintWriter(out));
     }
 
     public byte[] decompress(byte[] compressedData) {
@@ -51,15 +46,15 @@ public class VerboseStringCompressionModel extends CompressionModel {
                     int offset = Integer.parseInt(parts[0]);
                     int length = Integer.parseInt(parts[1]);
                     
-                    unpacker.encodeSubstring(offset, length);
+                    unpacker.encodeSubstring(offset, length, null);
                     // Skip past this in the outer loop
                     i = rightAngleIndex;
                 }
                 else {
-                    unpacker.encodeLiteral((int)ch);
+                    unpacker.encodeLiteral((int)ch, null);
                 }
             }
-            unpacker.endEncoding();
+            unpacker.endEncoding(null);
             return unpacker.getUnpackedBytes();
         }
         catch (UnsupportedEncodingException e) {
@@ -67,18 +62,22 @@ public class VerboseStringCompressionModel extends CompressionModel {
         }
     }
 
-    public void encodeLiteral(int aByte) {
+    public void encodeLiteral(int aByte, Object context) {
+        PrintWriter writer = (PrintWriter)context;
         writer.print((char)aByte);
     }
 
-    public void endEncoding() {
-    }
-
-    public void encodeSubstring(int offset, int length) {
+    public void encodeSubstring(int offset, int length, Object context) {
+        PrintWriter writer = (PrintWriter)context;
         writer.print('<');
         writer.print(offset);
         writer.print(',');
         writer.print(length);
         writer.print('>');
+    }
+    
+    public void endEncoding(Object context) {
+        PrintWriter writer = (PrintWriter)context;
+        writer.close();
     }
 }

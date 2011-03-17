@@ -23,7 +23,7 @@ import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 
 import com.colloquial.arithcode.ppm.ArithCodeModel;
 
-public class SplitFrequencyCodeModel implements ArithCodeModel {
+public class SplitFrequencyCodeModel implements ArithCodeModel, Cloneable {
     static final int SUBSTRING_SYMBOL = 256;
 
     private enum State {
@@ -43,6 +43,15 @@ public class SplitFrequencyCodeModel implements ArithCodeModel {
     public SplitFrequencyCodeModel(DataInputStream in) throws IOException {
         literalModel = new FrequencyCodeModel(in);
         substringModel = new FrequencyCodeModel(in);
+    }
+
+    public SplitFrequencyCodeModel createModel() {
+        try {
+            return (SplitFrequencyCodeModel)clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public void save(DataOutputStream out) throws IOException {

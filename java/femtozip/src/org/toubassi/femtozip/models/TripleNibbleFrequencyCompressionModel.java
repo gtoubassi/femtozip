@@ -32,7 +32,6 @@ import org.toubassi.femtozip.substring.SubstringUnpacker;
 public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
     
     private TripleNibbleFrequencyCodeModel codeModel;
-    private ArithCodeWriter writer; // only used during symbol encoding
     
     public void load(DataInputStream in) throws IOException {
         super.load(in);
@@ -54,14 +53,12 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
     }
     
     public void compress(byte[] data, OutputStream out) throws IOException {
-        writer = new ArithCodeWriter(out, codeModel);
-        super.compress(data, out);
-        writer.close();
-        writer = null;
+        getSubstringPacker().pack(data, this, new ArithCodeWriter(out, codeModel.createModel()));
     }
 
-    public void encodeLiteral(int aByte) {
+    public void encodeLiteral(int aByte, Object context) {
         try {
+            ArithCodeWriter writer = (ArithCodeWriter)context;
             writer.writeSymbol(aByte);
         }
         catch (IOException e) {
@@ -69,8 +66,9 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
         }
     }
 
-    public void encodeSubstring(int offset, int length) {
+    public void encodeSubstring(int offset, int length, Object context) {
         try {
+            ArithCodeWriter writer = (ArithCodeWriter)context;
             if (length < 1 || length > 255) {
                 throw new IllegalArgumentException("Length " + length + " out of range [1,255]");
             }
@@ -90,13 +88,20 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
         }
     }
     
-    public void endEncoding() {
+    public void endEncoding(Object context) {
+        try {
+            ArithCodeWriter writer = (ArithCodeWriter)context;
+            writer.close();
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public byte[] decompress(byte[] compressedBytes) {
         try {
             ByteArrayInputStream bytesIn = new ByteArrayInputStream(compressedBytes);
-            ArithCodeReader reader = new ArithCodeReader(bytesIn, codeModel);
+            ArithCodeReader reader = new ArithCodeReader(bytesIn, codeModel.createModel());
             SubstringUnpacker unpacker = new SubstringUnpacker(dictionary);
         
             int nextSymbol;
@@ -106,13 +111,13 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
                     
                     int offset = reader.readSymbol() | (reader.readSymbol() << 4) | (reader.readSymbol() << 8) | (reader.readSymbol() << 12);
                     offset = -offset;
-                    unpacker.encodeSubstring(offset, length);
+                    unpacker.encodeSubstring(offset, length, null);
                 }
                 else {
-                    unpacker.encodeLiteral(nextSymbol);
+                    unpacker.encodeLiteral(nextSymbol, null);
                 }
             }
-            unpacker.endEncoding();
+            unpacker.endEncoding(null);
             return unpacker.getUnpackedBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -127,15 +132,15 @@ public class TripleNibbleFrequencyCompressionModel extends CompressionModel {
         private int[] offsetHistogramNibble2 = new int[16];
         private int[] offsetHistogramNibble3 = new int[16];
         
-        public void encodeLiteral(int aByte) {
+        public void encodeLiteral(int aByte, Object context) {
             literalLengthHistogram[aByte]++;
         }
 
-        public void endEncoding() {
+        public void endEncoding(Object context) {
             literalLengthHistogram[literalLengthHistogram.length - 1]++;
         }
 
-        public void encodeSubstring(int offset, int length) {
+        public void encodeSubstring(int offset, int length, Object context) {
             
             if (length < 1 || length > 255) {
                 throw new IllegalArgumentException("Length " + length + " out of range [1,255]");

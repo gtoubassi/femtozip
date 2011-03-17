@@ -21,7 +21,6 @@ import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.toubassi.femtozip.models.DeflateFrequencyCompressionModel;
 import org.toubassi.femtozip.models.GZipCompressionModel;
 import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
 import org.toubassi.femtozip.models.NibbleFrequencyCompressionModel;
@@ -72,7 +71,6 @@ public class CompressionTest {
             testModel(testPair[0], testPair[1], new TripleNibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 185);
             testModel(testPair[0], testPair[1], new OffsetNibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 199);
             testModel(testPair[0], testPair[1], new OffsetNibbleHuffmanCompressionModel(), testPair[0].length() == 0 ? -1 : 205);
-            testModel(testPair[0], testPair[1], new DeflateFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 184);
             testModel(testPair[0], testPair[1], new GZipDictionaryCompressionModel(), testPair[0].length() == 0 ? -1 : 204);
             testModel(testPair[0], testPair[1], new GZipCompressionModel(), testPair[0].length() == 0 ? -1 : 210);
             testModel(testPair[0], testPair[1], new PureArithCodingCompressionModel(), testPair[0].length() == 0 ? -1 : 207);
@@ -89,7 +87,7 @@ public class CompressionTest {
         return new String(Arrays.copyOfRange(dictionary, i, dictionary.length));
     }
     
-    private void testModel(String source, String dictionary, CompressionModel model, int expectedSize) throws IOException {
+    public static void testModel(String source, String dictionary, CompressionModel model, int expectedSize) throws IOException {
         byte[] sourceBytes = source.getBytes();
         byte[] dictionaryBytes = dictionary == null ? null : dictionary.getBytes();
         
@@ -97,13 +95,11 @@ public class CompressionTest {
         model.build(new ArrayDocumentList(sourceBytes));
         
         byte[] compressedBytes = model.compress(sourceBytes);
-        
+
         if (expectedSize >= 0) {
             Assert.assertEquals(expectedSize, compressedBytes.length);
         }
         
-        System.out.println(sourceBytes.length + " compressed to " + compressedBytes.length + " using " + model.getClass().getSimpleName());
-
         byte[] decompressedBytes = model.decompress(compressedBytes);
         String decompressedString = new String(decompressedBytes);
         

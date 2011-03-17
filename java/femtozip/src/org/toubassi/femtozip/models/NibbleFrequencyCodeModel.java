@@ -23,7 +23,7 @@ import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
 
 import com.colloquial.arithcode.ppm.ArithCodeModel;
 
-public class NibbleFrequencyCodeModel implements ArithCodeModel {
+public class NibbleFrequencyCodeModel implements ArithCodeModel, Cloneable {
     static final int SUBSTRING_SYMBOL = 256;
     
     private enum State {
@@ -76,6 +76,14 @@ public class NibbleFrequencyCodeModel implements ArithCodeModel {
         offsetNibble3Model.save(out);
     }
     
+    public NibbleFrequencyCodeModel createModel() {
+        try {
+            return (NibbleFrequencyCodeModel)clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
     
     @Override
     public int totalCount() {

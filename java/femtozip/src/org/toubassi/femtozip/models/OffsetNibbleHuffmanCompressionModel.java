@@ -32,7 +32,6 @@ import org.toubassi.femtozip.substring.SubstringUnpacker;
 public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
     
     private OffsetNibbleHuffmanModel codeModel;
-    private HuffmanEncoder encoder; // only used during symbol encoding
     
     public void load(DataInputStream in) throws IOException {
         super.load(in);
@@ -54,15 +53,12 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
     }
     
     public void compress(byte[] data, OutputStream out) throws IOException {
-        codeModel.reset();
-        encoder = new HuffmanEncoder(codeModel, out);
-        super.compress(data, out);
-        encoder.close();
-        encoder = null;
+        getSubstringPacker().pack(data, this, new HuffmanEncoder(codeModel.createModel(), out));
     }
     
-    public void encodeLiteral(int aByte) {
+    public void encodeLiteral(int aByte, Object context) {
         try {
+            HuffmanEncoder encoder = (HuffmanEncoder)context;
             encoder.encodeSymbol(aByte);
         }
         catch (IOException e) {
@@ -70,8 +66,9 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
         }
     }
 
-    public void encodeSubstring(int offset, int length) {
+    public void encodeSubstring(int offset, int length, Object context) {
         try {
+            HuffmanEncoder encoder = (HuffmanEncoder)context;
             if (length < 1 || length > 255) {
                 throw new IllegalArgumentException("Length " + length + " out of range [1,255]");
             }
@@ -90,14 +87,19 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
         }
     }
     
-    public void endEncoding() {
+    public void endEncoding(Object context) {
+        try {
+            HuffmanEncoder encoder = (HuffmanEncoder)context;
+            encoder.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public byte[] decompress(byte[] compressedBytes) {
         try {
             ByteArrayInputStream bytesIn = new ByteArrayInputStream(compressedBytes);
-            codeModel.reset();
-            HuffmanDecoder decoder = new HuffmanDecoder(codeModel, bytesIn);
+            HuffmanDecoder decoder = new HuffmanDecoder(codeModel.createModel(), bytesIn);
             SubstringUnpacker unpacker = new SubstringUnpacker(dictionary);
         
             int nextSymbol;
@@ -106,13 +108,13 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
                     int length = nextSymbol - 256;
                     int offset = decoder.decodeSymbol() | (decoder.decodeSymbol() << 4) | (decoder.decodeSymbol() << 8) | (decoder.decodeSymbol() << 12);
                     offset = -offset;
-                    unpacker.encodeSubstring(offset, length);
+                    unpacker.encodeSubstring(offset, length, null);
                 }
                 else {
-                    unpacker.encodeLiteral(nextSymbol);
+                    unpacker.encodeLiteral(nextSymbol, null);
                 }
             }
-            unpacker.endEncoding();
+            unpacker.endEncoding(null);
             return unpacker.getUnpackedBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -127,15 +129,15 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
         private int[] offsetHistogramNibble2 = new int[16];
         private int[] offsetHistogramNibble3 = new int[16];
         
-        public void encodeLiteral(int aByte) {
+        public void encodeLiteral(int aByte, Object context) {
             literalLengthHistogram[aByte]++;
         }
         
-        public void endEncoding() {
+        public void endEncoding(Object context) {
             literalLengthHistogram[literalLengthHistogram.length - 1]++;
         }
 
-        public void encodeSubstring(int offset, int length) {
+        public void encodeSubstring(int offset, int length, Object context) {
             
             if (length < 1 || length > 255) {
                 throw new IllegalArgumentException("Length " + length + " out of range [1,255]");
