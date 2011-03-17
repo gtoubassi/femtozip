@@ -171,6 +171,17 @@ void testSubstringPacker() {
     testPack("garrick <-8,8>nadim<-6,7>toubassi<-9,9>", "garrick garrick nadim nadim toubassi toubassi");
 }
 
+void testPreferNearerMatches() {
+    // Simple, no dict
+    testPack("the <-4,4>x<-6,4>", "the the x the");
+
+    // Have a match both in the dict and local, and prefer the local one
+    // because we match dicts and local separately (since dict is prehashed)
+    // this was actually a bug at one point.
+    testPack("<-7,7> <-8,7>", "garrick garrick", "garrick");
+
+}
+
 void testBitIO() {
     // Test empty file eof
     {
@@ -285,14 +296,14 @@ void testHuffman() {
         for (int dataSize = 2; dataSize < 500; dataSize++) {
             vector<int> histogram(dataSize);
             for (int i = 0, count = histogram.size(); i < count; i++) {
-                histogram[i] = 20 + (abs(rand()) % 10);
+                histogram[i] = 20 + (rand() % 10);
             }
 
             FrequencyHuffmanModel model(histogram, false);
 
             vector<int> data(histogram.size());
             for (int i = 0, count = data.size(); i < count; i++) {
-                data[i] = abs(rand()) % (histogram.size() - 1); // -1 so we don't emit EOF mid stream!
+                data[i] = rand() % (histogram.size() - 1); // -1 so we don't emit EOF mid stream!
             }
 
             huffmanEncodeStringWithModel<FrequencyHuffmanModel>(data, model);
@@ -340,6 +351,29 @@ void testCompressionModels() {
     GZipDictionaryCompressionModel gzipDictModel, gzipDictModel1;
     testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipDictModel, gzipDictModel1, 204);
 }
+
+void testDocumentUniquenessScoring() {
+    OffsetNibbleHuffmanCompressionModel model;
+    CStringDocumentList docs("garrick1garrick2garrick3garrick4garrick", "xtoubassigarrick", "ytoubassi", "ztoubassi", NULL);
+
+    model.build(docs);
+
+    int length;
+    const char *dict = model.getDictionary(length);
+    assertTrue(strncmp(dict, "garricktoubassi", length) == 0, "Got wrong dict back in testDocumentUniquenessScoring");
+}
+
+void testNonexistantStrings() {
+    OffsetNibbleHuffmanCompressionModel model;
+    CStringDocumentList docs("http://espn.de", "http://popsugar.de", "http://google.de", "http://yahoo.de", "gtoubassi", "gtoubassi", NULL);
+    model.build(docs);
+
+    int length;
+    const char *dict = model.getDictionary(length);
+    // Make sure it doesn't think .dehttp:// is a good one
+    assertTrue(strncmp(dict, "gtoubassihttp://", length), "Got wrong dict back in testDocumentUniquenessScoring");
+}
+
 
 void testOptimizingCompressionModel() {
     {
@@ -499,6 +533,58 @@ void testMultiThreading() {
     testThreadedCompressionModel(&offsetNibble);
 }
 
+void testPrefixHash() {
+    {
+        string str = "a man a clan a canal panama";
+        const char *cstr = str.c_str();
+        PrefixHash hash(cstr, str.length(), false);
+        for (int i = 0; i < 12; i++) {
+            hash.put(cstr + i);
+        }
+
+        const char *match;
+        int matchLength;
+
+        hash.getBestMatch(cstr + 12, cstr, str.length(), match, matchLength);
+
+        assertTrue(match == cstr + 5, "prefixhash wrong match");
+        assertTrue(matchLength == 4, "prefixhash wrong length");
+    }
+
+    // With a targetbuf other then the initialized buf
+    {
+        string str = "a man a clan a canal panama";
+        const char *cstr = str.c_str();
+        PrefixHash hash(cstr, str.length(), true);
+        const char *match;
+        int matchLength;
+
+        string target = "xxx a ca";
+        const char *targetCstr = target.c_str();
+        hash.getBestMatch(targetCstr + 3, targetCstr, target.length(), match, matchLength);
+
+        assertTrue(match == cstr + 12, "prefixhash wrong match");
+        assertTrue(matchLength == 5, "prefixhash wrong length");
+    }
+
+    // Test a match miss
+    {
+        string str = "a man a clan a canal panama";
+        const char *cstr = str.c_str();
+        PrefixHash hash(cstr, str.length(), true);
+        const char *match;
+        int matchLength;
+
+        string target = "blah!";
+        const char *targetCstr = target.c_str();
+        hash.getBestMatch(targetCstr + 3, targetCstr, target.length(), match, matchLength);
+
+        assertTrue(match == 0, "prefixhash wrong match");
+        assertTrue(matchLength == 0, "prefixhash wrong length");
+    }
+
+}
+
 int main() {
 
     testDocumentList();
@@ -507,11 +593,17 @@ int main() {
 
     testSubstringPacker();
 
+    testPreferNearerMatches();
+
     testBitIO();
 
     testHuffman();
 
     testCompressionModels();
+
+    testDocumentUniquenessScoring();
+
+    testNonexistantStrings();
 
     testOptimizingCompressionModel();
 
@@ -520,6 +612,8 @@ int main() {
     testDataIO();
 
     testMultiThreading();
+
+    testPrefixHash();
 
     reportTestResults();
 
