@@ -60,9 +60,9 @@ public:
     virtual void compress(const char *buf, int length, ostream& out);
     virtual void decompress(const char *buf, int length, ostream& out) = 0;
 
-    virtual void encodeLiteral(int aByte) = 0;
-    virtual void encodeSubstring(int offset, int length) = 0;
-    virtual void endEncoding() = 0;
+    virtual void encodeLiteral(int aByte, void *context) = 0;
+    virtual void encodeSubstring(int offset, int length, void *context) = 0;
+    virtual void endEncoding(void *context) = 0;
 
     virtual SubstringPacker::Consumer *createModelBuilder();
 

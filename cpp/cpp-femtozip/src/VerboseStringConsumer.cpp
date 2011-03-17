@@ -34,17 +34,17 @@ VerboseStringConsumer::VerboseStringConsumer() {
 VerboseStringConsumer::~VerboseStringConsumer() {
 }
 
-void VerboseStringConsumer::encodeLiteral(int aByte) {
+void VerboseStringConsumer::encodeLiteral(int aByte, void *context) {
     output.append(1, (char)aByte);
 }
 
-void VerboseStringConsumer::encodeSubstring(int offset, int length) {
+void VerboseStringConsumer::encodeSubstring(int offset, int length, void *context) {
     std::stringstream out;
     out << "<" << offset << "," << length << ">";
     output += out.str();
 }
 
-void VerboseStringConsumer::endEncoding() {
+void VerboseStringConsumer::endEncoding(void *context) {
 }
 
 string VerboseStringConsumer::getOutput() {

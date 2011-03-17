@@ -72,9 +72,9 @@ void PureHuffmanCompressionModel::build(DocumentList& documents) {
     codeModel = new FrequencyHuffmanModel(histogram, false);
 }
 
-void PureHuffmanCompressionModel::encodeLiteral(int aByte) { throw "PureHuffmanModel::encodeLiteral should not be invoked";}
-void PureHuffmanCompressionModel::encodeSubstring(int offset, int length) { throw "PureHuffmanModel::encodeSubstring should not be invoked";}
-void PureHuffmanCompressionModel::endEncoding() { throw "PureHuffmanModel::endEncoding should not be invoked";}
+void PureHuffmanCompressionModel::encodeLiteral(int aByte, void *context) { throw "PureHuffmanModel::encodeLiteral should not be invoked";}
+void PureHuffmanCompressionModel::encodeSubstring(int offset, int length, void *context) { throw "PureHuffmanModel::encodeSubstring should not be invoked";}
+void PureHuffmanCompressionModel::endEncoding(void *context) { throw "PureHuffmanModel::endEncoding should not be invoked";}
 
 void PureHuffmanCompressionModel::compress(const char *buf, int length, ostream& out) {
     vector<char> outbuf; // Should we propagate this up to the outer levels?

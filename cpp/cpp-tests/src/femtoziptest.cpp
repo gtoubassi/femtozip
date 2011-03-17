@@ -20,6 +20,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <pthread.h>
+#include <sys/time.h>
 #include <FileDocumentList.h>
 #include <CStringDocumentList.h>
 #include <DictionaryOptimizer.h>
@@ -57,6 +59,12 @@ void assertTrue(bool result, const string& message) {
     else {
         successCount++;
     }
+}
+
+long getTimeMillis() {
+    timeval tim;
+    gettimeofday(&tim, NULL);
+    return tim.tv_sec * 1000 + tim.tv_usec / 1000;
 }
 
 void reportTestResults() {
@@ -113,14 +121,14 @@ void testPack(const char *expected, const char *buf, const char *dict = "") {
         SubstringPacker packer(dict ? dict : "", dict ? strlen(dict) : 0);
         VerboseStringConsumer consumer;
 
-        packer.pack(buf, strlen(buf), consumer);
+        packer.pack(buf, strlen(buf), consumer, 0);
         string out = consumer.getOutput();
 
         assertTrue(out == expected, "Failure: got '" + out + "' expected '" + expected + "'");
 
         vector<char> unpackedBytes;
         SubstringUnpacker unpacker(dict ? dict : "", dict ? strlen(dict) : 0, unpackedBytes);
-        packer.pack(buf, strlen(buf), unpacker);
+        packer.pack(buf, strlen(buf), unpacker, 0);
         assertTrue(strlen(buf) == unpackedBytes.size(), "Unpacked bytes have different length");
         if (unpackedBytes.size() > 0) {
             assertTrue(strncmp(buf, &unpackedBytes[0], strlen(buf)) == 0, "Could not roundtrip packed string");
@@ -433,6 +441,64 @@ void testDataIO() {
     assertTrue(strncmp(buf, "12345", 5) == 0, "Expected 12345");
 }
 
+void *runThread(void *data) {
+    CompressionModel *model = reinterpret_cast<CompressionModel *>(data);
+    string source;
+    for (int i = 0, count = 256 + (rand() % 64); i < count; i++) {
+        source.push_back('a' + (rand() % 26));
+    }
+
+    long start = getTimeMillis();
+
+    while (getTimeMillis() - start < 1500) {
+        ostringstream ostr;
+        model->compress(&source[0], source.size(), ostr);
+        string outstr = ostr.str();
+        ostringstream ostr2;
+        model->decompress(outstr.c_str(), outstr.length(), ostr2);
+        string decompressed = ostr2.str();
+
+        assertTrue(decompressed == source, string("Failed to verify multi threaded data for ") + model->typeName());
+    }
+    return 0;
+}
+
+void testThreadedCompressionModel(CompressionModel *model) {
+    vector<char> dict;
+    for (int i = 0, count = 256 + (rand() % 64); i < count; i++) {
+        dict.push_back('a' + (rand() % 26));
+    }
+    dict.push_back(0);
+
+    model->setDictionary(&dict[0], dict.size());
+    CStringDocumentList docs(&dict[0], NULL);
+    model->build(docs);
+
+    vector<pthread_t> threads;
+    int ret;
+
+    for (int i = 0; i < 5; i++) {
+        threads.resize(threads.size() + 1);
+        ret = pthread_create(&threads[threads.size() - 1], 0, runThread, model);
+        assertTrue(ret == 0, "Error creating thread");
+    }
+
+    for (int i = 0; i < 5; i++) {
+        pthread_join(threads[i], 0);
+    }
+}
+
+void testMultiThreading() {
+    PureHuffmanCompressionModel pureHuffman;
+    testThreadedCompressionModel(&pureHuffman);
+    GZipCompressionModel gzip;
+    testThreadedCompressionModel(&gzip);
+    GZipDictionaryCompressionModel gzipDict;
+    testThreadedCompressionModel(&gzipDict);
+    OffsetNibbleHuffmanCompressionModel offsetNibble;
+    testThreadedCompressionModel(&offsetNibble);
+}
+
 int main() {
 
     testDocumentList();
@@ -452,6 +518,8 @@ int main() {
     testGZipModel();
 
     testDataIO();
+
+    testMultiThreading();
 
     reportTestResults();
 

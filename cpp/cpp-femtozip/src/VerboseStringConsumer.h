@@ -39,9 +39,9 @@ public:
     VerboseStringConsumer();
     ~VerboseStringConsumer();
 
-    void encodeLiteral(int aByte);
-    void encodeSubstring(int offset, int length);
-    void endEncoding();
+    void encodeLiteral(int aByte, void *context);
+    void encodeSubstring(int offset, int length, void *context);
+    void endEncoding(void *context);
 
     string getOutput();
 };

@@ -44,7 +44,7 @@ PrefixHash::~PrefixHash() {
 }
 
 int PrefixHash::index(const char *p) {
-    int index = (*reinterpret_cast<const unsigned int *>(p));
+    unsigned int index = (*reinterpret_cast<const unsigned int *>(p));
     return index % hashCapacity;
 }
 

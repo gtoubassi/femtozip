@@ -41,15 +41,15 @@ public:
 
     class Consumer {
     public:
-        virtual void encodeLiteral(int aByte) = 0;
-        virtual void encodeSubstring(int offset, int length) = 0;
-        virtual void endEncoding() = 0;
+        virtual void encodeLiteral(int aByte, void *context) = 0;
+        virtual void encodeSubstring(int offset, int length, void *context) = 0;
+        virtual void endEncoding(void *context) = 0;
     };
 
     SubstringPacker(const char *dictionary, int length);
     ~SubstringPacker();
 
-    void pack(const char *bytes, int length, Consumer& consumer);
+    void pack(const char *bytes, int length, Consumer& consumer, void *consumerContext);
 };
 
 

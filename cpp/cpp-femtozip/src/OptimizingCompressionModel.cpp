@@ -135,15 +135,15 @@ OptimizingCompressionModel::CompressionResult &OptimizingCompressionModel::getBe
     return sortedResults[0];
 }
 
-void OptimizingCompressionModel::encodeLiteral(int aByte) {
+void OptimizingCompressionModel::encodeLiteral(int aByte, void *context) {
     throw "OptimizingCompressionModel::encodeLiteral unsupported";
 }
 
-void OptimizingCompressionModel::encodeSubstring(int offset, int length) {
+void OptimizingCompressionModel::encodeSubstring(int offset, int length, void *context) {
     throw "OptimizingCompressionModel::encodeSubstring unsupported";
 }
 
-void OptimizingCompressionModel::endEncoding() {
+void OptimizingCompressionModel::endEncoding(void *context) {
     throw "OptimizingCompressionModel::endEncoding unsupported";
 }
 

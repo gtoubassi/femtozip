@@ -31,15 +31,15 @@ GZipCompressionModel::~GZipCompressionModel() {
 void GZipCompressionModel::build(DocumentList& documents) {
 }
 
-void GZipCompressionModel::encodeLiteral(int aByte) {
+void GZipCompressionModel::encodeLiteral(int aByte, void *context) {
     throw "GZipCompressionModel::encodeLiteral unsupported";
 }
 
-void GZipCompressionModel::encodeSubstring(int offset, int length) {
+void GZipCompressionModel::encodeSubstring(int offset, int length, void *context) {
     throw "GZipCompressionModel::encodeSubstring unsupported";
 }
 
-void GZipCompressionModel::endEncoding() {
+void GZipCompressionModel::endEncoding(void *context) {
     throw "GZipCompressionModel::endEncoding unsupported";
 }
 

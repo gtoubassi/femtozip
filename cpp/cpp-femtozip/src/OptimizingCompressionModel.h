@@ -68,9 +68,9 @@ public:
     virtual void compress(const char *buf, int length, ostream& out);
     virtual void decompress(const char *buf, int length, ostream& out);
 
-    virtual void encodeLiteral(int aByte);
-    virtual void encodeSubstring(int offset, int length);
-    virtual void endEncoding();
+    virtual void encodeLiteral(int aByte, void *context);
+    virtual void encodeSubstring(int offset, int length, void *context);
+    virtual void endEncoding(void *context);
 
     virtual void aggregateResults(vector<CompressionResult> &aggregateResults);
 

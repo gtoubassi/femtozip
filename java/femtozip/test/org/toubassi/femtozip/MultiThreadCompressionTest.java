@@ -90,13 +90,13 @@ public class MultiThreadCompressionTest {
         model.build(new ArrayDocumentList(dictionaryBytes));
         
         ArrayList<CompressionThread> threads = new ArrayList<CompressionThread>();
-        threads.add(new CompressionThread(300, model, dictionary));
-        threads.add(new CompressionThread(300, model, dictionary));
-        threads.add(new CompressionThread(300, model, dictionary));
-        threads.add(new CompressionThread(300, model, dictionary));
-        threads.add(new CompressionThread(300, model, dictionary));
-        threads.add(new CompressionThread(300, model, dictionary));
-        threads.add(new CompressionThread(300, model, dictionary));
+        threads.add(new CompressionThread(500, model, dictionary));
+        threads.add(new CompressionThread(500, model, dictionary));
+        threads.add(new CompressionThread(500, model, dictionary));
+        threads.add(new CompressionThread(500, model, dictionary));
+        threads.add(new CompressionThread(500, model, dictionary));
+        threads.add(new CompressionThread(500, model, dictionary));
+        threads.add(new CompressionThread(500, model, dictionary));
         
         for (CompressionThread thread : threads) {
             thread.start();

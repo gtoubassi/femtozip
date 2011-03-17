@@ -28,15 +28,18 @@
 #include "CompressionModel.h"
 #include "DocumentList.h"
 #include "HuffmanEncoder.h"
-#include "OffsetNibbleHuffmanModel.h"
+#include "FrequencyHuffmanModel.h"
 #include "SubstringPacker.h"
 
 namespace femtozip {
 
 class OffsetNibbleHuffmanCompressionModel : public CompressionModel {
 private:
-    OffsetNibbleHuffmanModel *codeModel;
-    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder; // XXX threading
+    FrequencyHuffmanModel *literalLengthModel;
+    FrequencyHuffmanModel *offsetNibble0Model;
+    FrequencyHuffmanModel *offsetNibble1Model;
+    FrequencyHuffmanModel *offsetNibble2Model;
+    FrequencyHuffmanModel *offsetNibble3Model;
 
 public:
     OffsetNibbleHuffmanCompressionModel();
@@ -53,16 +56,11 @@ public:
     virtual void compress(const char *buf, int length, ostream& out);
     virtual void decompress(const char *buf, int length, ostream& out);
 
-    virtual void encodeLiteral(int aByte);
-    virtual void encodeSubstring(int offset, int length);
-    virtual void endEncoding();
+    virtual void encodeLiteral(int aByte, void *context);
+    virtual void encodeSubstring(int offset, int length, void *context);
+    virtual void endEncoding(void *context);
 
-
-
-
-
-
-
+    friend class OffsetNibbleHuffmanModel;
 };
 
 }

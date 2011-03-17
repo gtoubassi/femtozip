@@ -25,6 +25,7 @@
 
 #include "HuffmanModel.h"
 #include "FrequencyHuffmanModel.h"
+#include "OffsetNibbleHuffmanCompressionModel.h"
 
 namespace femtozip {
 
@@ -35,30 +36,17 @@ protected:
         LiteralLengthState, OffsetNibble0State, OffsetNibble1State, OffsetNibble2State, OffsetNibble3State
     };
 
-    FrequencyHuffmanModel *literalLengthModel;
-    FrequencyHuffmanModel *offsetNibble0Model;
-    FrequencyHuffmanModel *offsetNibble1Model;
-    FrequencyHuffmanModel *offsetNibble2Model;
-    FrequencyHuffmanModel *offsetNibble3Model;
-    State state; // XXX Thread Safety!.
+    OffsetNibbleHuffmanCompressionModel *model;
+    State state;
 
 public:
     OffsetNibbleHuffmanModel();
-    OffsetNibbleHuffmanModel(FrequencyHuffmanModel *literalLengthModel,
-            FrequencyHuffmanModel *offsetNibble0Model,
-            FrequencyHuffmanModel *offsetNibble1Model,
-            FrequencyHuffmanModel *offsetNibble2Model,
-            FrequencyHuffmanModel *offsetNibble3Model);
+    OffsetNibbleHuffmanModel(OffsetNibbleHuffmanCompressionModel *model) : model(model), state(LiteralLengthState) {};
 
-    ~OffsetNibbleHuffmanModel();
-
-    void load(DataInput& in);
-    void save(DataOutput& out);
-
-    void reset();
+    ~OffsetNibbleHuffmanModel() {};
 
     inline Codeword& getCodewordForEOF() {
-        return literalLengthModel->getCodewordForEOF();
+        return model->literalLengthModel->getCodewordForEOF();
     }
 
     inline Codeword& encode(int symbol) {
@@ -67,19 +55,19 @@ public:
             if (symbol > 255) {
                 state = OffsetNibble0State;
             }
-            return literalLengthModel->encode(symbol);
+            return model->literalLengthModel->encode(symbol);
         case OffsetNibble0State:
             state = OffsetNibble1State;
-            return offsetNibble0Model->encode(symbol);
+            return model->offsetNibble0Model->encode(symbol);
         case OffsetNibble1State:
             state = OffsetNibble2State;
-            return offsetNibble1Model->encode(symbol);
+            return model->offsetNibble1Model->encode(symbol);
         case OffsetNibble2State:
             state = OffsetNibble3State;
-            return offsetNibble2Model->encode(symbol);
+            return model->offsetNibble2Model->encode(symbol);
         case OffsetNibble3State:
             state = LiteralLengthState;
-            return offsetNibble3Model->encode(symbol);
+            return model->offsetNibble3Model->encode(symbol);
         default:
             throw "encode: illegal state";
         }
@@ -88,7 +76,7 @@ public:
     inline Codeword& decode(int bits) {
         switch (state) {
         case LiteralLengthState:{
-                Codeword& codeword = literalLengthModel->decode(bits);
+                Codeword& codeword = model->literalLengthModel->decode(bits);
                 if (codeword.symbol > 255) {
                     state = OffsetNibble0State;
                 }
@@ -96,16 +84,16 @@ public:
             }
         case OffsetNibble0State:
             state = OffsetNibble1State;
-            return offsetNibble0Model->decode(bits);
+            return model->offsetNibble0Model->decode(bits);
         case OffsetNibble1State:
             state = OffsetNibble2State;
-            return offsetNibble1Model->decode(bits);
+            return model->offsetNibble1Model->decode(bits);
         case OffsetNibble2State:
             state = OffsetNibble3State;
-            return offsetNibble2Model->decode(bits);
+            return model->offsetNibble2Model->decode(bits);
         case OffsetNibble3State:
             state = LiteralLengthState;
-            return offsetNibble3Model->decode(bits);
+            return model->offsetNibble3Model->decode(bits);
         default:
             throw "encode: illegal state";
         }

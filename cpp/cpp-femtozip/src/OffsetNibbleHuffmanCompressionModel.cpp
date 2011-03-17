@@ -25,6 +25,7 @@
 #include "HuffmanDecoder.h"
 #include "NoCopyReadOnlyStreamBuf.h"
 #include "SubstringUnpacker.h"
+#include "OffsetNibbleHuffmanModel.h"
 
 using namespace std;
 
@@ -46,15 +47,15 @@ struct OffsetNibbleHuffmanModelBuilder : public SubstringPacker::Consumer {
             offsetHistogramNibble3(16) {}
 
 
-    void encodeLiteral(int aByte) {
+    void encodeLiteral(int aByte, void *context) {
         literalLengthHistogram[aByte]++;
     }
 
-    void endEncoding() {
+    void endEncoding(void *context) {
         literalLengthHistogram[literalLengthHistogram.size() - 1]++;
     }
 
-    void encodeSubstring(int offset, int length) {
+    void encodeSubstring(int offset, int length, void *context) {
 
         if (length < 1 || length > 255) {
             throw "OffsetNibbleHuffmanModelBuilder::encodeSubstring: Illegal argument length out of range";
@@ -71,26 +72,26 @@ struct OffsetNibbleHuffmanModelBuilder : public SubstringPacker::Consumer {
         offsetHistogramNibble3[(offset >> 12) & 0xf]++;
     }
 
-    OffsetNibbleHuffmanModel *createModel() {
-        return new OffsetNibbleHuffmanModel(
-                new FrequencyHuffmanModel(literalLengthHistogram, false),
-                new FrequencyHuffmanModel(offsetHistogramNibble0, false),
-                new FrequencyHuffmanModel(offsetHistogramNibble1, false),
-                new FrequencyHuffmanModel(offsetHistogramNibble2, false),
-                new FrequencyHuffmanModel(offsetHistogramNibble3, false));
+    void createModel(FrequencyHuffmanModel *&literalLengthModel, FrequencyHuffmanModel *&offsetNibble0Model, FrequencyHuffmanModel *&offsetNibble1Model, FrequencyHuffmanModel *&offsetNibble2Model, FrequencyHuffmanModel *&offsetNibble3Model) {
+        literalLengthModel = new FrequencyHuffmanModel(literalLengthHistogram, false);
+        offsetNibble0Model = new FrequencyHuffmanModel(offsetHistogramNibble0, false);
+        offsetNibble1Model = new FrequencyHuffmanModel(offsetHistogramNibble1, false);
+        offsetNibble2Model = new FrequencyHuffmanModel(offsetHistogramNibble2, false);
+        offsetNibble3Model = new FrequencyHuffmanModel(offsetHistogramNibble3, false);
     }
 };
 
 
-OffsetNibbleHuffmanCompressionModel::OffsetNibbleHuffmanCompressionModel() : codeModel(0), encoder(0) {
+OffsetNibbleHuffmanCompressionModel::OffsetNibbleHuffmanCompressionModel() : literalLengthModel(0), offsetNibble0Model(0), offsetNibble1Model(0), offsetNibble2Model(0), offsetNibble3Model(0) {
 }
 
 OffsetNibbleHuffmanCompressionModel::~OffsetNibbleHuffmanCompressionModel() {
-    if (encoder) {
-        delete encoder;
-    }
-    if (codeModel) {
-        delete codeModel;
+    if (literalLengthModel) {
+        delete literalLengthModel;
+        delete offsetNibble0Model;
+        delete offsetNibble1Model;
+        delete offsetNibble2Model;
+        delete offsetNibble3Model;
     }
 }
 
@@ -99,23 +100,36 @@ void OffsetNibbleHuffmanCompressionModel::load(DataInput& in) {
     bool hasModel;
     in >> hasModel;
     if (hasModel) {
-        codeModel = new OffsetNibbleHuffmanModel();
-        codeModel->load(in);
+        literalLengthModel = new FrequencyHuffmanModel();
+        offsetNibble0Model = new FrequencyHuffmanModel();
+        offsetNibble1Model = new FrequencyHuffmanModel();
+        offsetNibble2Model = new FrequencyHuffmanModel();
+        offsetNibble3Model = new FrequencyHuffmanModel();
+
+        literalLengthModel->load(in);
+        offsetNibble0Model->load(in);
+        offsetNibble1Model->load(in);
+        offsetNibble2Model->load(in);
+        offsetNibble3Model->load(in);
     }
 }
 
 void OffsetNibbleHuffmanCompressionModel::save(DataOutput& out) {
     CompressionModel::save(out);
-    out << (codeModel ? true : false);
-    if (codeModel) {
-        codeModel->save(out);
+    out << (literalLengthModel ? true : false);
+    if (literalLengthModel) {
+        literalLengthModel->save(out);
+        offsetNibble0Model->save(out);
+        offsetNibble1Model->save(out);
+        offsetNibble2Model->save(out);
+        offsetNibble3Model->save(out);
     }
 }
 
 void OffsetNibbleHuffmanCompressionModel::build(DocumentList& documents) {
     buildDictionaryIfUnspecified(documents);
     OffsetNibbleHuffmanModelBuilder *modelBuilder = static_cast<OffsetNibbleHuffmanModelBuilder *>(buildEncodingModel(documents));
-    codeModel = modelBuilder->createModel();
+    modelBuilder->createModel(literalLengthModel, offsetNibble0Model, offsetNibble1Model, offsetNibble2Model, offsetNibble3Model);
     delete modelBuilder;
 }
 
@@ -124,24 +138,25 @@ SubstringPacker::Consumer *OffsetNibbleHuffmanCompressionModel::createModelBuild
 }
 
 void OffsetNibbleHuffmanCompressionModel::compress(const char *buf, int length, ostream& out) {
-    codeModel->reset();
     vector<char> outbuf; // Should we propagate this up to the outer levels?
     outbuf.reserve(length);
-    encoder = new HuffmanEncoder<OffsetNibbleHuffmanModel>(outbuf, *codeModel);
-    CompressionModel::compress(buf, length, out);
+    OffsetNibbleHuffmanModel model(this);
+    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder = new HuffmanEncoder<OffsetNibbleHuffmanModel>(outbuf, model);
+    getSubstringPacker()->pack(buf, length, *this, encoder);
     encoder->finish();
     delete encoder;
-    encoder = 0;
     if (outbuf.size() > 0) {
         out.write(&outbuf[0], outbuf.size());
     }
 }
 
-void OffsetNibbleHuffmanCompressionModel::encodeLiteral(int aByte) {
+void OffsetNibbleHuffmanCompressionModel::encodeLiteral(int aByte, void *context) {
+    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder = reinterpret_cast<HuffmanEncoder<OffsetNibbleHuffmanModel> *>(context);
     encoder->encodeSymbol(aByte);
 }
 
-void OffsetNibbleHuffmanCompressionModel::encodeSubstring(int offset, int length) {
+void OffsetNibbleHuffmanCompressionModel::encodeSubstring(int offset, int length, void *context) {
+    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder = reinterpret_cast<HuffmanEncoder<OffsetNibbleHuffmanModel> *>(context);
     if (length < 1 || length > 255) {
         throw "OffsetNibbleHuffmanCompressionModel::encodeSubstring: Illegal argument length out of range";
     }
@@ -157,13 +172,12 @@ void OffsetNibbleHuffmanCompressionModel::encodeSubstring(int offset, int length
     encoder->encodeSymbol((offset >> 12) & 0xf);
 }
 
-void OffsetNibbleHuffmanCompressionModel::endEncoding() {
+void OffsetNibbleHuffmanCompressionModel::endEncoding(void *context) {
 }
 
 void OffsetNibbleHuffmanCompressionModel::decompress(const char *buf, int length, ostream& out) {
-    codeModel->reset();
-
-    HuffmanDecoder<OffsetNibbleHuffmanModel> decoder(buf, length, *codeModel);
+    OffsetNibbleHuffmanModel model(this);
+    HuffmanDecoder<OffsetNibbleHuffmanModel> decoder(buf, length, model);
     vector<char> outVector; //XXX performance.  Unpacker should pump right into out
     outVector.reserve(4 * length);
     SubstringUnpacker unpacker(dict, dictLen, outVector);
@@ -175,13 +189,13 @@ void OffsetNibbleHuffmanCompressionModel::decompress(const char *buf, int length
             int length = nextSymbol - 256;
             int offset = decoder.decodeSymbol() | (decoder.decodeSymbol() << 4) | (decoder.decodeSymbol() << 8) | (decoder.decodeSymbol() << 12);
             offset = -offset;
-            unpacker.encodeSubstring(offset, length);
+            unpacker.encodeSubstring(offset, length, 0);
         }
         else {
-            unpacker.encodeLiteral(nextSymbol);
+            unpacker.encodeLiteral(nextSymbol, 0);
         }
     }
-    unpacker.endEncoding();
+    unpacker.endEncoding(0);
     out.write(&outVector[0], outVector.size()); // XXX performance - lame.
 }
 

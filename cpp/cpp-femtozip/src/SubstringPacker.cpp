@@ -49,7 +49,7 @@ SubstringPacker::~SubstringPacker() {
     }
 }
 
-void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
+void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer, void *consumerContext) {
     PrefixHash hash(buf, bufLen, false);
 
     const char *previousMatch = 0;
@@ -87,11 +87,11 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
             // We didn't get a match or we got one and the previous match is better
             if (previousMatch >= dict && previousMatch < dict + dictLen) {
                 // Match is in the dictionary
-                consumer.encodeSubstring(-((curr - buf) - 1 + dict + dictLen - previousMatch), previousMatchLength);
+                consumer.encodeSubstring(-((curr - buf) - 1 + dict + dictLen - previousMatch), previousMatchLength, consumerContext);
             }
             else {
                 // Match is in the string itself (local)
-                consumer.encodeSubstring(-(curr - 1 - previousMatch), previousMatchLength);
+                consumer.encodeSubstring(-(curr - 1 - previousMatch), previousMatchLength, consumerContext);
             }
 
             // Make sure locations are added for the match.  This allows repetitions to always
@@ -110,7 +110,7 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
             // We have a match, and we had a previous match, and this one is better.
             previousMatch = bestMatch;
             previousMatchLength = bestMatchLength;
-            consumer.encodeLiteral(((int)*(curr - 1)) & 0xff);
+            consumer.encodeLiteral(((int)*(curr - 1)) & 0xff, consumerContext);
         }
         else if (bestMatchLength > 0) {
             // We have a match, but no previous match
@@ -119,10 +119,10 @@ void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer) {
         }
         else if (bestMatchLength == 0 && previousMatchLength == 0) {
             // No match, and no previous match.
-            consumer.encodeLiteral(((int)*curr) & 0xff);
+            consumer.encodeLiteral(((int)*curr) & 0xff, consumerContext);
         }
     }
-    consumer.endEncoding();
+    consumer.endEncoding(consumerContext);
 }
 
 }

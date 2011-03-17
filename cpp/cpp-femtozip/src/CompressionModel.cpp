@@ -128,7 +128,7 @@ const char *CompressionModel::getDictionary(int& length) {
 }
 
 void CompressionModel::compress(const char *buf, int length, ostream& out) {
-    getSubstringPacker()->pack(buf, length, *this);
+    getSubstringPacker()->pack(buf, length, *this, 0);
 }
 
 SubstringPacker::Consumer *CompressionModel::createModelBuilder() {
@@ -143,7 +143,7 @@ SubstringPacker::Consumer *CompressionModel::buildEncodingModel(DocumentList& do
     for (int i = 0, count = documents.size(); i < count; i++) {
         int length;
         const char * docBytes = documents.get(i, length);
-        modelBuildingPacker.pack(docBytes, length, *modelBuilder);
+        modelBuildingPacker.pack(docBytes, length, *modelBuilder, 0);
         documents.release(docBytes);
     }
 

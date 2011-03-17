@@ -46,12 +46,12 @@ public:
 
     void reserve(int size);
 
-    inline void encodeLiteral(int aByte) {
+    inline void encodeLiteral(int aByte, void *context) {
         out.push_back((char)aByte);
     }
 
-    void encodeSubstring(int offset, int length);
-    void endEncoding();
+    void encodeSubstring(int offset, int length, void *context);
+    void endEncoding(void *context);
 };
 
 }

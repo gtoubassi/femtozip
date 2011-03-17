@@ -40,7 +40,7 @@ void SubstringUnpacker::reserve(int size) {
     out.reserve(size);
 }
 
-void SubstringUnpacker::encodeSubstring(int offset, int length) {
+void SubstringUnpacker::encodeSubstring(int offset, int length, void *context) {
     int currentIndex = static_cast<int>(out.size());
     if (currentIndex + offset < 0) {
         const char *startDict = dict + currentIndex + offset + dictLen;
@@ -72,7 +72,7 @@ void SubstringUnpacker::encodeSubstring(int offset, int length) {
     }
 }
 
-void SubstringUnpacker::endEncoding() {
+void SubstringUnpacker::endEncoding(void *context) {
 }
 
 
