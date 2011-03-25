@@ -1,0 +1,2 @@
+lib_LTLIBRARIES = libfzip.la
+libfzip_la_SOURCES = CStringDocumentList.cpp Codeword.cpp CompressionModel.cpp DataIO.cpp DecodeTable.cpp DictionaryOptimizer.cpp DocumentList.cpp FileDocumentList.cpp FileUtil.cpp FrequencyHuffmanModel.cpp GZipCompressionModel.cpp GZipDictionaryCompressionModel.cpp HuffmanDecoder.cpp HuffmanEncoder.cpp OffsetNibbleHuffmanCompressionModel.cpp OptimizingCompressionModel.cpp PrefixHash.cpp PureHuffmanCompressionModel.cpp Substring.cpp SubstringPacker.cpp SubstringUnpacker.cpp VerboseStringConsumer.cpp lcp.c sarray.c
