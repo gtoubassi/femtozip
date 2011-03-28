@@ -2,3 +2,4 @@
 .metadata
 Debug/
 Release/
+autom4te.cache/
