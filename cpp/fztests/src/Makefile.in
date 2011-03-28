@@ -43,7 +43,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 PROGRAMS = $(noinst_PROGRAMS)
-am_fztests_OBJECTS = fztests-femtoziptest.$(OBJEXT)
+am_fztests_OBJECTS = fztests-fztests.$(OBJEXT)
 fztests_OBJECTS = $(am_fztests_OBJECTS)
 fztests_DEPENDENCIES = ../../libfz/src/libfzip.la
 DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
@@ -176,7 +176,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-fztests_SOURCES = femtoziptest.cpp
+fztests_SOURCES = fztests.cpp
 fztests_CPPFLAGS = -I$(top_srcdir)/libfz/src
 fztests_LDADD = ../../libfz/src/libfzip.la -lz
 all: all-am
@@ -229,7 +229,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fztests-femtoziptest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fztests-fztests.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -252,19 +252,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
 
-fztests-femtoziptest.o: femtoziptest.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fztests-femtoziptest.o -MD -MP -MF $(DEPDIR)/fztests-femtoziptest.Tpo -c -o fztests-femtoziptest.o `test -f 'femtoziptest.cpp' || echo '$(srcdir)/'`femtoziptest.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fztests-femtoziptest.Tpo $(DEPDIR)/fztests-femtoziptest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='femtoziptest.cpp' object='fztests-femtoziptest.o' libtool=no @AMDEPBACKSLASH@
+fztests-fztests.o: fztests.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fztests-fztests.o -MD -MP -MF $(DEPDIR)/fztests-fztests.Tpo -c -o fztests-fztests.o `test -f 'fztests.cpp' || echo '$(srcdir)/'`fztests.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fztests-fztests.Tpo $(DEPDIR)/fztests-fztests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='fztests.cpp' object='fztests-fztests.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fztests-femtoziptest.o `test -f 'femtoziptest.cpp' || echo '$(srcdir)/'`femtoziptest.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fztests-fztests.o `test -f 'fztests.cpp' || echo '$(srcdir)/'`fztests.cpp
 
-fztests-femtoziptest.obj: femtoziptest.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fztests-femtoziptest.obj -MD -MP -MF $(DEPDIR)/fztests-femtoziptest.Tpo -c -o fztests-femtoziptest.obj `if test -f 'femtoziptest.cpp'; then $(CYGPATH_W) 'femtoziptest.cpp'; else $(CYGPATH_W) '$(srcdir)/femtoziptest.cpp'; fi`
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fztests-femtoziptest.Tpo $(DEPDIR)/fztests-femtoziptest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='femtoziptest.cpp' object='fztests-femtoziptest.obj' libtool=no @AMDEPBACKSLASH@
+fztests-fztests.obj: fztests.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT fztests-fztests.obj -MD -MP -MF $(DEPDIR)/fztests-fztests.Tpo -c -o fztests-fztests.obj `if test -f 'fztests.cpp'; then $(CYGPATH_W) 'fztests.cpp'; else $(CYGPATH_W) '$(srcdir)/fztests.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/fztests-fztests.Tpo $(DEPDIR)/fztests-fztests.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='fztests.cpp' object='fztests-fztests.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fztests-femtoziptest.obj `if test -f 'femtoziptest.cpp'; then $(CYGPATH_W) 'femtoziptest.cpp'; else $(CYGPATH_W) '$(srcdir)/femtoziptest.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(fztests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o fztests-fztests.obj `if test -f 'fztests.cpp'; then $(CYGPATH_W) 'fztests.cpp'; else $(CYGPATH_W) '$(srcdir)/fztests.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
