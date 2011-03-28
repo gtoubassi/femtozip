@@ -5,4 +5,4 @@ FemtoZip is a compression library in the spirit of DEFLATE (gzip) which is desig
    1. PHP or JSON serialized objects stored in memcached. The keys are repeated across documents, but not within a document.
    2. URLs stored in a free text search index such as Lucene. Urls often start with "http://www.", and have common pieces like ".com/" and ".html". Again this structure is repeated across documents, but not within a document.
 
-For more information, visit the FemtoZip wiki at http://github.com/gtoubassi/femtozip/wiki
+For more information, visit the [FemtoZip Wiki]: http://github.com/gtoubassi/femtozip/wiki
