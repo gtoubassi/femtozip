@@ -1,6 +1,6 @@
 AC_PREREQ(2.61)
 AC_INIT([femtozip], 1.0, [nomail@femtozip.com])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([cpp-femtozip/src/CompressionModel.cpp])
 AC_CONFIG_HEADERS([config.h])
 
