@@ -3,6 +3,7 @@
 	<name>fzip</name>
 	<comment></comment>
 	<projects>
+		<project>libfz</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

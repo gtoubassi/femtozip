@@ -727,7 +727,7 @@ PACKAGE_VERSION='1.0'
 PACKAGE_STRING='femtozip 1.0'
 PACKAGE_BUGREPORT='nomail@femtozip.com'
 
-ac_unique_file="cpp-femtozip/src/CompressionModel.cpp"
+ac_unique_file="libfz/src/CompressionModel.cpp"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -15920,7 +15920,7 @@ fi
 
 # Checks for library functions.
 
-ac_config_files="$ac_config_files Makefile cpp-femtozip/src/Makefile cpp-datagen/src/Makefile cpp-tests/src/Makefile fzip/src/Makefile"
+ac_config_files="$ac_config_files Makefile libfz/src/Makefile fzdatagen/src/Makefile fztests/src/Makefile fzip/src/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -16874,9 +16874,9 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-    "cpp-femtozip/src/Makefile") CONFIG_FILES="$CONFIG_FILES cpp-femtozip/src/Makefile" ;;
-    "cpp-datagen/src/Makefile") CONFIG_FILES="$CONFIG_FILES cpp-datagen/src/Makefile" ;;
-    "cpp-tests/src/Makefile") CONFIG_FILES="$CONFIG_FILES cpp-tests/src/Makefile" ;;
+    "libfz/src/Makefile") CONFIG_FILES="$CONFIG_FILES libfz/src/Makefile" ;;
+    "fzdatagen/src/Makefile") CONFIG_FILES="$CONFIG_FILES fzdatagen/src/Makefile" ;;
+    "fztests/src/Makefile") CONFIG_FILES="$CONFIG_FILES fztests/src/Makefile" ;;
     "fzip/src/Makefile") CONFIG_FILES="$CONFIG_FILES fzip/src/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

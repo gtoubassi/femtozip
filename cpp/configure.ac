@@ -1,7 +1,7 @@
 AC_PREREQ(2.61)
 AC_INIT([femtozip], 1.0, [nomail@femtozip.com])
 AM_INIT_AUTOMAKE([foreign])
-AC_CONFIG_SRCDIR([cpp-femtozip/src/CompressionModel.cpp])
+AC_CONFIG_SRCDIR([libfz/src/CompressionModel.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_LIBTOOL
@@ -21,9 +21,9 @@ AC_HEADER_STDC
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
-                 cpp-femtozip/src/Makefile
-                 cpp-datagen/src/Makefile
-                 cpp-tests/src/Makefile
+                 libfz/src/Makefile
+                 fzdatagen/src/Makefile
+                 fztests/src/Makefile
                  fzip/src/Makefile])
 
 AC_OUTPUT

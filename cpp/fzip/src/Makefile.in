@@ -47,7 +47,7 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_fzip_OBJECTS = fzip-fzip.$(OBJEXT)
 fzip_OBJECTS = $(am_fzip_OBJECTS)
-fzip_DEPENDENCIES = ../../cpp-femtozip/src/libfzip.la
+fzip_DEPENDENCIES = ../../libfz/src/libfzip.la
 DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -179,8 +179,8 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 fzip_SOURCES = fzip.cpp
-fzip_CPPFLAGS = -I$(top_srcdir)/cpp-femtozip/src
-fzip_LDADD = ../../cpp-femtozip/src/libfzip.la -lz
+fzip_CPPFLAGS = -I$(top_srcdir)/libfz/src
+fzip_LDADD = ../../libfz/src/libfzip.la -lz
 all: all-am
 
 .SUFFIXES:
