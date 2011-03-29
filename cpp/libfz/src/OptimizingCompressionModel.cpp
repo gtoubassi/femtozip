@@ -59,7 +59,9 @@ OptimizingCompressionModel::OptimizingCompressionModel(vector<string>& models) {
 
 OptimizingCompressionModel::~OptimizingCompressionModel() {
     for (vector<CompressionResult>::iterator i = results.begin(); i != results.end(); i++) {
-        delete i->model;
+        if (i->model) {
+            delete i->model;
+        }
     }
 }
 

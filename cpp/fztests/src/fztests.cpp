@@ -40,6 +40,7 @@
 #include <GZipCompressionModel.h>
 #include <GZipDictionaryCompressionModel.h>
 #include <DataIO.h>
+#include <femtozip.h>
 
 using namespace std;
 using namespace femtozip;
@@ -575,7 +576,7 @@ void testPrefixHash() {
         const char *match;
         int matchLength;
 
-        string target = "blah!";
+        string target = "blah!xy";
         const char *targetCstr = target.c_str();
         hash.getBestMatch(targetCstr + 3, targetCstr, target.length(), match, matchLength);
 
@@ -583,6 +584,60 @@ void testPrefixHash() {
         assertTrue(matchLength == 0, "prefixhash wrong length");
     }
 
+}
+
+void *fz_build_model(int num_docs, const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data);
+
+const char *get_doc_callback(int doc_index, int *doc_len, void *user_data) {
+    char **docs = reinterpret_cast<char **>(user_data);
+    *doc_len = strlen(docs[doc_index]);
+    return docs[doc_index];
+}
+
+void release_doc_callback(const char *buf, void *user_data) {
+}
+
+void testCApiCompression(void *model, const char *test_doc) {
+    int compressed_capacity = 1024;
+    char *compressed = new char[compressed_capacity];
+    int compressed_len = fz_compress(model, test_doc, strlen(test_doc), compressed, compressed_capacity);
+
+    assertTrue(compressed_len > 0 && compressed_len < (int)strlen(test_doc), "Compressed doc is not smaller then original");
+
+    int decompressed_capacity = strlen(test_doc);
+    char *decompressed = new char[decompressed_capacity];
+    int decompressed_len = fz_decompress(model, compressed, compressed_len, decompressed, decompressed_capacity);
+
+    assertTrue(decompressed_len == (int)strlen(test_doc), "Decompressed doc is not the same size as original");
+    assertTrue(strncmp(decompressed, test_doc, strlen(test_doc)) == 0, "Decompressed doc is different from original");
+
+    delete[] compressed;
+    delete[] decompressed;
+}
+
+void testCApi() {
+    const char *train_docs[] = {"http://espn.de", "http://popsugar.de", "http://google.de", "http://yahoo.de", "http://www.linkedin.com", "http://www.facebook.com", "http:www.stanford.edu", "http://www.arizona.edu", "abcdefghijklmnopqrstuvwxyz", "abcdefghijklmnopqrstuvwxyz"};
+    int num_docs = 10;
+
+    void *model = fz_build_model(num_docs, get_doc_callback, release_doc_callback, train_docs);
+
+    const char *test_docs[] = {"Check out http://www.facebook.com/me", "http://www.nordstrom.com", "abcdefghijklmnopqrstuvwxyz", 0};
+    for (const char **test_doc = test_docs; *test_doc; test_doc++) {
+        testCApiCompression(model, *test_doc);
+    }
+
+    const char *path = tmpnam(NULL);
+    fz_save_model(model, path);
+    fz_release_model(model);
+
+    model = fz_load_model(path);
+    for (const char **test_doc = test_docs; *test_doc; test_doc++) {
+        testCApiCompression(model, *test_doc);
+    }
+
+    fz_release_model(model);
+
+    remove(path);
 }
 
 int main() {
@@ -614,6 +669,8 @@ int main() {
     testMultiThreading();
 
     testPrefixHash();
+
+    testCApi();
 
     reportTestResults();
 

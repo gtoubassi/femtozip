@@ -36,7 +36,7 @@ int fz_save_model(void *model, const char *path);
 /**
  * Returns NULL on failure
  */
-void *fz_build_model(int num_docs, const char *(*get_callback)(int doc_index, int *doc_len), void (*release_callback)(const char *buf));
+void *fz_build_model(int num_docs, const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data);
 
 /**
  * Frees memory associated with the model.  The model is invalid after this point.

@@ -32,11 +32,12 @@ class CCallbackDocumentList : public DocumentList {
 private:
     int count;
     bool even;
-    const char *(*get_callback)(int doc_index, int *doc_len);
-    void (*release_callback)(const char *buf);
+    const char *(*get_callback)(int doc_index, int *doc_len, void *user_data);
+    void (*release_callback)(const char *buf, void *user_data);
+    void *user_data;
 
 public:
-    CCallbackDocumentList(int size, bool even, const char *(*get_callback)(int doc_index, int *doc_len), void (*release_callback)(const char *buf)) : count(size), even(even), get_callback(get_callback), release_callback(release_callback) {};
+    CCallbackDocumentList(int size, bool even, const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data) : count(size), even(even), get_callback(get_callback), release_callback(release_callback), user_data(callback_user_data) {};
 
     virtual ~CCallbackDocumentList() {}
 
@@ -44,11 +45,11 @@ public:
 
     virtual const char *get(int i, int& length) {
         i = 2 * i + (even ? 0 : 1);
-        return get_callback(i, &length);
+        return get_callback(i, &length, user_data);
     }
 
     virtual void release(const char *buf) {
-        release_callback(buf);
+        release_callback(buf, user_data);
     }
 };
 
@@ -68,6 +69,10 @@ void *fz_load_model(const char *path) {
 
 int fz_save_model(void *model, const char *path) {
     CompressionModel *m = reinterpret_cast<CompressionModel*>(model);
+    OptimizingCompressionModel *optimizingModel = dynamic_cast<OptimizingCompressionModel *>(m);
+    if (optimizingModel) {
+        m = optimizingModel->getBestPerformingModel();
+    }
     ofstream file(path, ios::out | ios::binary | ios::trunc);
     DataOutput out(file);
     CompressionModel::saveModel(*m, out);
@@ -76,11 +81,11 @@ int fz_save_model(void *model, const char *path) {
     return file.fail() ? 1 : 0;
 }
 
-void *fz_build_model(int num_docs, const char *(*get_callback)(int doc_index, int *doc_len), void (*release_callback)(const char *buf)) {
+void *fz_build_model(int num_docs, const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data) {
     OptimizingCompressionModel *model = new OptimizingCompressionModel();
 
-    CCallbackDocumentList pass1Docs(num_docs, false, get_callback, release_callback);
-    CCallbackDocumentList pass2Docs(num_docs, true, get_callback, release_callback);
+    CCallbackDocumentList pass1Docs(num_docs, false, get_callback, release_callback, callback_user_data);
+    CCallbackDocumentList pass2Docs(num_docs, true, get_callback, release_callback, callback_user_data);
 
     model->build(pass1Docs);
     model->optimize(pass2Docs);
