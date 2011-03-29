@@ -150,4 +150,12 @@
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
     </target>
+
+  <target name="jar" depends="build">
+    <jar destfile="lib/femtozip.jar"
+         basedir="."
+         includes="bin/**/*.class"
+         />
+  </target>
+
 </project>
