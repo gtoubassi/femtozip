@@ -41,6 +41,9 @@ private:
     FrequencyHuffmanModel *offsetNibble2Model;
     FrequencyHuffmanModel *offsetNibble3Model;
 
+protected:
+    virtual SubstringPacker::Consumer *createModelBuilder();
+
 public:
     OffsetNibbleHuffmanCompressionModel();
     virtual ~OffsetNibbleHuffmanCompressionModel();
@@ -51,7 +54,6 @@ public:
     virtual const char *typeName() { return "OffsetNibbleHuffman"; };
 
     virtual void build(DocumentList& documents);
-    virtual SubstringPacker::Consumer *createModelBuilder();
 
     virtual void compress(const char *buf, int length, ostream& out);
     virtual void decompress(const char *buf, int length, ostream& out);

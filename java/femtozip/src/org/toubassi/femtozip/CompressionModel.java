@@ -167,11 +167,11 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         }
     }
     
-    public SubstringPacker.Consumer createModelBuilder() {
+    protected SubstringPacker.Consumer createModelBuilder() {
         return null;
     }
     
-    public SubstringPacker.Consumer buildEncodingModel(DocumentList documents) {
+    protected SubstringPacker.Consumer buildEncodingModel(DocumentList documents) {
         try {
             SubstringPacker modelBuildingPacker = new SubstringPacker(dictionary);
             SubstringPacker.Consumer modelBuilder = createModelBuilder();

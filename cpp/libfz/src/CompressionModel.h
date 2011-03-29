@@ -39,6 +39,11 @@ protected:
     virtual void buildDictionaryIfUnspecified(DocumentList& documents);
     SubstringPacker *getSubstringPacker();
 
+
+    virtual SubstringPacker::Consumer *createModelBuilder();
+
+    virtual SubstringPacker::Consumer *buildEncodingModel(DocumentList& documents);
+
 public:
     static CompressionModel *createModel(const string& type);
     static void saveModel(CompressionModel& model, DataOutput& out);
@@ -63,10 +68,6 @@ public:
     virtual void encodeLiteral(int aByte, void *context) = 0;
     virtual void encodeSubstring(int offset, int length, void *context) = 0;
     virtual void endEncoding(void *context) = 0;
-
-    virtual SubstringPacker::Consumer *createModelBuilder();
-
-    virtual SubstringPacker::Consumer *buildEncodingModel(DocumentList& documents);
 };
 
 }

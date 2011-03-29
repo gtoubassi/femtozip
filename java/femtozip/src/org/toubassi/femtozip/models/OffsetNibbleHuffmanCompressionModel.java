@@ -48,7 +48,7 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
         codeModel = ((ModelBuilder)buildEncodingModel(documents)).createModel();
     }
     
-    public SubstringPacker.Consumer createModelBuilder() {
+    protected SubstringPacker.Consumer createModelBuilder() {
         return new ModelBuilder();
     }
     
