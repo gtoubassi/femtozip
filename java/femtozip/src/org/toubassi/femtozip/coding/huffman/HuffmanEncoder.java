@@ -18,8 +18,6 @@ package org.toubassi.femtozip.coding.huffman;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.colloquial.io.BitOutput;
-
 public class HuffmanEncoder {
     private BitOutput bitOut;
     private HuffmanModel model;

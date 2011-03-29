@@ -24,10 +24,6 @@ import java.util.Random;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.toubassi.femtozip.coding.arithmetic.FrequencyCodeModel;
-import org.toubassi.femtozip.coding.huffman.HuffmanDecoder;
-import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
-import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
 
 
 public class HuffmanModelTest {
@@ -45,7 +41,7 @@ public class HuffmanModelTest {
         for (int i = 0, count = dataBytes.length; i < count; i++) {
             data[i] = ((int)dataBytes[i]) & 0xff;
         }
-        int[] histogram = FrequencyCodeModel.computeHistogramWithEOFSymbol(dataBytes);
+        int[] histogram = FrequencyHuffmanModel.computeHistogramWithEOFSymbol(dataBytes);
         
         FrequencyHuffmanModel model = new FrequencyHuffmanModel(histogram, allSymbolsSampled);
         

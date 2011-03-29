@@ -27,6 +27,15 @@ public class FrequencyHuffmanModel implements HuffmanModel {
     private Codeword[] encoding;
     private DecodeTable decoding;
     
+    public static int[] computeHistogramWithEOFSymbol(byte[] data) {
+        int[] histogram = new int[256 + 1];
+        for (int i = 0, count = data.length; i < count; i++) {
+            histogram[((int)data[i]) & 0xff]++;
+        }
+        histogram[histogram.length - 1] = 1; // EOF
+        return histogram;
+    }
+    
     public FrequencyHuffmanModel(int[] histogram, boolean allSymbolsSampled) {
         
         if (!allSymbolsSampled) {

@@ -18,8 +18,6 @@ package org.toubassi.femtozip.coding.huffman;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.colloquial.io.BitInput;
-
 public class HuffmanDecoder {
     private BitInput in;
     private HuffmanModel model;
@@ -37,11 +35,15 @@ public class HuffmanDecoder {
         if (endOfStream) {
             return -1;
         }
-        while (availableBits < 32 && !in.endOfStream()) {
-            if (in.readBit()) {
+        while (availableBits < 32) {
+            int newBit = in.readBit();
+            if (newBit == -1) {
+                break;
+            }
+            if (newBit == 1) {
                 bitBuf |= 1L << availableBits;
             }
-            availableBits ++;
+            availableBits++;
         }
         
         Codeword decoded = model.decode((int)bitBuf);

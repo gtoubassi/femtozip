@@ -19,8 +19,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.colloquial.io.BitOutput;
-
 public class Codeword implements Cloneable {
     int value;
     int bitLength;
@@ -81,7 +79,7 @@ public class Codeword implements Cloneable {
         int v = value;
         
         while (l > 0) {
-            bitOut.writeBit((v & 0x1) == 1 ? true : false);
+            bitOut.writeBit((v & 0x1));
             l--;
             v >>= 1;
         }
