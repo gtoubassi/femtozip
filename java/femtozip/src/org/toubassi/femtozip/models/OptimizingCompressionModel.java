@@ -59,7 +59,7 @@ public class OptimizingCompressionModel extends CompressionModel {
     private int totalDataSize;
 
     public OptimizingCompressionModel() {
-        this("GZip,GZipDictionary,NibbleFrequency,OffsetNibbleFrequency,OffsetNibbleHuffman,PureArithCoding,PureHuffman,SplitFrequency,TripleNibbleFrequency,UnifiedFrequency,Noop,VariableInt");
+        this("GZip,GZipDictionary,OffsetNibbleHuffman,PureHuffman,VariableInt");
     }
     
     public OptimizingCompressionModel(String modelNames) {

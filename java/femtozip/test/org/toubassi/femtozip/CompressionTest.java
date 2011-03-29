@@ -23,15 +23,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.toubassi.femtozip.models.GZipCompressionModel;
 import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
-import org.toubassi.femtozip.models.NibbleFrequencyCompressionModel;
-import org.toubassi.femtozip.models.NoopCompressionModel;
-import org.toubassi.femtozip.models.OffsetNibbleFrequencyCompressionModel;
 import org.toubassi.femtozip.models.OffsetNibbleHuffmanCompressionModel;
-import org.toubassi.femtozip.models.PureArithCodingCompressionModel;
 import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
-import org.toubassi.femtozip.models.SplitFrequencyCompressionModel;
-import org.toubassi.femtozip.models.TripleNibbleFrequencyCompressionModel;
-import org.toubassi.femtozip.models.UnifiedFrequencyCompressionModel;
 import org.toubassi.femtozip.models.VariableIntCompressionModel;
 import org.toubassi.femtozip.models.VerboseStringCompressionModel;
 
@@ -46,13 +39,13 @@ public class CompressionTest {
     @Test
     public void testDictionaryOptimizer() throws IOException {
         
-        CompressionModel compressionModel = new UnifiedFrequencyCompressionModel();
+        CompressionModel compressionModel = new OffsetNibbleHuffmanCompressionModel();
         compressionModel.build(new ArrayDocumentList(PreambleString.getBytes()));
         
         String dictionary = dictionaryToString(compressionModel.getDictionary());
         Assert.assertEquals(" our to , ince, sticure and , proity, s of e the for the establish the United States", dictionary);
 
-        compressionModel = new UnifiedFrequencyCompressionModel();
+        compressionModel = new OffsetNibbleHuffmanCompressionModel();
         compressionModel.build(new ArrayDocumentList(PanamaString.getBytes()));
         
         dictionary = dictionaryToString(compressionModel.getDictionary());
@@ -65,17 +58,10 @@ public class CompressionTest {
         String[][] testPairs = {{PreambleString, PreambleDictionary}, {"",""}};
         for (String[] testPair : testPairs) {
             testModel(testPair[0], testPair[1], new VerboseStringCompressionModel(), testPair[0].length() == 0 ? -1 : 363);
-            testModel(testPair[0], testPair[1], new UnifiedFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 208);
-            testModel(testPair[0], testPair[1], new SplitFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 200);
-            testModel(testPair[0], testPair[1], new NibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 185);
-            testModel(testPair[0], testPair[1], new TripleNibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 185);
-            testModel(testPair[0], testPair[1], new OffsetNibbleFrequencyCompressionModel(), testPair[0].length() == 0 ? -1 : 199);
             testModel(testPair[0], testPair[1], new OffsetNibbleHuffmanCompressionModel(), testPair[0].length() == 0 ? -1 : 205);
             testModel(testPair[0], testPair[1], new GZipDictionaryCompressionModel(), testPair[0].length() == 0 ? -1 : 204);
             testModel(testPair[0], testPair[1], new GZipCompressionModel(), testPair[0].length() == 0 ? -1 : 210);
-            testModel(testPair[0], testPair[1], new PureArithCodingCompressionModel(), testPair[0].length() == 0 ? -1 : 207);
             testModel(testPair[0], testPair[1], new PureHuffmanCompressionModel(), testPair[0].length() == 0 ? -1 : 211);
-            testModel(testPair[0], testPair[1], new NoopCompressionModel(), testPair[0].length() == 0 ? -1 : 327);
             testModel(testPair[0], testPair[1], new VariableIntCompressionModel(), testPair[0].length() == 0 ? -1 : 333);
         }
     }
@@ -108,7 +94,7 @@ public class CompressionTest {
 
     @Test
     public void testDocumentUniquenessScoring() throws IOException {
-        CompressionModel model = new OffsetNibbleFrequencyCompressionModel();
+        CompressionModel model = new OffsetNibbleHuffmanCompressionModel();
         ArrayList<byte[]> documents = new ArrayList<byte[]>();
         documents.add((new String("garrick1garrick2garrick3garrick4garrick")).getBytes("UTF-8"));
         documents.add((new String("xtoubassigarrick")).getBytes("UTF-8"));
@@ -123,7 +109,7 @@ public class CompressionTest {
 
     @Test
     public void testNonexistantStrings() throws IOException {
-        CompressionModel model = new OffsetNibbleFrequencyCompressionModel();
+        CompressionModel model = new OffsetNibbleHuffmanCompressionModel();
         ArrayList<byte[]> documents = new ArrayList<byte[]>();
         documents.add((new String("http://espn.de")).getBytes("UTF-8"));
         documents.add((new String("http://popsugar.de")).getBytes("UTF-8"));

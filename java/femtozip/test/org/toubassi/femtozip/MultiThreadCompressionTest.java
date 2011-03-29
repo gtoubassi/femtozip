@@ -9,15 +9,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.toubassi.femtozip.models.GZipCompressionModel;
 import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
-import org.toubassi.femtozip.models.NibbleFrequencyCompressionModel;
-import org.toubassi.femtozip.models.NoopCompressionModel;
-import org.toubassi.femtozip.models.OffsetNibbleFrequencyCompressionModel;
 import org.toubassi.femtozip.models.OffsetNibbleHuffmanCompressionModel;
-import org.toubassi.femtozip.models.PureArithCodingCompressionModel;
 import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
-import org.toubassi.femtozip.models.SplitFrequencyCompressionModel;
-import org.toubassi.femtozip.models.TripleNibbleFrequencyCompressionModel;
-import org.toubassi.femtozip.models.UnifiedFrequencyCompressionModel;
 import org.toubassi.femtozip.models.VariableIntCompressionModel;
 import org.toubassi.femtozip.models.VerboseStringCompressionModel;
 
@@ -115,17 +108,10 @@ public class MultiThreadCompressionTest {
     public void testThreading() throws IOException, InterruptedException {
         
         testThreadedCompressionModel(new VerboseStringCompressionModel());
-        testThreadedCompressionModel(new UnifiedFrequencyCompressionModel());
-        testThreadedCompressionModel(new SplitFrequencyCompressionModel());
-        testThreadedCompressionModel(new NibbleFrequencyCompressionModel());
-        testThreadedCompressionModel(new TripleNibbleFrequencyCompressionModel());
-        testThreadedCompressionModel(new OffsetNibbleFrequencyCompressionModel());
         testThreadedCompressionModel(new OffsetNibbleHuffmanCompressionModel());
         testThreadedCompressionModel(new GZipDictionaryCompressionModel());
         testThreadedCompressionModel(new GZipCompressionModel());
-        testThreadedCompressionModel(new PureArithCodingCompressionModel());
         testThreadedCompressionModel(new PureHuffmanCompressionModel());
-        testThreadedCompressionModel(new NoopCompressionModel());
         testThreadedCompressionModel(new VariableIntCompressionModel());
     }
 }
