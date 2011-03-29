@@ -77,6 +77,9 @@ CompressionModel::~CompressionModel() {
 }
 
 void CompressionModel::load(DataInput& in) {
+    int version;
+    in >> version;
+
     int length;
     in >> length;
     char *d = 0;
@@ -91,6 +94,8 @@ void CompressionModel::load(DataInput& in) {
 }
 
 void CompressionModel::save(DataOutput& out) {
+    out << 0; // poor mans file format version
+
     out << dictLen;
     if (dictLen > 0) {
         out.write(dict, dictLen);

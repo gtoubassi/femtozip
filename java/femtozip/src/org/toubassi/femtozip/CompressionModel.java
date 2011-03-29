@@ -90,6 +90,8 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     }
     
     public void load(DataInputStream in) throws IOException {
+        in.readInt(); // file format version, currently unused.
+        
         int dictionaryLength = in.readInt();
         
         if (dictionaryLength == -1) {
@@ -107,6 +109,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     }
 
     public void save(DataOutputStream out) throws IOException {
+        out.writeInt(0); // Poor mans file format version
         if (dictionary == null) {
             out.writeInt(-1);
         }
