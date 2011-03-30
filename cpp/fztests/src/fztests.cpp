@@ -586,8 +586,6 @@ void testPrefixHash() {
 
 }
 
-void *fz_build_model(int num_docs, const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data);
-
 const char *get_doc_callback(int doc_index, int *doc_len, void *user_data) {
     char **docs = reinterpret_cast<char **>(user_data);
     *doc_len = strlen(docs[doc_index]);

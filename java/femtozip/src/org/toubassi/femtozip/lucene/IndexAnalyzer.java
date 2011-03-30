@@ -142,7 +142,7 @@ public class IndexAnalyzer extends Tool  {
         for (File file : dirContents) {
             if (file.getName().endsWith(".fzmodel")) {
                 String fieldName = file.getName().replace(".fzmodel", "");
-                CompressionModel model = CompressionModel.load(file.getPath());
+                CompressionModel model = CompressionModel.loadModel(file.getPath());
                 fieldToModel.put(fieldName, model);
             }
         }        

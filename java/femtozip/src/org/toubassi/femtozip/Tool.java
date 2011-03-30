@@ -188,7 +188,7 @@ public class Tool  {
     }
     
     protected void loadBenchmarkModel() throws IOException {
-        model = CompressionModel.load(modelPath);
+        model = CompressionModel.loadModel(modelPath);
     }
     
     protected OptimizingCompressionModel createModel() {

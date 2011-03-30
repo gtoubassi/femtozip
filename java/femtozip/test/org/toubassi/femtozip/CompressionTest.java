@@ -30,10 +30,10 @@ import org.toubassi.femtozip.models.VerboseStringCompressionModel;
 
 
 public class CompressionTest {
-    private static String PreambleString = "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.";
-    private String PreambleDictionary = " of and for the a United States ";
+    public static String PreambleString = "We the People of the United States, in Order to form a more perfect Union, establish Justice, insure domestic Tranquility, provide for the common defence, promote the general Welfare, and secure the Blessings of Liberty to ourselves and our Posterity, do ordain and establish this Constitution for the United States of America.";
+    public static String PreambleDictionary = " of and for the a United States ";
 
-    private static String PanamaString = "a man a plan a canal panama";
+    public static String PanamaString = "a man a plan a canal panama";
     
     
     @Test
@@ -85,6 +85,8 @@ public class CompressionTest {
         if (expectedSize >= 0) {
             Assert.assertEquals(expectedSize, compressedBytes.length);
         }
+        
+        System.out.println(compressedBytes.length);
         
         byte[] decompressedBytes = model.decompress(compressedBytes);
         String decompressedString = new String(decompressedBytes);

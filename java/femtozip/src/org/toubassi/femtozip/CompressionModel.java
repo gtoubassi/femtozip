@@ -119,7 +119,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         }
     }
     
-    public static CompressionModel load(String path) throws IOException {
+    public static CompressionModel loadModel(String path) throws IOException {
         FileInputStream fileIn = new FileInputStream(path);
         BufferedInputStream bufferedIn = new BufferedInputStream(fileIn);
         DataInputStream in = new DataInputStream(bufferedIn);

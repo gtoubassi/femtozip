@@ -41,9 +41,17 @@ public:
 
     virtual ~CCallbackDocumentList() {}
 
-    virtual int size() {return count / 2 + (even && (count & 1 == 1) ? 1 : 0);}
+    virtual int size() {
+        if (count < 2) {
+            return count;
+        }
+        return count / 2 + (even && (count & 1 == 1) ? 1 : 0);
+    }
 
     virtual const char *get(int i, int& length) {
+        if (count == 1) {
+            return get_callback(0, &length, user_data);
+        }
         i = 2 * i + (even ? 0 : 1);
         return get_callback(i, &length, user_data);
     }
