@@ -16,7 +16,7 @@ public class NativeCompressionModel extends CompressionModel {
     
     public NativeCompressionModel() {
         if (!nativeLibraryLoaded) {
-            System.loadLibrary("jnifemtozip");
+            System.loadLibrary("jnifzip");
             nativeLibraryLoaded = true;
         }
     }

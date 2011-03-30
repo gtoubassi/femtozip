@@ -86,8 +86,6 @@ public class CompressionTest {
             Assert.assertEquals(expectedSize, compressedBytes.length);
         }
         
-        System.out.println(compressedBytes.length);
-        
         byte[] decompressedBytes = model.decompress(compressedBytes);
         String decompressedString = new String(decompressedBytes);
         
