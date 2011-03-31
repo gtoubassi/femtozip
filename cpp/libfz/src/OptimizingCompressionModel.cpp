@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string.h>
 #include "OptimizingCompressionModel.h"
 #include "OffsetNibbleHuffmanCompressionModel.h"
 #include "PureHuffmanCompressionModel.h"

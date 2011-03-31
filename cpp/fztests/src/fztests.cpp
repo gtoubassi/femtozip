@@ -22,6 +22,8 @@
 #include <vector>
 #include <pthread.h>
 #include <sys/time.h>
+#include <string.h>
+#include <stdlib.h>
 #include <FileDocumentList.h>
 #include <CStringDocumentList.h>
 #include <DictionaryOptimizer.h>

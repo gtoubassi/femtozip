@@ -21,6 +21,7 @@
  */
 
 #include <iostream>
+#include <string.h>
 #include "CompressionModel.h"
 #include "DictionaryOptimizer.h"
 #include "PureHuffmanCompressionModel.h"

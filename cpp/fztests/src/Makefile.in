@@ -178,7 +178,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 fztests_SOURCES = fztests.cpp
 fztests_CPPFLAGS = -I$(top_srcdir)/libfz/src
-fztests_LDADD = ../../libfz/src/libfzip.la -lz
+fztests_LDADD = ../../libfz/src/libfzip.la -lz -lpthread
 all: all-am
 
 .SUFFIXES:

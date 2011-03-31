@@ -24,6 +24,7 @@
 #include <iomanip>
 #include <set>
 #include <algorithm>
+#include <string.h>
 #include "DictionaryOptimizer.h"
 #include "DocumentList.h"
 #include "Substring.h"

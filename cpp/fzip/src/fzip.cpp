@@ -20,6 +20,8 @@
 #include <sstream>
 #include <iomanip>
 #include <string>
+#include <string.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <vector>

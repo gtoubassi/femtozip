@@ -18,7 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-
+#include <string.h>
 #include "DataIO.h"
 #include "DocumentList.h"
 #include "CompressionModel.h"

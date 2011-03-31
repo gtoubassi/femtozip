@@ -14,8 +14,9 @@
  *   limitations under the License.
  */
 
-#include "PrefixHash.h"
 #include <iostream>
+#include <string.h>
+#include "PrefixHash.h"
 
 using namespace std;
 

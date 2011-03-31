@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <cstdarg>
+#include <string.h>
 #include "CStringDocumentList.h"
 
 using namespace std;
