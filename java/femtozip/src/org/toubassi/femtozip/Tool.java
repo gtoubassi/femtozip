@@ -43,6 +43,7 @@ public class Tool  {
     protected CompressionModel model;
     protected boolean preload;
     protected boolean verify;
+    protected boolean dumpArgs;
     
     protected int numSamples = 0;
     protected int maxDictionarySize = 0;
@@ -213,12 +214,6 @@ public class Tool  {
     
     public void run(String[] args) throws IOException {
         
-        System.out.println("Command line arguments:");
-        for (String arg : args) {
-            System.out.println(arg);
-        }
-        System.out.println();
-        
         for (int i = 0, count = args.length; i < count; i++) {
             String arg = args[i];
             
@@ -252,15 +247,27 @@ public class Tool  {
             else if (arg.equals("--maxdict")) {
                 maxDictionarySize = Integer.parseInt(args[++i]);
             }
+            else if (arg.equals("--dumpargs")) {
+                dumpArgs = true;
+            }
             else {
                 path = arg;
             }
         }
-        
+
         if (operation == null || path == null || modelPath == null) {
             usage();
         }
 
+        
+        if (dumpArgs) {
+            System.out.println("Command line arguments:");
+            for (String arg : args) {
+                System.out.println(arg);
+            }
+            System.out.println();
+        }
+        
         long start = System.currentTimeMillis();
         
         if (operation == Operation.BuildModel) {
