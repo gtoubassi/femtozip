@@ -80,6 +80,10 @@ public class CompressionTest {
         model.setDictionary(dictionaryBytes);
         model.build(new ArrayDocumentList(sourceBytes));
         
+        testBuiltModel(model, sourceBytes, expectedSize);
+    }
+    
+    public static void testBuiltModel(CompressionModel model, byte[] sourceBytes, int expectedSize) throws IOException {
         byte[] compressedBytes = model.compress(sourceBytes);
 
         if (expectedSize >= 0) {
@@ -87,9 +91,8 @@ public class CompressionTest {
         }
         
         byte[] decompressedBytes = model.decompress(compressedBytes);
-        String decompressedString = new String(decompressedBytes);
         
-        Assert.assertEquals(source, decompressedString);
+        Assert.assertArrayEquals(sourceBytes, decompressedBytes);
     }
 
     @Test
