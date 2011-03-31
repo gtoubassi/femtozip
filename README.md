@@ -1,8 +1,8 @@
 # FemtoZip 
 
-FemtoZip is a compression library optimized for small documents that may not compress well with traditional tools such as gzip. In particular situations where a very large number of small documents (10's to 1000's of bytes) share similar characteristics, but do not compress effectively standalone.
+FemtoZip is a compression library optimized for small documents that may not compress well with traditional tools such as gzip. In particular, situations where a very large number of small documents (10's to 1000's of bytes) share similar characteristics, but do not compress effectively standalone.
 
-How can I tell if my data will work with femtozip:
+How can I tell if my data will work with femtozip?
 
    1. If gzipping 1000 of your documents concatenated together in a single file achieves much better compression rates then individual documents, then your data is likely tailor made for FemtoZip.
    2. Get your documents onto the file system as discrete files, and run a test using the fzip command line tool as shown in the Tutorial.
