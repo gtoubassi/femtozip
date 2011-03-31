@@ -1,0 +1,37 @@
+Unless otherwise stated below Apache 2.0 license covers the FemtoZip distribution:
+
+   Copyright 2011 Garrick Toubassi
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+lcp.c is distributed with no license.  It was publicly available via Professor M. Douglas McIlroy as of 3/31/2011 from http://www.cs.dartmouth.edu/~doug/sarray/.
+ 
+sarray.h and sarray.c are covered by the Plan 9 Open Source license which reads in part:
+
+3.3 With respect to Your distribution of Licensed Software (or any
+portion thereof), You must include the following information in a
+conspicuous location governing such distribution (e.g., a separate
+file) and on all copies of any Source Code version of Licensed
+Software You distribute:
+
+    "The contents herein includes software initially developed by
+    Lucent Technologies Inc. and others, and is subject to the terms
+    of the Lucent Technologies Inc. Plan 9 Open Source License
+    Agreement.  A copy of the Plan 9 Open Source License Agreement is
+    available at: http://plan9.bell-labs.com/plan9dist/download.html
+    or by contacting Lucent Technologies at http: //www.lucent.com.
+    All software distributed under such Agreement is distributed on,
+    obligations and limitations under such Agreement.  Portions of
+    the software developed by Lucent Technologies Inc. and others are
+    Copyright (c) 2002.  All rights reserved.
+    Contributor(s):___________________________"
