@@ -142,6 +142,14 @@
             <classpath refid="java-femtozip.classpath"/>
         </junit>
     </target>
+    <target name="test-jni">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="org.toubassi.femtozip.models.NativeCompressionModelTest" todir="${junit.output.dir}"/>
+            <classpath refid="java-femtozip.classpath"/>
+        </junit>
+    </target>
     <target name="junitreport">
         <junitreport todir="${junit.output.dir}">
             <fileset dir="${junit.output.dir}">
