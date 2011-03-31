@@ -80,14 +80,18 @@ public class IndexAnalyzer extends Tool  {
         reader.close();
 
         OptimizingCompressionModel.CompressionResult bestResult = new CompressionResult(new OptimizingCompressionModel());
+        long totalDataSize = 0;
         for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
             OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
             bestResult.accumulate(model.getBestPerformingResult());
+            totalDataSize += model.getBestPerformingResult().totalDataSize;
         }
 
         System.out.println("Summary:");
         System.out.println("Total Index Size: " + totalIndexSize);
         System.out.println("# Documents in Index: " + totalNumDocs);
+        long totalStoredDataSize = Math.round(((double)totalDataSize) * totalNumDocs / numSamples);
+        System.out.println("Approx. Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
         
         System.out.println("Aggregate performance:");
         System.out.println(bestResult);
@@ -132,7 +136,7 @@ public class IndexAnalyzer extends Tool  {
         System.out.println("Total Index Size: " + totalIndexSize);
         System.out.println("# Documents in Index: " + totalNumDocs);
         long totalStoredDataSize = Math.round(((double)totalDataSize) * totalNumDocs / numSamples);
-        System.out.println("Estimated Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
+        System.out.println("Approx. Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
         System.out.println("Aggregate Stored Data Compression Rate: " + format.format(totalCompressedSize * 100d / totalDataSize) + "% (" + totalCompressedSize + " bytes)");
     }
 
