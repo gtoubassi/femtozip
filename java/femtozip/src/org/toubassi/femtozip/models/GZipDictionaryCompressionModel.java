@@ -55,10 +55,10 @@ public class GZipDictionaryCompressionModel extends CompressionModel {
     }
 
     public void compress(byte[] data, OutputStream out) throws IOException {
-        compress(out, dictionary, data, 0, data.length); 
+        compress(out, dictionary, data); 
     }
 
-    protected void compress(OutputStream out, byte[] dictionary, byte[] input, int offset, int length) throws IOException {
+    protected void compress(OutputStream out, byte[] dictionary, byte[] input) throws IOException {
         Deflater compressor = new Deflater();
 
         try {

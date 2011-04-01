@@ -31,6 +31,6 @@ public class GZipCompressionModel extends GZipDictionaryCompressionModel {
     }
 
     public void compress(byte[] data, OutputStream out) throws IOException {
-        compress(out, null, data, 0, data.length); 
+        compress(out, null, data); 
     }
 }
