@@ -37,7 +37,7 @@
 #include <HuffmanEncoder.h>
 #include <CompressionModel.h>
 #include <PureHuffmanCompressionModel.h>
-#include <OffsetNibbleHuffmanCompressionModel.h>
+#include <FemtoZipCompressionModel.h>
 #include <GZipCompressionModel.h>
 #include <GZipDictionaryCompressionModel.h>
 #include <DataIO.h>
@@ -346,7 +346,7 @@ void testModel(const char *source, const char *dictionary, CompressionModel& mod
 void testCompressionModels() {
     PureHuffmanCompressionModel pureHuffman, pureHuffman1;
     testModel(PreambleString.c_str(), PreambleDictionary.c_str(), pureHuffman, pureHuffman1, 211);
-    OffsetNibbleHuffmanCompressionModel offsetNibble, offsetNibble1;
+    FemtoZipCompressionModel offsetNibble, offsetNibble1;
     testModel(PreambleString.c_str(), PreambleDictionary.c_str(), offsetNibble, offsetNibble1, 205);
     GZipCompressionModel gzipModel, gzipModel1;
     testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipModel, gzipModel1, 210);
@@ -355,7 +355,7 @@ void testCompressionModels() {
 }
 
 void testDocumentUniquenessScoring() {
-    OffsetNibbleHuffmanCompressionModel model;
+    FemtoZipCompressionModel model;
     CStringDocumentList docs("garrick1garrick2garrick3garrick4garrick", "xtoubassigarrick", "ytoubassi", "ztoubassi", NULL);
 
     model.build(docs);
@@ -366,7 +366,7 @@ void testDocumentUniquenessScoring() {
 }
 
 void testNonexistantStrings() {
-    OffsetNibbleHuffmanCompressionModel model;
+    FemtoZipCompressionModel model;
     CStringDocumentList docs("http://espn.de", "http://popsugar.de", "http://google.de", "http://yahoo.de", "gtoubassi", "gtoubassi", NULL);
     model.build(docs);
 
@@ -408,7 +408,7 @@ void testModelOptimization() {
         model->decompress(compressed.c_str(), compressed.length(), out2);
         string decompressed = out2.str();
         assertTrue(decompressed == buf, string("Mismatched string got: '") + decompressed + "' expected '" + buf);
-        assertTrue(strcmp("OffsetNibbleHuffman", model->typeName()) == 0, "Expected OffsetNibbleHuffman for text data");
+        assertTrue(strcmp("FemtoZip", model->typeName()) == 0, "Expected FemtoZip for text data");
         delete model;
     }
 }
@@ -528,7 +528,7 @@ void testMultiThreading() {
     testThreadedCompressionModel(&gzip);
     GZipDictionaryCompressionModel gzipDict;
     testThreadedCompressionModel(&gzipDict);
-    OffsetNibbleHuffmanCompressionModel offsetNibble;
+    FemtoZipCompressionModel offsetNibble;
     testThreadedCompressionModel(&offsetNibble);
 }
 

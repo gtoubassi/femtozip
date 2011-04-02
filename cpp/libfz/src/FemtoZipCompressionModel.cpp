@@ -13,25 +13,19 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-/*
- * OffsetNibbleHuffmanCompressionModel.cpp
- *
- *  Created on: Mar 4, 2011
- *      Author: gtoubassi
- */
 
 #include <vector>
-#include "OffsetNibbleHuffmanCompressionModel.h"
+#include "FemtoZipCompressionModel.h"
 #include "HuffmanDecoder.h"
 #include "NoCopyReadOnlyStreamBuf.h"
 #include "SubstringUnpacker.h"
-#include "OffsetNibbleHuffmanModel.h"
+#include "FemtoZipHuffmanModel.h"
 
 using namespace std;
 
 namespace femtozip {
 
-struct OffsetNibbleHuffmanModelBuilder : public SubstringPacker::Consumer {
+struct FemtoZipHuffmanModelBuilder : public SubstringPacker::Consumer {
 
     vector<int> literalLengthHistogram;
     vector<int> offsetHistogramNibble0;
@@ -39,7 +33,7 @@ struct OffsetNibbleHuffmanModelBuilder : public SubstringPacker::Consumer {
     vector<int> offsetHistogramNibble2;
     vector<int> offsetHistogramNibble3;
 
-    OffsetNibbleHuffmanModelBuilder() :
+    FemtoZipHuffmanModelBuilder() :
             literalLengthHistogram(256 + 256 + 1, 0), // 256 for each unique literal byte, 256 for all possible length, plus 1 for EOF
             offsetHistogramNibble0(16),
             offsetHistogramNibble1(16),
@@ -58,13 +52,13 @@ struct OffsetNibbleHuffmanModelBuilder : public SubstringPacker::Consumer {
     void encodeSubstring(int offset, int length, void *context) {
 
         if (length < 1 || length > 255) {
-            throw "OffsetNibbleHuffmanModelBuilder::encodeSubstring: Illegal argument length out of range";
+            throw "FemtoZipHuffmanModelBuilder::encodeSubstring: Illegal argument length out of range";
         }
         literalLengthHistogram[256 + length]++;
 
         offset = -offset;
         if (length < 1 || offset > (2<<15)-1) {
-            throw "OffsetNibbleHuffmanModelBuilder::encodeSubstring: Illegal argument offset out of range";
+            throw "FemtoZipHuffmanModelBuilder::encodeSubstring: Illegal argument offset out of range";
         }
         offsetHistogramNibble0[offset & 0xf]++;
         offsetHistogramNibble1[(offset >> 4) & 0xf]++;
@@ -82,10 +76,10 @@ struct OffsetNibbleHuffmanModelBuilder : public SubstringPacker::Consumer {
 };
 
 
-OffsetNibbleHuffmanCompressionModel::OffsetNibbleHuffmanCompressionModel() : literalLengthModel(0), offsetNibble0Model(0), offsetNibble1Model(0), offsetNibble2Model(0), offsetNibble3Model(0) {
+FemtoZipCompressionModel::FemtoZipCompressionModel() : literalLengthModel(0), offsetNibble0Model(0), offsetNibble1Model(0), offsetNibble2Model(0), offsetNibble3Model(0) {
 }
 
-OffsetNibbleHuffmanCompressionModel::~OffsetNibbleHuffmanCompressionModel() {
+FemtoZipCompressionModel::~FemtoZipCompressionModel() {
     if (literalLengthModel) {
         delete literalLengthModel;
         delete offsetNibble0Model;
@@ -95,7 +89,7 @@ OffsetNibbleHuffmanCompressionModel::~OffsetNibbleHuffmanCompressionModel() {
     }
 }
 
-void OffsetNibbleHuffmanCompressionModel::load(DataInput& in) {
+void FemtoZipCompressionModel::load(DataInput& in) {
     CompressionModel::load(in);
     bool hasModel;
     in >> hasModel;
@@ -114,7 +108,7 @@ void OffsetNibbleHuffmanCompressionModel::load(DataInput& in) {
     }
 }
 
-void OffsetNibbleHuffmanCompressionModel::save(DataOutput& out) {
+void FemtoZipCompressionModel::save(DataOutput& out) {
     CompressionModel::save(out);
     out << (literalLengthModel ? true : false);
     if (literalLengthModel) {
@@ -126,22 +120,22 @@ void OffsetNibbleHuffmanCompressionModel::save(DataOutput& out) {
     }
 }
 
-void OffsetNibbleHuffmanCompressionModel::build(DocumentList& documents) {
+void FemtoZipCompressionModel::build(DocumentList& documents) {
     buildDictionaryIfUnspecified(documents);
-    OffsetNibbleHuffmanModelBuilder *modelBuilder = static_cast<OffsetNibbleHuffmanModelBuilder *>(buildEncodingModel(documents));
+    FemtoZipHuffmanModelBuilder *modelBuilder = static_cast<FemtoZipHuffmanModelBuilder *>(buildEncodingModel(documents));
     modelBuilder->createModel(literalLengthModel, offsetNibble0Model, offsetNibble1Model, offsetNibble2Model, offsetNibble3Model);
     delete modelBuilder;
 }
 
-SubstringPacker::Consumer *OffsetNibbleHuffmanCompressionModel::createModelBuilder() {
-    return new OffsetNibbleHuffmanModelBuilder();
+SubstringPacker::Consumer *FemtoZipCompressionModel::createModelBuilder() {
+    return new FemtoZipHuffmanModelBuilder();
 }
 
-void OffsetNibbleHuffmanCompressionModel::compress(const char *buf, int length, ostream& out) {
+void FemtoZipCompressionModel::compress(const char *buf, int length, ostream& out) {
     vector<char> outbuf; // Should we propagate this up to the outer levels?
     outbuf.reserve(length);
-    OffsetNibbleHuffmanModel model(this);
-    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder = new HuffmanEncoder<OffsetNibbleHuffmanModel>(outbuf, model);
+    FemtoZipHuffmanModel model(this);
+    HuffmanEncoder<FemtoZipHuffmanModel> *encoder = new HuffmanEncoder<FemtoZipHuffmanModel>(outbuf, model);
     getSubstringPacker()->pack(buf, length, *this, encoder);
     encoder->finish();
     delete encoder;
@@ -150,21 +144,21 @@ void OffsetNibbleHuffmanCompressionModel::compress(const char *buf, int length, 
     }
 }
 
-void OffsetNibbleHuffmanCompressionModel::encodeLiteral(int aByte, void *context) {
-    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder = reinterpret_cast<HuffmanEncoder<OffsetNibbleHuffmanModel> *>(context);
+void FemtoZipCompressionModel::encodeLiteral(int aByte, void *context) {
+    HuffmanEncoder<FemtoZipHuffmanModel> *encoder = reinterpret_cast<HuffmanEncoder<FemtoZipHuffmanModel> *>(context);
     encoder->encodeSymbol(aByte);
 }
 
-void OffsetNibbleHuffmanCompressionModel::encodeSubstring(int offset, int length, void *context) {
-    HuffmanEncoder<OffsetNibbleHuffmanModel> *encoder = reinterpret_cast<HuffmanEncoder<OffsetNibbleHuffmanModel> *>(context);
+void FemtoZipCompressionModel::encodeSubstring(int offset, int length, void *context) {
+    HuffmanEncoder<FemtoZipHuffmanModel> *encoder = reinterpret_cast<HuffmanEncoder<FemtoZipHuffmanModel> *>(context);
     if (length < 1 || length > 255) {
-        throw "OffsetNibbleHuffmanCompressionModel::encodeSubstring: Illegal argument length out of range";
+        throw "FemtoZipCompressionModel::encodeSubstring: Illegal argument length out of range";
     }
     encoder->encodeSymbol(256 + length);
 
     offset = -offset;
     if (offset < 1 || offset > (2<<15)-1) {
-        throw "OffsetNibbleHuffmanCompressionModel::encodeSubstring: Illegal argument offset out of range";
+        throw "FemtoZipCompressionModel::encodeSubstring: Illegal argument offset out of range";
     }
     encoder->encodeSymbol(offset & 0xf);
     encoder->encodeSymbol((offset >> 4) & 0xf);
@@ -172,12 +166,12 @@ void OffsetNibbleHuffmanCompressionModel::encodeSubstring(int offset, int length
     encoder->encodeSymbol((offset >> 12) & 0xf);
 }
 
-void OffsetNibbleHuffmanCompressionModel::endEncoding(void *context) {
+void FemtoZipCompressionModel::endEncoding(void *context) {
 }
 
-void OffsetNibbleHuffmanCompressionModel::decompress(const char *buf, int length, ostream& out) {
-    OffsetNibbleHuffmanModel model(this);
-    HuffmanDecoder<OffsetNibbleHuffmanModel> decoder(buf, length, model);
+void FemtoZipCompressionModel::decompress(const char *buf, int length, ostream& out) {
+    FemtoZipHuffmanModel model(this);
+    HuffmanDecoder<FemtoZipHuffmanModel> decoder(buf, length, model);
     vector<char> outVector; //XXX performance.  Unpacker should pump right into out
     outVector.reserve(4 * length);
     SubstringUnpacker unpacker(dict, dictLen, outVector);

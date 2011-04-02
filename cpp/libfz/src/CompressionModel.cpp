@@ -26,7 +26,7 @@
 #include "CompressionModel.h"
 #include "DictionaryOptimizer.h"
 #include "PureHuffmanCompressionModel.h"
-#include "OffsetNibbleHuffmanCompressionModel.h"
+#include "FemtoZipCompressionModel.h"
 #include "GZipCompressionModel.h"
 #include "GZipDictionaryCompressionModel.h"
 #include "SamplingDocumentList.h"
@@ -39,8 +39,8 @@ CompressionModel *CompressionModel::createModel(const string& type) {
     if (type == "PureHuffman") {
         return new PureHuffmanCompressionModel();
     }
-    else if (type == "OffsetNibbleHuffman") {
-        return new OffsetNibbleHuffmanCompressionModel();
+    else if (type == "FemtoZip") {
+        return new FemtoZipCompressionModel();
     }
     else if (type == "GZip") {
         return new GZipCompressionModel();
@@ -60,7 +60,7 @@ void CompressionModel::saveModel(CompressionModel& model, DataOutput& out) {
 
 CompressionModel *CompressionModel::buildOptimalModel(DocumentList& documents, bool verify) {
     vector<CompressionModel *> models;
-    models.push_back(new OffsetNibbleHuffmanCompressionModel());
+    models.push_back(new FemtoZipCompressionModel());
     models.push_back(new PureHuffmanCompressionModel());
 
     // Split the documents into two groups.  One for building each model out

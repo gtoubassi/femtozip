@@ -13,12 +13,6 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-/*
- * OffsetNibbleHuffmanCompressionModel.h
- *
- *  Created on: Mar 4, 2011
- *      Author: gtoubassi
- */
 
 #ifndef OFFSETNIBBLEHUFFMANCOMPRESSIONMODEL_H_
 #define OFFSETNIBBLEHUFFMANCOMPRESSIONMODEL_H_
@@ -33,7 +27,7 @@
 
 namespace femtozip {
 
-class OffsetNibbleHuffmanCompressionModel : public CompressionModel {
+class FemtoZipCompressionModel : public CompressionModel {
 private:
     FrequencyHuffmanModel *literalLengthModel;
     FrequencyHuffmanModel *offsetNibble0Model;
@@ -45,13 +39,13 @@ protected:
     virtual SubstringPacker::Consumer *createModelBuilder();
 
 public:
-    OffsetNibbleHuffmanCompressionModel();
-    virtual ~OffsetNibbleHuffmanCompressionModel();
+    FemtoZipCompressionModel();
+    virtual ~FemtoZipCompressionModel();
 
     virtual void load(DataInput& in);
     virtual void save(DataOutput& out);
 
-    virtual const char *typeName() { return "OffsetNibbleHuffman"; };
+    virtual const char *typeName() { return "FemtoZip"; };
 
     virtual void build(DocumentList& documents);
 
@@ -62,7 +56,7 @@ public:
     virtual void encodeSubstring(int offset, int length, void *context);
     virtual void endEncoding(void *context);
 
-    friend class OffsetNibbleHuffmanModel;
+    friend class FemtoZipHuffmanModel;
 };
 
 }

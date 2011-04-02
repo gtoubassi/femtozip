@@ -13,37 +13,31 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-/*
- * OffsetNibbleHuffmanModel.h
- *
- *  Created on: Mar 4, 2011
- *      Author: gtoubassi
- */
 
 #ifndef OFFSETNIBBLEHUFFMANMODEL_H_
 #define OFFSETNIBBLEHUFFMANMODEL_H_
 
 #include "HuffmanModel.h"
 #include "FrequencyHuffmanModel.h"
-#include "OffsetNibbleHuffmanCompressionModel.h"
+#include "FemtoZipCompressionModel.h"
 
 namespace femtozip {
 
-class OffsetNibbleHuffmanModel  {
+class FemtoZipHuffmanModel  {
 protected:
 
     enum State {
         LiteralLengthState, OffsetNibble0State, OffsetNibble1State, OffsetNibble2State, OffsetNibble3State
     };
 
-    OffsetNibbleHuffmanCompressionModel *model;
+    FemtoZipCompressionModel *model;
     State state;
 
 public:
-    OffsetNibbleHuffmanModel();
-    OffsetNibbleHuffmanModel(OffsetNibbleHuffmanCompressionModel *model) : model(model), state(LiteralLengthState) {};
+    FemtoZipHuffmanModel();
+    FemtoZipHuffmanModel(FemtoZipCompressionModel *model) : model(model), state(LiteralLengthState) {};
 
-    ~OffsetNibbleHuffmanModel() {};
+    ~FemtoZipHuffmanModel() {};
 
     inline Codeword& getCodewordForEOF() {
         return model->literalLengthModel->getCodewordForEOF();
