@@ -21,6 +21,7 @@
  */
 
 #include <iostream>
+#include <sstream>
 #include <string.h>
 #include "CompressionModel.h"
 #include "DictionaryOptimizer.h"
@@ -28,6 +29,7 @@
 #include "OffsetNibbleHuffmanCompressionModel.h"
 #include "GZipCompressionModel.h"
 #include "GZipDictionaryCompressionModel.h"
+#include "SamplingDocumentList.h"
 
 using namespace std;
 
@@ -54,6 +56,74 @@ CompressionModel *CompressionModel::createModel(const string& type) {
 void CompressionModel::saveModel(CompressionModel& model, DataOutput& out) {
     out << string(model.typeName());
     model.save(out);
+}
+
+CompressionModel *CompressionModel::buildOptimalModel(DocumentList& documents, bool verify) {
+    vector<CompressionModel *> models;
+    models.push_back(new OffsetNibbleHuffmanCompressionModel());
+    models.push_back(new PureHuffmanCompressionModel());
+
+    // Split the documents into two groups.  One for building each model out
+    // and one for testing which model is best.  Shouldn't build and test
+    // with the same set as a model may over optimize for the training set.
+    SamplingDocumentList trainingDocuments(documents, 2, 0);
+    SamplingDocumentList testingDocuments(documents, 2, 1);
+
+    // Build each model
+
+    const char *builtDict = 0;
+    int builtDictLength = 0;
+    for (vector<CompressionModel *>::iterator i = models.begin(); i != models.end(); i++) {
+        if (builtDict) {
+            // This is an optimization to avoid building multiple times
+            // though technically if different models built the dict differently we'd be hosed.
+            (*i)->setDictionary(builtDict, builtDictLength);
+        }
+        (*i)->build(trainingDocuments);
+        if (!builtDict) {
+            builtDict = (*i)->getDictionary(builtDictLength);
+        }
+    }
+
+    // Pick the best one
+    vector<size_t> compressedSizes(models.size());
+    for (int i = 0, count = testingDocuments.size(); i < count; i++) {
+        int length;
+        const char *data = testingDocuments.get(i, length);
+
+        for (vector<CompressionModel *>::iterator i = models.begin(); i != models.end(); i++) {
+            ostringstream out;
+            (*i)->compress(data, length, out);
+            string outstr = out.str();
+
+            if (verify) {
+                ostringstream decompressedOut;
+                (*i)->decompress(outstr.c_str(), outstr.length(), decompressedOut);
+                string decompressed = decompressedOut.str();
+                if (decompressed.length() != static_cast<unsigned int>(length) || memcmp(decompressed.c_str(), data, length) != 0) {
+                    throw "Compress/Decompress roundtrip failed";
+                }
+            }
+
+            compressedSizes[i - models.begin()] += outstr.length();
+        }
+    }
+
+    size_t i;
+    size_t bestIndex = 0;
+    for (i = 1; i < compressedSizes.size(); i++) {
+        if (compressedSizes[bestIndex] > compressedSizes[i]) {
+            bestIndex = i;
+        }
+    }
+
+    for (i = 0; i < models.size(); i++) {
+        if (i != bestIndex) {
+            delete models[i];
+        }
+    }
+
+    return models[bestIndex];
 }
 
 CompressionModel *CompressionModel::loadModel(DataInput& in) {
@@ -163,6 +233,5 @@ void CompressionModel::buildDictionaryIfUnspecified(DocumentList& documents) {
         setDictionary(dictionary.c_str(), dictionary.length());
     }
 }
-
 
 }

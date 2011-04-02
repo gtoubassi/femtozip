@@ -59,10 +59,9 @@ am_libfzip_la_OBJECTS = CStringDocumentList.lo Codeword.lo \
 	FileUtil.lo FrequencyHuffmanModel.lo GZipCompressionModel.lo \
 	GZipDictionaryCompressionModel.lo HuffmanDecoder.lo \
 	HuffmanEncoder.lo OffsetNibbleHuffmanCompressionModel.lo \
-	OptimizingCompressionModel.lo PrefixHash.lo \
-	PureHuffmanCompressionModel.lo Substring.lo SubstringPacker.lo \
-	SubstringUnpacker.lo VerboseStringConsumer.lo lcp.lo sarray.lo \
-	femtozip.lo
+	PrefixHash.lo PureHuffmanCompressionModel.lo Substring.lo \
+	SubstringPacker.lo SubstringUnpacker.lo \
+	VerboseStringConsumer.lo lcp.lo sarray.lo femtozip.lo
 libfzip_la_OBJECTS = $(am_libfzip_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(top_builddir)@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -213,18 +212,16 @@ libfzip_la_SOURCES = BitInput.h BitOutput.h CStringDocumentList.h \
 	GZipDictionaryCompressionModel.h HuffmanDecoder.h \
 	HuffmanEncoder.h HuffmanModel.h NoCopyReadOnlyStreamBuf.h \
 	OffsetNibbleHuffmanCompressionModel.h \
-	OffsetNibbleHuffmanModel.h OptimizingCompressionModel.h \
-	PrefixHash.h PureHuffmanCompressionModel.h Substring.h \
-	SubstringPacker.h SubstringUnpacker.h VerboseStringConsumer.h \
-	sarray.h CStringDocumentList.cpp Codeword.cpp \
-	CompressionModel.cpp DataIO.cpp DecodeTable.cpp \
-	DictionaryOptimizer.cpp DocumentList.cpp FileDocumentList.cpp \
-	FileUtil.cpp FrequencyHuffmanModel.cpp \
-	GZipCompressionModel.cpp GZipDictionaryCompressionModel.cpp \
-	HuffmanDecoder.cpp HuffmanEncoder.cpp \
-	OffsetNibbleHuffmanCompressionModel.cpp \
-	OptimizingCompressionModel.cpp PrefixHash.cpp \
-	PureHuffmanCompressionModel.cpp Substring.cpp \
+	OffsetNibbleHuffmanModel.h PrefixHash.h \
+	PureHuffmanCompressionModel.h Substring.h SubstringPacker.h \
+	SubstringUnpacker.h VerboseStringConsumer.h sarray.h \
+	CStringDocumentList.cpp Codeword.cpp CompressionModel.cpp \
+	DataIO.cpp DecodeTable.cpp DictionaryOptimizer.cpp \
+	DocumentList.cpp FileDocumentList.cpp FileUtil.cpp \
+	FrequencyHuffmanModel.cpp GZipCompressionModel.cpp \
+	GZipDictionaryCompressionModel.cpp HuffmanDecoder.cpp \
+	HuffmanEncoder.cpp OffsetNibbleHuffmanCompressionModel.cpp \
+	PrefixHash.cpp PureHuffmanCompressionModel.cpp Substring.cpp \
 	SubstringPacker.cpp SubstringUnpacker.cpp \
 	VerboseStringConsumer.cpp lcp.c sarray.c femtozip.h \
 	femtozip.cpp
@@ -313,7 +310,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HuffmanDecoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/HuffmanEncoder.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OffsetNibbleHuffmanCompressionModel.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OptimizingCompressionModel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PrefixHash.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PureHuffmanCompressionModel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Substring.Plo@am__quote@

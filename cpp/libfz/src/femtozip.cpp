@@ -22,7 +22,6 @@
 #include "DataIO.h"
 #include "DocumentList.h"
 #include "CompressionModel.h"
-#include "OptimizingCompressionModel.h"
 #include "femtozip.h"
 
 using namespace std;
@@ -31,28 +30,20 @@ using namespace femtozip;
 class CCallbackDocumentList : public DocumentList {
 private:
     int count;
-    bool even;
     const char *(*get_callback)(int doc_index, int *doc_len, void *user_data);
     void (*release_callback)(const char *buf, void *user_data);
     void *user_data;
 
 public:
-    CCallbackDocumentList(int size, bool even, const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data) : count(size), even(even), get_callback(get_callback), release_callback(release_callback), user_data(callback_user_data) {};
+    CCallbackDocumentList(int size,  const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data) : count(size), get_callback(get_callback), release_callback(release_callback), user_data(callback_user_data) {};
 
     virtual ~CCallbackDocumentList() {}
 
     virtual int size() {
-        if (count < 2) {
-            return count;
-        }
-        return count / 2 + (even && (count & 1 == 1) ? 1 : 0);
+        return count;
     }
 
     virtual const char *get(int i, int& length) {
-        if (count == 1) {
-            return get_callback(0, &length, user_data);
-        }
-        i = 2 * i + (even ? 0 : 1);
         return get_callback(i, &length, user_data);
     }
 
@@ -77,10 +68,6 @@ void *fz_load_model(const char *path) {
 
 int fz_save_model(void *model, const char *path) {
     CompressionModel *m = reinterpret_cast<CompressionModel*>(model);
-    OptimizingCompressionModel *optimizingModel = dynamic_cast<OptimizingCompressionModel *>(m);
-    if (optimizingModel) {
-        m = optimizingModel->getBestPerformingModel();
-    }
     ofstream file(path, ios::out | ios::binary | ios::trunc);
     DataOutput out(file);
     CompressionModel::saveModel(*m, out);
@@ -90,14 +77,8 @@ int fz_save_model(void *model, const char *path) {
 }
 
 void *fz_build_model(int num_docs, const char *(*get_callback)(int doc_index, int *doc_len, void *user_data), void (*release_callback)(const char *buf, void *user_data), void *callback_user_data) {
-    OptimizingCompressionModel *model = new OptimizingCompressionModel();
-
-    CCallbackDocumentList pass1Docs(num_docs, false, get_callback, release_callback, callback_user_data);
-    CCallbackDocumentList pass2Docs(num_docs, true, get_callback, release_callback, callback_user_data);
-
-    model->build(pass1Docs);
-    model->optimize(pass2Docs);
-
+    CCallbackDocumentList documents(num_docs, get_callback, release_callback, callback_user_data);
+    CompressionModel *model = CompressionModel::buildOptimalModel(documents);
     return reinterpret_cast<void *>(model);
 }
 

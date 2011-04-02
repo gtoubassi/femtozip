@@ -29,8 +29,7 @@
 #include <DataIO.h>
 #include <FileDocumentList.h>
 #include <FileUtil.h>
-#include <OptimizingCompressionModel.h>
-
+#include <CompressionModel.h>
 
 using namespace std;
 using namespace femtozip;
@@ -70,31 +69,22 @@ void saveModel(CompressionModel& model) {
 
 
 void buildModel() {
-    vector<string> pass1Paths(paths.begin(), paths.begin() + paths.size() / 2);
-    FileDocumentList pass1Docs(pass1Paths);
-
-    vector<string> pass2Paths(paths.begin() + paths.size() / 2 + 1, paths.end());
-    FileDocumentList pass2Docs(pass2Paths);
-
-    // Pass1 builds the models
-    OptimizingCompressionModel model(models);
-
-    long start = getTimeMillis();
+    FileDocumentList documents(paths);
 
     cout << "Building model..." << endl;
-    model.build(pass1Docs);
 
-    // Pass2 picks the best one
-    model.optimize(pass2Docs);
-
+    long start = getTimeMillis();
+    CompressionModel *model = CompressionModel::buildOptimalModel(documents, true);
     long duration = getTimeMillis() - start;
+
     if (verbose || benchmark) {
         cout <<"Model built in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
     }
 
     if (!benchmark) {
-        saveModel(*model.getBestPerformingModel());
+        saveModel(*model);
     }
+    delete model;
 }
 
 void compress() {

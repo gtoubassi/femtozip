@@ -39,12 +39,13 @@ protected:
     virtual void buildDictionaryIfUnspecified(DocumentList& documents);
     SubstringPacker *getSubstringPacker();
 
-
     virtual SubstringPacker::Consumer *createModelBuilder();
 
     virtual SubstringPacker::Consumer *buildEncodingModel(DocumentList& documents);
 
 public:
+
+    static CompressionModel *buildOptimalModel(DocumentList& documents, bool verify = false);
     static CompressionModel *createModel(const string& type);
     static void saveModel(CompressionModel& model, DataOutput& out);
     static CompressionModel *loadModel(DataInput& in);

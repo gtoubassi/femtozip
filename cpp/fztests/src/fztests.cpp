@@ -38,7 +38,6 @@
 #include <CompressionModel.h>
 #include <PureHuffmanCompressionModel.h>
 #include <OffsetNibbleHuffmanCompressionModel.h>
-#include <OptimizingCompressionModel.h>
 #include <GZipCompressionModel.h>
 #include <GZipDictionaryCompressionModel.h>
 #include <DataIO.h>
@@ -378,43 +377,40 @@ void testNonexistantStrings() {
 }
 
 
-void testOptimizingCompressionModel() {
+void testModelOptimization() {
     {
-        OptimizingCompressionModel model;
         CStringDocumentList docs("20161","14219","29477","53380","10626","64782","32972","9313",NULL);
-        model.build(docs);
-        CStringDocumentList trainingDocs("62245","34581","36887","58862","39095","19604","42623","25609", NULL);
-        model.optimize(trainingDocs);
+        CompressionModel *model = CompressionModel::buildOptimalModel(docs, true);
 
         const char *buf = "330539321547621098083609223674246055";
         ostringstream out;
-        model.compress(buf, strlen(buf), out);
+        model->compress(buf, strlen(buf), out);
         string compressed = out.str();
 
         ostringstream out2;
-        model.decompress(compressed.c_str(), compressed.length(), out2);
+        model->decompress(compressed.c_str(), compressed.length(), out2);
         string decompressed = out2.str();
         assertTrue(decompressed == buf, string("Mismatched string got: '") + decompressed + "' expected '" + buf);
-        assertTrue(strcmp("PureHuffman", model.getBestPerformingModel()->typeName()) == 0, "Expected PureHuffman for binary data");
+        assertTrue(strcmp("PureHuffman", model->typeName()) == 0, "Expected PureHuffman for binary data");
+
+        delete model;
     }
     {
-        OptimizingCompressionModel model;
         CStringDocumentList docs("http://en.wikipedia.org", "http://www.yahoo.com", "http://mail.google.com", NULL);
-        model.build(docs);
-        model.optimize(docs);
+        CompressionModel *model = CompressionModel::buildOptimalModel(docs, true);
 
         const char *buf = "http://www.popsugar.com/?page=1";
         ostringstream out;
-        model.compress(buf, strlen(buf), out);
+        model->compress(buf, strlen(buf), out);
         string compressed = out.str();
 
         ostringstream out2;
-        model.decompress(compressed.c_str(), compressed.length(), out2);
+        model->decompress(compressed.c_str(), compressed.length(), out2);
         string decompressed = out2.str();
         assertTrue(decompressed == buf, string("Mismatched string got: '") + decompressed + "' expected '" + buf);
-        assertTrue(strcmp("OffsetNibbleHuffman", model.getBestPerformingModel()->typeName()) == 0, "Expected OffsetNibbleHuffman for text data");
+        assertTrue(strcmp("OffsetNibbleHuffman", model->typeName()) == 0, "Expected OffsetNibbleHuffman for text data");
+        delete model;
     }
-
 }
 
 void testGZipModel() {
@@ -660,7 +656,7 @@ int main() {
 
     testNonexistantStrings();
 
-    testOptimizingCompressionModel();
+    testModelOptimization();
 
     testGZipModel();
 
