@@ -23,7 +23,7 @@ import org.toubassi.femtozip.coding.huffman.Codeword;
 import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
 import org.toubassi.femtozip.coding.huffman.HuffmanModel;
 
-public class OffsetNibbleHuffmanModel implements HuffmanModel, Cloneable {
+public class FemtoZipHuffmanModel implements HuffmanModel, Cloneable {
 
     private enum State {
         LiteralLengthState, OffsetNibble0State, OffsetNibble1State, OffsetNibble2State, OffsetNibble3State;
@@ -36,7 +36,7 @@ public class OffsetNibbleHuffmanModel implements HuffmanModel, Cloneable {
     private FrequencyHuffmanModel offsetNibble3Model;
     private State state = State.LiteralLengthState;
 
-    public OffsetNibbleHuffmanModel(FrequencyHuffmanModel literalLengthModel,
+    public FemtoZipHuffmanModel(FrequencyHuffmanModel literalLengthModel,
             FrequencyHuffmanModel offsetNibble0Model,
             FrequencyHuffmanModel offsetNibble1Model,
             FrequencyHuffmanModel offsetNibble2Model,
@@ -49,7 +49,7 @@ public class OffsetNibbleHuffmanModel implements HuffmanModel, Cloneable {
         this.offsetNibble3Model = offsetNibble3Model;
     }
     
-    public OffsetNibbleHuffmanModel(DataInputStream in) throws IOException {
+    public FemtoZipHuffmanModel(DataInputStream in) throws IOException {
         literalLengthModel = new FrequencyHuffmanModel(in);
         offsetNibble0Model = new FrequencyHuffmanModel(in);
         offsetNibble1Model = new FrequencyHuffmanModel(in);
@@ -57,9 +57,9 @@ public class OffsetNibbleHuffmanModel implements HuffmanModel, Cloneable {
         offsetNibble3Model = new FrequencyHuffmanModel(in);
     }
     
-    public OffsetNibbleHuffmanModel createModel() {
+    public FemtoZipHuffmanModel createModel() {
         try {
-            return (OffsetNibbleHuffmanModel)clone();
+            return (FemtoZipHuffmanModel)clone();
         }
         catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);

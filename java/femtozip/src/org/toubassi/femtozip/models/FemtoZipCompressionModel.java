@@ -29,13 +29,13 @@ import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
 import org.toubassi.femtozip.substring.SubstringPacker;
 import org.toubassi.femtozip.substring.SubstringUnpacker;
 
-public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
+public class FemtoZipCompressionModel extends CompressionModel {
     
-    private OffsetNibbleHuffmanModel codeModel;
+    private FemtoZipHuffmanModel codeModel;
     
     public void load(DataInputStream in) throws IOException {
         super.load(in);
-        codeModel = new OffsetNibbleHuffmanModel(in);
+        codeModel = new FemtoZipHuffmanModel(in);
     }
 
     public void save(DataOutputStream out) throws IOException {
@@ -154,8 +154,8 @@ public class OffsetNibbleHuffmanCompressionModel extends CompressionModel {
             offsetHistogramNibble3[(offset >> 12) & 0xf]++;
         }
 
-        public OffsetNibbleHuffmanModel createModel() {
-            return new OffsetNibbleHuffmanModel(
+        public FemtoZipHuffmanModel createModel() {
+            return new FemtoZipHuffmanModel(
                     new FrequencyHuffmanModel(literalLengthHistogram, false),
                     new FrequencyHuffmanModel(offsetHistogramNibble0, false),
                     new FrequencyHuffmanModel(offsetHistogramNibble1, false),

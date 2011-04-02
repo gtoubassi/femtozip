@@ -19,12 +19,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import org.toubassi.femtozip.models.OptimizingCompressionModel;
 import org.toubassi.femtozip.util.FileUtil;
 
 public class Tool  {
@@ -47,22 +47,37 @@ public class Tool  {
     
     protected int numSamples = 0;
     protected int maxDictionarySize = 0;
+
+    protected CompressionModel buildModel(DocumentList documents) throws IOException {
+        return buildModel(documents, new ArrayList<CompressionModel.ModelOptimizationResult>());
+    }
     
-    protected CompressionModel buildModel(DocumentList trainingDocs, DocumentList testingDocs) throws IOException {
+    protected CompressionModel buildModel(DocumentList documents, ArrayList<CompressionModel.ModelOptimizationResult> results) throws IOException {
         
         long start = System.currentTimeMillis();
         
-        model = models == null ? new OptimizingCompressionModel() : new OptimizingCompressionModel(models);
-
         System.out.print("Building model...");
-        
-        model.build(trainingDocs);
-        
-        ((OptimizingCompressionModel)model).optimize(testingDocs);
 
+        CompressionModel[] competingModels = null;
+        if (models != null && models.length != 0) {
+            competingModels = new CompressionModel[models.length];
+            int i = 0;
+            for (String modelName : models) {
+                competingModels[i++] = CompressionModel.instantiateCompressionModel(modelName);
+            }
+        }
+        
+        model = CompressionModel.buildOptimalModel(documents, results, competingModels, true);
+        
         long duration = Math.round((System.currentTimeMillis() - start)/1000d);
         System.out.println(" (" + duration + "s)");
-        ((OptimizingCompressionModel)model).dump();
+        
+        for (CompressionModel.ModelOptimizationResult result : results) {
+            if (result.totalDataSize > 0) {
+                System.out.println(result);
+            }
+        }
+        
         System.out.println();
         return model;
     }
@@ -73,10 +88,7 @@ public class Tool  {
         List<String> files = Arrays.asList(dir.list());
         Collections.shuffle(files, new Random(1234567890)); // Avoid any bias in ordering of the files
         numSamples = Math.min(numSamples, files.size());
-        FileDocumentList trainingDocs = new FileDocumentList(path, files.subList(0, numSamples));
-        FileDocumentList testingDocs = new FileDocumentList(path, files.subList(files.size() - numSamples, files.size()));
-
-        buildModel(trainingDocs, testingDocs);
+        buildModel(new FileDocumentList(files));
     }
 
     protected void benchmarkModel(CompressionModel model, DocumentList docs, long totalDataSize[], long totalCompressedSize[]) throws IOException {
@@ -192,19 +204,11 @@ public class Tool  {
         model = CompressionModel.loadModel(modelPath);
     }
     
-    protected OptimizingCompressionModel createModel() {
-        OptimizingCompressionModel model = new OptimizingCompressionModel(models);
-        if (maxDictionarySize > 0) {
-            model.setMaxDictionaryLength(maxDictionarySize);
-        }
-        return model;
-    }
-    
     protected void saveBenchmarkModel() throws IOException {
         File modelDir = new File(modelPath);
         modelDir.getParentFile().mkdirs();
         
-        ((OptimizingCompressionModel)model).getBestPerformingModel().save(modelPath);
+        model.save(modelPath);
     }
     
     protected void usage() {

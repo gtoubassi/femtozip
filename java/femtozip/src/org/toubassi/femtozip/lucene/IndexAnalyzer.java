@@ -28,8 +28,6 @@ import java.util.Map;
 import org.apache.lucene.index.IndexReader;
 import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.Tool;
-import org.toubassi.femtozip.models.OptimizingCompressionModel;
-import org.toubassi.femtozip.models.OptimizingCompressionModel.CompressionResult;
 import org.toubassi.femtozip.util.FileUtil;
 
 public class IndexAnalyzer extends Tool  {
@@ -55,37 +53,48 @@ public class IndexAnalyzer extends Tool  {
         Collection allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
         String[] fieldNames = new String[allFields.size()];
         allFields.toArray(fieldNames);
-        
-        ArrayList<OptimizingCompressionModel.CompressionResult> aggregateResults = new ArrayList<OptimizingCompressionModel.CompressionResult>();
+
+        ArrayList<CompressionModel.ModelOptimizationResult> aggregateResults = new ArrayList<CompressionModel.ModelOptimizationResult>();
+        CompressionModel.ModelOptimizationResult bestResult = new CompressionModel.ModelOptimizationResult(null);
+        long totalDataSize = 0;
+
         for (String fieldName : fieldNames) {
             
             if (fields != null && !fields.contains(fieldName)) {
                 continue;
             }
             
-            IndexDocumentList trainingDocs = new IndexDocumentList(reader, numSamples, 0, fieldName);
-            IndexDocumentList testingDocs = new IndexDocumentList(reader, numSamples, 1, fieldName);
+            IndexDocumentList documents = new IndexDocumentList(reader, 2*numSamples, 0, fieldName);
             
-            if (trainingDocs.size() == 0 || testingDocs.size() == 0) {
+            if (documents.size() == 0) {
                 continue;
             }
 
-            System.out.println("Processing field " + fieldName + " (containing " + trainingDocs.size() + " stored fields for " + numSamples + " documents)");
+            System.out.println("Processing field " + fieldName + " (containing " + documents.size() + " stored fields for " + numSamples + " documents)");
             
-            OptimizingCompressionModel optimizingModel = (OptimizingCompressionModel)buildModel(trainingDocs, testingDocs);
-            optimizingModel.aggregateResults(aggregateResults);
-            fieldToModel.put(fieldName, optimizingModel);
+            ArrayList<CompressionModel.ModelOptimizationResult> results = new ArrayList<CompressionModel.ModelOptimizationResult>();
+            CompressionModel model = buildModel(documents, results);
+            for (CompressionModel.ModelOptimizationResult result : results) {
+                CompressionModel.ModelOptimizationResult aggregateResult = null;
+                for (int i = 0, count = aggregateResults.size(); i < count; i++) {
+                    if (aggregateResults.get(i).model.getClass() == result.model.getClass()) {
+                        aggregateResult = aggregateResults.get(i);
+                        break;
+                    }
+                }
+                if (aggregateResult == null) {
+                    aggregateResult = new CompressionModel.ModelOptimizationResult(result.model);
+                    aggregateResults.add(aggregateResult);
+                }
+                aggregateResult.accumulate(result);
+            }
+            
+            bestResult.accumulate(results.get(0));
+            totalDataSize += results.get(0).totalDataSize;
+            fieldToModel.put(fieldName, model);
         }        
         
         reader.close();
-
-        OptimizingCompressionModel.CompressionResult bestResult = new CompressionResult(new OptimizingCompressionModel());
-        long totalDataSize = 0;
-        for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
-            OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
-            bestResult.accumulate(model.getBestPerformingResult());
-            totalDataSize += model.getBestPerformingResult().totalDataSize;
-        }
 
         System.out.println("Summary:");
         System.out.println("Total Index Size: " + totalIndexSize);
@@ -94,9 +103,9 @@ public class IndexAnalyzer extends Tool  {
         System.out.println("Approx. Stored Data Size: " + totalStoredDataSize + " (" + format.format(totalStoredDataSize * 100f / totalIndexSize) + "% of index)");
         
         System.out.println("Aggregate performance:");
-        System.out.println(bestResult);
+        System.out.println("Best per Field " + bestResult);
         Collections.sort(aggregateResults);
-        for (CompressionResult result : aggregateResults) {
+        for (CompressionModel.ModelOptimizationResult result : aggregateResults) {
             System.out.println(result);
         }
     }
@@ -168,8 +177,7 @@ public class IndexAnalyzer extends Tool  {
         
         for (Map.Entry<String, CompressionModel> entry : fieldToModel.entrySet()) {
             String path = modelDir.getPath() + File.separator + entry.getKey()+ ".fzmodel";
-            OptimizingCompressionModel model = (OptimizingCompressionModel)entry.getValue();
-            model.getBestPerformingModel().save(path);
+            entry.getValue().save(path);
         }
     }
 

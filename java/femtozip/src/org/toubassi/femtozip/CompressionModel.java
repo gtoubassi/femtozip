@@ -24,10 +24,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.toubassi.femtozip.dictionary.DictionaryOptimizer;
-import org.toubassi.femtozip.models.OptimizingCompressionModel;
+import org.toubassi.femtozip.models.GZipCompressionModel;
+import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
+import org.toubassi.femtozip.models.FemtoZipCompressionModel;
+import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
+import org.toubassi.femtozip.models.VariableIntCompressionModel;
 import org.toubassi.femtozip.substring.SubstringPacker;
 import org.toubassi.femtozip.util.StreamUtil;
 
@@ -39,7 +46,7 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
 
     public static CompressionModel instantiateCompressionModel(String modelName) {
         if (modelName.indexOf('.') == -1) {
-            modelName = OptimizingCompressionModel.class.getPackage().getName() + "." + modelName;
+            modelName = FemtoZipCompressionModel.class.getPackage().getName() + "." + modelName;
             if (!modelName.endsWith("CompressionModel")) {
                 modelName += "CompressionModel";
             }
@@ -58,7 +65,93 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-         return model;
+        return model;
+    }
+    
+    public static class ModelOptimizationResult implements Comparable<ModelOptimizationResult>{
+        public CompressionModel model;
+        public int totalCompressedSize;
+        public int totalDataSize;
+
+        public ModelOptimizationResult(CompressionModel model) {
+            this.model = model;
+        }
+
+        public int compareTo(ModelOptimizationResult other) {
+            return totalCompressedSize - other.totalCompressedSize;
+        }
+        
+        public void accumulate(ModelOptimizationResult result) {
+            totalCompressedSize += result.totalCompressedSize < result.totalDataSize ? result.totalCompressedSize:  result.totalDataSize;
+            totalDataSize += result.totalDataSize;
+        }
+        
+        public String toString() {
+            DecimalFormat format = new DecimalFormat("#.##");
+            String prefix = "";
+            if (model != null) {
+                prefix = model.getClass().getSimpleName() + " ";
+            }
+            return prefix + format.format((100f * totalCompressedSize) / totalDataSize) + "% (" + totalCompressedSize + " from " + totalDataSize + " bytes)";
+        }
+    }
+    
+    
+    public static CompressionModel buildOptimalModel(DocumentList documents, ArrayList<ModelOptimizationResult> results, CompressionModel[] competingModels, boolean verify) throws IOException {
+        
+        if (competingModels == null || competingModels.length == 0) {
+            competingModels = new CompressionModel[5];
+            competingModels[0] = new FemtoZipCompressionModel();
+            competingModels[1] = new PureHuffmanCompressionModel();
+            competingModels[2] = new GZipCompressionModel();
+            competingModels[3] = new GZipDictionaryCompressionModel();
+            competingModels[4] = new VariableIntCompressionModel();
+        }
+
+        for (CompressionModel model : competingModels) {
+            results.add(new ModelOptimizationResult(model));
+        }
+        
+        // Split the documents into two groups.  One for building each model out
+        // and one for testing which model is best.  Shouldn't build and test
+        // with the same set as a model may over optimize for the training set.
+        SamplingDocumentList trainingDocuments = new SamplingDocumentList(documents, 2, 0);
+        SamplingDocumentList testingDocuments = new SamplingDocumentList(documents, 2, 1);
+        
+        // Build the dictionary once to avoid rebuilding for each model.
+        byte[] dictionary = buildDictionary(trainingDocuments);
+
+        // Build each model out
+        for (ModelOptimizationResult result : results) {
+            result.model.setDictionary(dictionary);
+            result.model.build(trainingDocuments);
+        }
+
+        // Pick the best model
+
+        for (int i = 0, count = testingDocuments.size(); i < count; i++) {
+            byte[] data = testingDocuments.get(i);
+            
+            for (ModelOptimizationResult result : results) {
+                ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+                result.model.compress(data, bytesOut);
+                
+                if (verify) {
+                    byte[] decompressed = result.model.decompress(bytesOut.toByteArray());
+                    if (!Arrays.equals(data, decompressed)) {
+                        throw new RuntimeException("Compress/Decompress round trip failed for " + result.model.getClass().getSimpleName());
+                    }
+                }
+                
+                result.totalCompressedSize += bytesOut.size();
+                result.totalDataSize += data.length;
+            }
+        }
+        
+        Collections.sort(results);
+        
+        ModelOptimizationResult bestResult = results.get(0);
+        return bestResult.model;
     }
     
     public void setDictionary(byte[] dictionary) {
@@ -165,9 +258,13 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     
     protected void buildDictionaryIfUnspecified(DocumentList documents) throws IOException {
         if (dictionary == null) {
-            DictionaryOptimizer optimizer = new DictionaryOptimizer(documents);
-            dictionary = optimizer.optimize(64*1024);
+            dictionary = buildDictionary(documents);
         }
+    }
+    
+    protected static byte[] buildDictionary(DocumentList documents) throws IOException {
+        DictionaryOptimizer optimizer = new DictionaryOptimizer(documents);
+        return optimizer.optimize(64*1024);
     }
     
     protected SubstringPacker.Consumer createModelBuilder() {

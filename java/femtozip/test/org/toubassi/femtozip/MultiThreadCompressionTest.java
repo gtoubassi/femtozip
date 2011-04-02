@@ -24,7 +24,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.toubassi.femtozip.models.GZipCompressionModel;
 import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
-import org.toubassi.femtozip.models.OffsetNibbleHuffmanCompressionModel;
+import org.toubassi.femtozip.models.FemtoZipCompressionModel;
 import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
 import org.toubassi.femtozip.models.VariableIntCompressionModel;
 import org.toubassi.femtozip.models.VerboseStringCompressionModel;
@@ -123,7 +123,7 @@ public class MultiThreadCompressionTest {
     public void testThreading() throws IOException, InterruptedException {
         
         testThreadedCompressionModel(new VerboseStringCompressionModel());
-        testThreadedCompressionModel(new OffsetNibbleHuffmanCompressionModel());
+        testThreadedCompressionModel(new FemtoZipCompressionModel());
         testThreadedCompressionModel(new GZipDictionaryCompressionModel());
         testThreadedCompressionModel(new GZipCompressionModel());
         testThreadedCompressionModel(new PureHuffmanCompressionModel());
