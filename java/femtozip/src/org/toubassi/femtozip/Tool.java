@@ -25,12 +25,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.toubassi.femtozip.dictionary.DictionaryOptimizer;
 import org.toubassi.femtozip.util.FileUtil;
 
 public class Tool  {
     
     protected enum Operation {
-        BuildModel, Benchmark, Compress, Decompress
+        BuildModel, Benchmark, Compress, Decompress, BuildDictionary
     }
 
     protected DecimalFormat format = new DecimalFormat("#.##");
@@ -83,12 +84,11 @@ public class Tool  {
     }
     
     protected void buildModel() throws IOException {
-        
         File dir = new File(path);
         List<String> files = Arrays.asList(dir.list());
         Collections.shuffle(files, new Random(1234567890)); // Avoid any bias in ordering of the files
         numSamples = Math.min(numSamples, files.size());
-        buildModel(new FileDocumentList(files));
+        buildModel(new FileDocumentList(path, files));
     }
 
     protected void benchmarkModel(CompressionModel model, DocumentList docs, long totalDataSize[], long totalCompressedSize[]) throws IOException {
@@ -200,6 +200,15 @@ public class Tool  {
         }
     }
     
+    protected void buildDictionary() throws IOException {
+        File dir = new File(path);
+        List<String> files = Arrays.asList(dir.list());
+        DocumentList documents = new FileDocumentList(path, files);
+        DictionaryOptimizer optimizer = new DictionaryOptimizer(documents);
+        byte[] dictionary = optimizer.optimize(maxDictionarySize  > 0 ? maxDictionarySize : 64*1024);
+        System.out.write(dictionary);
+    }
+    
     protected void loadBenchmarkModel() throws IOException {
         model = CompressionModel.loadModel(modelPath);
     }
@@ -232,6 +241,9 @@ public class Tool  {
             }
             else if (arg.equals("--decompress")) {
                 operation = Operation.Decompress;
+            }
+            else if (arg.equals("--builddict")) {
+                operation = Operation.BuildDictionary;
             }
             else if (arg.equals("--numsamples")) {
                 numSamples = Integer.parseInt(args[++i]);
@@ -289,6 +301,9 @@ public class Tool  {
         else if (operation == Operation.Decompress) {
             loadBenchmarkModel();
             decompress();
+        }
+        else if (operation == Operation.BuildDictionary) {
+            buildDictionary();
         }
         
         long duration = System.currentTimeMillis() - start;

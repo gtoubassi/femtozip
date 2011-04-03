@@ -189,6 +189,10 @@ public class DictionaryOptimizer {
             pi -= prepend(bytes, suffixArray[pruned.index(i)], packed, pi, length);
         }
         
+        if (pi > 0) {
+            packed = Arrays.copyOfRange(packed, pi, packed.length);
+        }
+        
         return packed;
     }
     
