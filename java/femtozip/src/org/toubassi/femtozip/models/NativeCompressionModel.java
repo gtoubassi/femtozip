@@ -23,6 +23,21 @@ import java.io.OutputStream;
 import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.DocumentList;
 
+/**
+ * NativeCompressionModel provides an interface to the native implementation
+ * of FemtoZip, within the CompressionModel abstraction.  Some things to note.
+ * To use this implementation, you must have built the native shared library.
+ * See https://github.com/gtoubassi/femtozip/wiki/How-to-build.
+ * 
+ * The major difference between native and pure java implementations is that
+ * with the native implementation, you call build, and load(String) directly
+ * on an instance of this class, vs the buildOptimalModel and loadModel
+ * statics on CompressionModel.
+ * 
+ * For a simple JNI example, see the org.toubassi.femtozip.models.NativeCompressionModelTest
+ * JUnit test case in the source distribution of FemtoZip at
+ * http://github.com/gtoubassi/femtozip
+ */
 public class NativeCompressionModel extends CompressionModel {
     
     private static boolean nativeLibraryLoaded;

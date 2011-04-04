@@ -28,16 +28,41 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.toubassi.femtozip.dictionary.DictionaryOptimizer;
+import org.toubassi.femtozip.models.FemtoZipCompressionModel;
 import org.toubassi.femtozip.models.GZipCompressionModel;
 import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
-import org.toubassi.femtozip.models.FemtoZipCompressionModel;
 import org.toubassi.femtozip.models.PureHuffmanCompressionModel;
 import org.toubassi.femtozip.models.VariableIntCompressionModel;
 import org.toubassi.femtozip.substring.SubstringPacker;
 import org.toubassi.femtozip.util.StreamUtil;
 
+/**
+ * The primary class used by external consumers of the Java FemtoZip API.
+ * It provides compression/decompression as well as model building functionality.
+ * The basic recipe for using FemtoZip is to:
+ *
+ * 1. Collect sample "documents" (document is simply a byte[]) which
+ *    can be used to build a model.
+ * 2. Call the static CompressionModel.buildOptimalModel with a DocumentList
+ *    which can be used to iterate the documents.  There are several built in
+ *    DocumentLists if the data can be stored in memory, or you can implement
+ *    your own.  A newly created CompressionModel will be returned.
+ * 3. Call the CompressionModel.save(String) to save the model to a file.
+ * 4. Later (perhaps in a different process), load the model via the static
+ *    CompressionModel.loadModel(String);
+ * 5. Use CompressionModel.compress/decompress as needed.
+ * 
+ * For a simple pure Java example, see the org.toubassi.femtozip.ExampleTest JUnit test
+ * case in the source distribution of FemtoZip at http://github.com/gtoubassi/femtozip
+ * 
+ * To use the JNI interface to FemtoZip, you will follow largely the same recipe, but you
+ * will use the NativeCompressionModel.
+ * 
+ * @see org.toubassi.femtozip.model.NativeCompressionModel
+ */
 public abstract class CompressionModel implements SubstringPacker.Consumer {
     
     protected byte[] dictionary;
@@ -96,8 +121,16 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         }
     }
     
+    /**
+     * Builds a new model trained on the specified documents.  This is where it all begins.
+     * @return The newly created CompressionModel
+     * @throws IOException
+     */
+    public static CompressionModel buildOptimalModel(DocumentList documents) throws IOException {
+        return buildOptimalModel(documents, null, null, false);
+    }
     
-    public static CompressionModel buildOptimalModel(DocumentList documents, ArrayList<ModelOptimizationResult> results, CompressionModel[] competingModels, boolean verify) throws IOException {
+    public static CompressionModel buildOptimalModel(DocumentList documents, List<ModelOptimizationResult> results, CompressionModel[] competingModels, boolean verify) throws IOException {
         
         if (competingModels == null || competingModels.length == 0) {
             competingModels = new CompressionModel[5];
@@ -106,6 +139,10 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
             competingModels[2] = new GZipCompressionModel();
             competingModels[3] = new GZipDictionaryCompressionModel();
             competingModels[4] = new VariableIntCompressionModel();
+        }
+        
+        if (results == null) {
+            results = new ArrayList<ModelOptimizationResult>();
         }
 
         for (CompressionModel model : competingModels) {
@@ -212,6 +249,15 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         }
     }
     
+    /**
+     * Loads a model previously saved with save.  You must use this
+     * static because it dynamically instantiates the correct
+     * model based on the type that was saved.
+     * @param path
+     * @throws IOException
+     * 
+     * @see org.toubassi.femtozip.CompressionModel.save(String path) throws IOException
+     */
     public static CompressionModel loadModel(String path) throws IOException {
         FileInputStream fileIn = new FileInputStream(path);
         BufferedInputStream bufferedIn = new BufferedInputStream(fileIn);
@@ -224,6 +270,13 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         return model;
     }
     
+    /**
+     * Saves the specified model to the specified file path.
+     * @param path
+     * @throws IOException
+     * 
+     * @see org.toubassi.femtozip.CompressionModel.loadModel(String path) throws IOException
+     */
     public void save(String path) throws IOException {
         FileOutputStream fileOut = new FileOutputStream(path);
         BufferedOutputStream bufferedOut = new BufferedOutputStream(fileOut);
@@ -237,7 +290,12 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     }
     
     public abstract void build(DocumentList documents) throws IOException;
-    
+
+    /**
+     * Compresses the specified data.
+     * @param data The data to compress.
+     * @return The compressed data
+     */
     public byte[] compress(byte[] data) {
         try {
             ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
@@ -254,6 +312,11 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
         getSubstringPacker().pack(data, this, null);
     }
     
+    /**
+     * Decompresses the specified data.
+     * @param data The data to decompress.
+     * @return The decompressed data
+     */
     public abstract byte[] decompress(byte[] compressedData);
     
     protected void buildDictionaryIfUnspecified(DocumentList documents) throws IOException {
