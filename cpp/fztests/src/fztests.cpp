@@ -636,6 +636,12 @@ void testCApi() {
     remove(path);
 }
 
+extern "C" int exampleCApi(void);
+
+void exampleCApiDriver() {
+    assertTrue(exampleCApi() == 0, "exampleCApi failure");
+}
+
 int main() {
 
     testDocumentList();
@@ -667,6 +673,8 @@ int main() {
     testPrefixHash();
 
     testCApi();
+
+    exampleCApiDriver();
 
     reportTestResults();
 
