@@ -5,7 +5,9 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-
+/**
+ * A Simple API example, packaged as a unit test
+ */
 public class ExampleTest {
 
     @Test

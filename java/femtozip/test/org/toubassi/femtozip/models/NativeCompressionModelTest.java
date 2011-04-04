@@ -27,6 +27,9 @@ import org.toubassi.femtozip.CompressionTest;
 
 public class NativeCompressionModelTest {
     
+    /**
+     * A Simple API example, packaged as a unit test
+     */
     @Test
     public void testNativeModel() throws IOException {
         NativeCompressionModel model = new NativeCompressionModel();
