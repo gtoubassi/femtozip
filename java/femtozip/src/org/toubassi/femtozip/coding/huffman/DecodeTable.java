@@ -15,56 +15,11 @@
  */
 package org.toubassi.femtozip.coding.huffman;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 
 public class DecodeTable {
     
     Codeword[] codes = new Codeword[256];
     DecodeTable[] tables = new DecodeTable[256];
-    
-    public void load(DataInputStream in) throws IOException {
-        for (int i = 0, count = codes.length; i < count; i++) {
-            if (in.readBoolean()) {
-                codes[i] = new Codeword();
-                codes[i].load(in);
-            }
-            else {
-                codes[i] = null;
-            }
-        }
-        for (int i = 0, count = tables.length; i < count; i++) {
-            if (in.readBoolean()) {
-                tables[i] = new DecodeTable();
-                tables[i].load(in);
-            }
-            else {
-                tables[i] = null;
-            }
-        }
-    }
-
-    public void save(DataOutputStream out) throws IOException {
-        for (int i = 0, count = codes.length; i < count; i++) {
-            if (codes[i] != null) {
-                out.writeBoolean(true);
-                codes[i].save(out);
-            }
-            else {
-                out.writeBoolean(false);
-            }
-        }
-        for (int i = 0, count = tables.length; i < count; i++) {
-            if (tables[i] != null) {
-                out.writeBoolean(true);
-                tables[i].save(out);
-            }
-            else {
-                out.writeBoolean(false);
-            }
-        }
-    }
     
     public void build(Codeword[] encoding) {
         build(encoding, 0);

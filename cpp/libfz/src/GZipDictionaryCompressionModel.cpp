@@ -14,7 +14,10 @@
  *   limitations under the License.
  */
 
+#include <iostream>
 #include "GZipDictionaryCompressionModel.h"
+
+using namespace std;
 
 namespace femtozip {
 
@@ -33,6 +36,10 @@ void GZipDictionaryCompressionModel::setDictionary(const char *dictionary, int l
         length = MaxDictLength;
     }
     GZipCompressionModel::setDictionary(dictionary, length);
+}
+
+void GZipDictionaryCompressionModel::build(DocumentList& documents) {
+    buildDictionaryIfUnspecified(documents);
 }
 
 

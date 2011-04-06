@@ -44,6 +44,8 @@ vector<string> models;
 vector<string> paths;
 bool verbose = false;
 bool benchmark = false;
+int level = 9;
+int maxDictionary = -1;
 
 long getTimeMillis() {
     timeval tim;
@@ -55,6 +57,10 @@ CompressionModel *loadModel() {
     ifstream file(modelPath.c_str(), ios::in | ios::binary);
     DataInput in(file);
     CompressionModel *model = CompressionModel::loadModel(in);
+    model->setCompressionLevel(level);
+    if (maxDictionary >= 0) {
+        model->setMaxDictionary(maxDictionary);
+    }
     file.close();
     return model;
 }
@@ -74,7 +80,8 @@ void buildModel() {
     cout << "Building model..." << endl;
 
     long start = getTimeMillis();
-    CompressionModel *model = CompressionModel::buildOptimalModel(documents, true);
+    CompressionModel *model = CompressionModel::buildOptimalModel(documents, true, models.size() == 0 ? 0 : &models);
+    model->setCompressionLevel(level);
     long duration = getTimeMillis() - start;
 
     if (verbose || benchmark) {
@@ -91,6 +98,8 @@ void compress() {
     CompressionModel *model = loadModel();
 
     long duration = 0;
+    long totalUncompressedBytes = 0;
+    long totalCompressedBytes = 0;
     for (vector<string>::iterator i = paths.begin(); i != paths.end(); i++) {
 
         if (verbose) {
@@ -100,14 +109,17 @@ void compress() {
         int length;
         const char *buf = FileUtil::readFully(i->c_str(), length);
 
+        totalUncompressedBytes += length;
+
         ostringstream outstr;
 
         long start = getTimeMillis();
         model->compress(buf, length, outstr);
         duration += (getTimeMillis() - start);
+        string compressedData = outstr.str();
+        totalCompressedBytes += compressedData.length();
 
         if (!benchmark) {
-            string compressedData = outstr.str();
 
             string compressedFile = *i + ".fz";
             ofstream file(compressedFile.c_str(), ios::out | ios::binary | ios::trunc);
@@ -124,7 +136,8 @@ void compress() {
     }
 
     if (verbose || benchmark) {
-        cout <<"Compression performed in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
+        float compressionRate = 100*((float)totalCompressedBytes) / totalUncompressedBytes;
+        cout <<"Compression rate of " << fixed << setprecision(2) << compressionRate << "% performed in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
     }
 
     delete model;
@@ -183,7 +196,7 @@ void usage(const string& error = "") {
     if (error.length() > 0) {
         cout << error << endl << endl;
     }
-    cout << "usage: --model <path> --build|compress|decompress [--models model1,model2,...] [--verbose] [--benchmark] <path> ..." << endl;
+    cout << "usage: --model <path> --build|compress|decompress [--models model1,model2,...] [--verbose] [--benchmark] [--level 0-9] <path> ..." << endl;
     cout << "       if path is a directory all files in the specified directory are used" << endl;
     if (error.length() > 0) {
         exit(1);
@@ -217,6 +230,9 @@ void parseArgs(int argc, const char **argv) {
         else if (strcmp("--benchmark", arg) == 0) {
             benchmark = true;
         }
+        else if (strcmp("--level", arg) == 0) {
+            level = max(0, min(9, 0 + (argv[++i][0] - '0')));
+        }
         else if (strcmp("--models", arg) == 0) {
             string modelNames = argv[++i];
             size_t pos = 0;
@@ -225,6 +241,9 @@ void parseArgs(int argc, const char **argv) {
                 models.push_back(modelNames.substr(pos, pos2 == string::npos ? pos2 : pos2 - 1));
                 pos = pos2;
             }
+        }
+        else if (strcmp("--maxdict", arg) == 0) {
+            maxDictionary = atoi(argv[++i]);
         }
         else if (strncmp("--", arg, 2) == 0) {
             usage(string("Unknown argument ") + arg);

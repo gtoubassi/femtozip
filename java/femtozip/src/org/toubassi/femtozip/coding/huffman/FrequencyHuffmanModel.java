@@ -62,7 +62,7 @@ public class FrequencyHuffmanModel implements HuffmanModel {
             }
         }
         decoding = new DecodeTable();
-        decoding.load(in);
+        decoding.build(encoding);
     }
 
     public void save(DataOutputStream out) throws IOException {
@@ -76,9 +76,8 @@ public class FrequencyHuffmanModel implements HuffmanModel {
                 out.writeBoolean(false);
             }
         }
-        decoding.save(out);
     }
-
+    
     protected void computeHuffmanCoding(int[] histogram) {
         List<HuffmanNode> queue1 = new ArrayList<HuffmanNode>();
         List<HuffmanNode> queue2 = new ArrayList<HuffmanNode>();

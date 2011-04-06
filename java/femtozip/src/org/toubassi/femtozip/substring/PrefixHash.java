@@ -27,7 +27,7 @@ public class PrefixHash {
     
     public PrefixHash(byte[] buf, boolean addToHash) {
         buffer = buf;
-        hash = new int[(int)(1.5 * buf.length)];
+        hash = new int[(int)(1.75 * buf.length)];
         Arrays.fill(hash, -1);
         heap = new int[buf.length];
         Arrays.fill(heap, -1);
@@ -63,6 +63,8 @@ public class PrefixHash {
         
         int targetBufLen = targetBuf.length;
 
+        int maxLimit = Math.min(255, targetBufLen - index);
+        
         int targetHashIndex = hashIndex(targetBuf, index);
         int candidateIndex = hash[targetHashIndex];
         while (candidateIndex != -1) {
@@ -78,11 +80,10 @@ public class PrefixHash {
                 // we know the rest are over 64k too.
                 break;
             }
-
-            int maxMatchJ = Math.min(index + 255, targetBufLen);
-            int maxMatchK = Math.min(candidateIndex + 255, bufLen);
+            
+            int maxMatchJ = index + Math.min(maxLimit, bufLen - candidateIndex);
             int j, k;
-            for (j = index, k = candidateIndex; j < maxMatchJ && k < maxMatchK; j++, k++) {
+            for (j = index, k = candidateIndex; j < maxMatchJ; j++, k++) {
                 if (buf[k] != targetBuf[j]) {
                     break;
                 }

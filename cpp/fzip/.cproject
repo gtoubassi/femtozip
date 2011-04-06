@@ -36,6 +36,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.exe.debug.598172946" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.macosx.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.1093489916" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.114495654" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -45,6 +46,7 @@
 								<option id="gnu.cpp.compilermacosx.exe.debug.option.optimization.level.49160323" name="Optimization Level" superClass="gnu.cpp.compilermacosx.exe.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.macosx.exe.debug.option.debugging.level.1601084894" name="Debug Level" superClass="gnu.cpp.compiler.macosx.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1234474601" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.462306609" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -53,6 +55,7 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.macosx.exe.debug.option.optimization.level.54755330" name="Optimization Level" superClass="gnu.c.compiler.macosx.exe.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.macosx.exe.debug.option.debugging.level.605423062" name="Debug Level" superClass="gnu.c.compiler.macosx.exe.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1455844670" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2060725551" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -482,9 +485,9 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
 				<externalSettings containerId="libfz;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cpp-femtozip"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/cpp-femtozip/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="cpp-femtozip"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/libfz"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="libfz"/>
 					</externalSetting>
 				</externalSettings>
 			</storageModule>
@@ -525,6 +528,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.macosx.exe.release.956431704" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.macosx.exe.release">
 								<option id="gnu.both.asm.option.include.paths.568068908" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.78859083" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
@@ -534,6 +538,7 @@
 								<option id="gnu.cpp.compiler.macosx.exe.release.option.optimization.level.2116627584" name="Optimization Level" superClass="gnu.cpp.compiler.macosx.exe.release.option.optimization.level" value="gnu.cpp.compiler.optimization.level.most" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.macosx.exe.release.option.debugging.level.1792993497" name="Debug Level" superClass="gnu.cpp.compiler.macosx.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.308434013" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.290709836" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -542,6 +547,7 @@
 								<option defaultValue="gnu.c.optimization.level.most" id="gnu.c.compiler.macosx.exe.release.option.optimization.level.161728495" name="Optimization Level" superClass="gnu.c.compiler.macosx.exe.release.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.macosx.exe.release.option.debugging.level.2102816266" name="Debug Level" superClass="gnu.c.compiler.macosx.exe.release.option.debugging.level" value="gnu.c.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.318259049" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1805953290" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
@@ -973,9 +979,9 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings">
 				<externalSettings containerId="libfz;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cpp-femtozip"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/cpp-femtozip/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="cpp-femtozip"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/libfz"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="libfz"/>
 					</externalSetting>
 				</externalSettings>
 			</storageModule>

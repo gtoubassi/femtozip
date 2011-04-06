@@ -28,6 +28,7 @@ public:
 
     virtual const char *typeName() { return "GZipDictionary"; };
 
+    virtual void build(DocumentList& documents);
     virtual void setDictionary(const char *dictionary, int length);
 
 protected:

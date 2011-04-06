@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.toubassi.femtozip.dictionary.DictionaryOptimizer;
+import org.toubassi.femtozip.models.NativeCompressionModel;
 import org.toubassi.femtozip.util.FileUtil;
 
 public class Tool  {
@@ -45,6 +46,7 @@ public class Tool  {
     protected boolean preload;
     protected boolean verify;
     protected boolean dumpArgs;
+    protected boolean useNativeModel;
     
     protected int numSamples = 0;
     protected int maxDictionarySize = 0;
@@ -124,7 +126,7 @@ public class Tool  {
         decompressTime /= 1000000;
         compressTime /= 1000000;
         String ratio = format.format(100f * compressedSize / dataSize);
-        System.out.println(ratio  + "% (" + compressedSize + "/" + dataSize + "  compressed:" + compressTime + "ms" + (verify ? (" decompress:" + decompressTime + "ms") : "") + ")\n");
+        System.out.println(ratio  + "% (" + compressedSize + "/" + dataSize + "  compressed: " + compressTime + "ms" + (verify ? (" decompress:" + decompressTime + "ms") : "") + ")\n");
     }
     
     protected void benchmarkModel() throws IOException {
@@ -189,7 +191,6 @@ public class Tool  {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             for (File f : files) {
-                System.out.println(f);
                 if (f.getName().endsWith(".fz")) {
                     decompress(f);
                 }
@@ -210,7 +211,14 @@ public class Tool  {
     }
     
     protected void loadBenchmarkModel() throws IOException {
-        model = CompressionModel.loadModel(modelPath);
+        if (useNativeModel) {
+            NativeCompressionModel nativeModel = new NativeCompressionModel();
+            nativeModel.load(modelPath);
+            model = nativeModel;
+        }
+        else {
+            model = CompressionModel.loadModel(modelPath);
+        }
     }
     
     protected void saveBenchmarkModel() throws IOException {
@@ -262,6 +270,9 @@ public class Tool  {
             }
             else if (arg.equals("--maxdict")) {
                 maxDictionarySize = Integer.parseInt(args[++i]);
+            }
+            else if (arg.equals("--native")) {
+                useNativeModel = true;
             }
             else if (arg.equals("--dumpargs")) {
                 dumpArgs = true;

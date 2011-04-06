@@ -32,6 +32,7 @@ namespace femtozip {
 
 class CompressionModel : public SubstringPacker::Consumer {
 protected:
+    int compressionLevel;
     const char *dict;
     int dictLen;
     SubstringPacker *packer;
@@ -45,13 +46,22 @@ protected:
 
 public:
 
-    static CompressionModel *buildOptimalModel(DocumentList& documents, bool verify = false);
+    static CompressionModel *buildOptimalModel(DocumentList& documents, bool verify = false, vector<string> *modelTypes = 0);
     static CompressionModel *createModel(const string& type);
     static void saveModel(CompressionModel& model, DataOutput& out);
     static CompressionModel *loadModel(DataInput& in);
 
-    CompressionModel();
+    CompressionModel(int compressionLevel = 9);
     virtual ~CompressionModel();
+
+    /**
+     * compressionLevel is in range [0..9] where 0 means
+     * faster, and 9 means better/smaller.
+     */
+    void setCompressionLevel(int level);
+    int getCompressionLevel();
+
+    void setMaxDictionary(int maxDictionary);
 
     virtual void load(DataInput& in);
     virtual void save(DataOutput& out);

@@ -33,6 +33,7 @@ namespace femtozip {
 class SubstringPacker {
 
 private:
+    int compressionLevel;
     const char *dict;
     int dictLen;
     PrefixHash *dictHash;
@@ -46,7 +47,7 @@ public:
         virtual void endEncoding(void *context) = 0;
     };
 
-    SubstringPacker(const char *dictionary, int length);
+    SubstringPacker(const char *dictionary, int length, int compressionLevel = 9 /* 0 faster ... 9 better */);
     ~SubstringPacker();
 
     void pack(const char *bytes, int length, Consumer& consumer, void *consumerContext);

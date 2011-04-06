@@ -98,7 +98,7 @@ void FrequencyHuffmanModel::load(DataInput& in) {
     for (vector<Codeword>::iterator i = encoding.begin(); i != encoding.end(); i++) {
         i->load(in);
     }
-    decoding.load(in);
+    decoding.build(encoding);
 }
 
 void FrequencyHuffmanModel::save(DataOutput& out) {
@@ -106,7 +106,6 @@ void FrequencyHuffmanModel::save(DataOutput& out) {
     for (vector<Codeword>::iterator i = encoding.begin(); i != encoding.end(); i++) {
         i->save(out);
     }
-    decoding.save(out);
 }
 
 void FrequencyHuffmanModel::computeHuffmanCoding(vector<int>& histogram) {

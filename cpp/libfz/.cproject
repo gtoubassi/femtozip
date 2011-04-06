@@ -7,9 +7,9 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.macosx.so.debug.1929456309" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cpp-femtozip"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/cpp-femtozip/Debug"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="cpp-femtozip"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/libfz"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Debug"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="libfz"/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -26,7 +26,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.debug.1929456309." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.so.debug.897717635" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.so.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.macosx.so.debug.1270021896" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.macosx.so.debug"/>
-							<builder buildPath="${workspace_loc:/cpp-femtozip/Debug}" id="cdt.managedbuild.target.gnu.builder.macosx.so.debug.123410673" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.so.debug"/>
+							<builder buildPath="${workspace_loc:/libfz/Debug}" id="cdt.managedbuild.target.gnu.builder.macosx.so.debug.123410673" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.so.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.so.debug.7537452" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.so.debug">
 								<option defaultValue="true" id="macosx.c.link.macosx.so.debug.option.nostart.1294369461" name="Do not use standard start files (-nostartfiles)" superClass="macosx.c.link.macosx.so.debug.option.nostart" valueType="boolean"/>
 								<option defaultValue="true" id="macosx.c.link.macosx.so.debug.option.nodeflibs.1080330362" name="Do not use default libraries (-nodefaultlibs)" superClass="macosx.c.link.macosx.so.debug.option.nodeflibs" valueType="boolean"/>
@@ -488,9 +488,9 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.config.macosx.so.release.1605610998" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<externalSettings>
 					<externalSetting>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/cpp-femtozip"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/cpp-femtozip/Release"/>
-						<entry flags="RESOLVED" kind="libraryFile" name="cpp-femtozip"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/libfz"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Release"/>
+						<entry flags="RESOLVED" kind="libraryFile" name="libfz"/>
 					</externalSetting>
 				</externalSettings>
 				<extensions>
@@ -507,7 +507,7 @@
 					<folderInfo id="cdt.managedbuild.config.macosx.so.release.1605610998." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.macosx.so.release.1892609216" name="MacOSX GCC" superClass="cdt.managedbuild.toolchain.gnu.macosx.so.release">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.macosx.so.release.98257545" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.macosx.so.release"/>
-							<builder buildPath="${workspace_loc:/cpp-femtozip/Release}" id="cdt.managedbuild.target.gnu.builder.macosx.so.release.1698399064" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.so.release"/>
+							<builder buildPath="${workspace_loc:/libfz/Release}" id="cdt.managedbuild.target.gnu.builder.macosx.so.release.1698399064" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.so.release"/>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.so.release.1360651652" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.so.release">
 								<option defaultValue="true" id="macosx.c.link.macosx.so.release.option.nostart.1084236834" name="Do not use standard start files (-nostartfiles)" superClass="macosx.c.link.macosx.so.release.option.nostart" valueType="boolean"/>
 								<option defaultValue="true" id="macosx.c.link.macosx.so.release.option.nodeflibs.888615348" name="Do not use default libraries (-nodefaultlibs)" superClass="macosx.c.link.macosx.so.release.option.nodeflibs" valueType="boolean"/>
@@ -967,6 +967,6 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="cpp-femtozip.cdt.managedbuild.target.macosx.so.2002907628" name="Shared Library" projectType="cdt.managedbuild.target.macosx.so"/>
+		<project id="libfz.cdt.managedbuild.target.macosx.so.2002907628" name="Shared Library" projectType="cdt.managedbuild.target.macosx.so"/>
 	</storageModule>
 </cproject>

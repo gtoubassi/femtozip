@@ -1,0 +1,17 @@
+#!/bin/tcsh
+
+if ( $1 == "" ) then
+    echo "Must specify directory containing performance dataset"
+    exit
+endif
+
+
+mkdir -p $1/train-data
+mkdir -p $1/run-data
+../cpp/fzdatagen/src/fzdatagen --num 1000 $1/train-data
+../cpp/fzdatagen/src/fzdatagen --num 10000 $1/run-data
+#cp -r $1/run-data $1/run-data-fz
+#cp -r $1/run-data $1/run-data-java-fz
+
+
+

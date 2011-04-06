@@ -58,10 +58,17 @@ void CompressionModel::saveModel(CompressionModel& model, DataOutput& out) {
     model.save(out);
 }
 
-CompressionModel *CompressionModel::buildOptimalModel(DocumentList& documents, bool verify) {
+CompressionModel *CompressionModel::buildOptimalModel(DocumentList& documents, bool verify, vector<string> *modelTypes) {
     vector<CompressionModel *> models;
-    models.push_back(new FemtoZipCompressionModel());
-    models.push_back(new PureHuffmanCompressionModel());
+    if (modelTypes) {
+        for (vector<string>::iterator i = modelTypes->begin(); i != modelTypes->end(); i++) {
+            models.push_back(CompressionModel::createModel(*i));
+        }
+    }
+    else {
+        models.push_back(new FemtoZipCompressionModel());
+        models.push_back(new PureHuffmanCompressionModel());
+    }
 
     // Split the documents into two groups.  One for building each model out
     // and one for testing which model is best.  Shouldn't build and test
@@ -134,7 +141,8 @@ CompressionModel *CompressionModel::loadModel(DataInput& in) {
     return model;
 }
 
-CompressionModel::CompressionModel() : dict(0), dictLen(0), packer(0) {
+CompressionModel::CompressionModel(int level) : dict(0), dictLen(0), packer(0) {
+    setCompressionLevel(level);
 }
 
 CompressionModel::~CompressionModel() {
@@ -145,6 +153,14 @@ CompressionModel::~CompressionModel() {
     if (dict) {
         delete[] dict;
     }
+}
+
+void CompressionModel::setCompressionLevel(int level) {
+    compressionLevel = min(9, max(0, level));
+}
+
+int CompressionModel::getCompressionLevel() {
+    return compressionLevel;
 }
 
 void CompressionModel::load(DataInput& in) {
@@ -174,6 +190,11 @@ void CompressionModel::save(DataOutput& out) {
 }
 
 void CompressionModel::setDictionary(const char *dictionary, int length) {
+    if (dict) {
+        delete dict;
+        dict = 0;
+        dictLen = 0;
+    }
     if (length) {
         char *d = new char[length];
         memcpy(d, dictionary, length);
@@ -192,7 +213,7 @@ void CompressionModel::setDictionary(const char *dictionary, int length) {
 
 SubstringPacker *CompressionModel::getSubstringPacker() {
     if (!packer) {
-        packer = new SubstringPacker(dict, dictLen);
+        packer = new SubstringPacker(dict, dictLen, compressionLevel);
     }
     return packer;
 }
@@ -201,6 +222,12 @@ SubstringPacker *CompressionModel::getSubstringPacker() {
 const char *CompressionModel::getDictionary(int& length) {
     length = dictLen;
     return dict;
+}
+
+void CompressionModel::setMaxDictionary(int maxDictionary) {
+    if (dictLen > 0 && dictLen > maxDictionary) {
+        setDictionary(dict + dictLen - maxDictionary, maxDictionary);
+    }
 }
 
 void CompressionModel::compress(const char *buf, int length, ostream& out) {

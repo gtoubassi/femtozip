@@ -1,0 +1,12 @@
+#!/bin/tcsh
+
+if ( $1 == "" ) then
+    echo "Must specify directory containing performance dataset"
+    exit
+endif
+
+
+../cpp/fzip/src/fzip --model $1/model.fzm --build $1/train-data
+../cpp/fzip/src/fzip --model $1/model-gzip.fzm --models GZip --build $1/train-data
+../cpp/fzip/src/fzip --model $1/model-gzipdict.fzm --models GZipDictionary --build $1/train-data
+java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --buildmodel --modelpath $1/java-model.fzm --numsamples 10000 $1/train-data

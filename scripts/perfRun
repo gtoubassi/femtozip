@@ -1,0 +1,151 @@
+#!/bin/tcsh
+
+if ( $1 == "" ) then
+    echo "Must specify directory containing performance dataset"
+    exit
+endif
+
+
+
+echo -n "fzip compress: "
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model.fzm --compress --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo -n `head -1 runresults | awk '{print $4}'` " "
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+
+echo -n "fzip decompress: "
+../cpp/fzip/src/fzip --model $1/model.fzm --compress $1/run-data | tr -d 's' > /dev/null
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model.fzm --decompress --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+../cpp/fzip/src/fzip --model $1/model.fzm --decompress $1/run-data | tr -d 's' > /dev/null
+
+
+
+
+echo -n "fzip level 3 compress: "
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model.fzm --compress --benchmark --level 3 $1/run-data | tr -d 's' >> runresults
+end
+echo -n `head -1 runresults | awk '{print $4}'` " "
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+
+echo -n "fzip level 3 decompress: "
+../cpp/fzip/src/fzip --model $1/model.fzm --compress --level 3 $1/run-data > /dev/null
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model.fzm --decompress --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+../cpp/fzip/src/fzip --model $1/model.fzm --decompress --level 3 $1/run-data > /dev/null
+
+
+
+
+echo -n "fzip no dict compress: "
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model.fzm --compress --maxdict 1 --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo -n `head -1 runresults | awk '{print $4}'` " "
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+
+echo -n "fzip no dict decompress: "
+../cpp/fzip/src/fzip --model $1/model.fzm --compress --maxdict 1 $1/run-data > /dev/null
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model.fzm --decompress --maxdict 1 --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+../cpp/fzip/src/fzip --model $1/model.fzm --decompress --maxdict 1 $1/run-data | tr -d 's' > /dev/null
+
+
+
+
+echo -n "gzip compress: "
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model-gzip.fzm --compress --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo -n `head -1 runresults | awk '{print $4}'` " "
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+
+
+echo -n "gzip decompress: "
+../cpp/fzip/src/fzip --model $1/model-gzip.fzm --compress $1/run-data > /dev/null
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model-gzip.fzm --decompress --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+../cpp/fzip/src/fzip --model $1/model-gzip.fzm --decompress $1/run-data > /dev/null
+
+
+
+
+echo -n "gzip+dict compress: "
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model-gzipdict.fzm --compress --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo -n `head -1 runresults | awk '{print $4}'` " "
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+
+echo -n "gzip+dict decompress: "
+../cpp/fzip/src/fzip --model $1/model-gzipdict.fzm --compress $1/run-data > /dev/null
+rm -f runresults
+foreach x (1 2 3 4 5)
+    ../cpp/fzip/src/fzip --model $1/model-gzipdict.fzm --decompress --benchmark $1/run-data | tr -d 's' >> runresults
+end
+echo `awk '{print $NF}' runresults | sum.awk` " * 1000 / 5" | bc
+../cpp/fzip/src/fzip --model $1/model-gzipdict.fzm --decompress $1/run-data > /dev/null
+
+
+
+
+echo -n "pure java compress: "
+rm -f runresults
+foreach x (1 2 3 4 5)
+    java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --compress --modelpath $1/java-model.fzm --benchmark --numsamples 10000 $1/run-data | grep Benchmarking | tr -d 'ms)' >> runresults
+end
+echo -n `head -1 runresults | awk '{print $3}'` " "
+echo `awk '{print $NF}' runresults | sum.awk` " / 5" | bc
+
+echo -n "pure java decompress: "
+rm -f runresults
+java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --compress --modelpath $1/java-model.fzm --numsamples 10000 $1/run-data > /dev/null
+foreach x (1 2 3 4 5)
+    java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --decompress --modelpath $1/java-model.fzm --benchmark --numsamples 10000 $1/run-data | grep Benchmarking | tr -d 'ms)' >> runresults
+end
+echo `awk '{print $NF}' runresults | sum.awk` " / 5" | bc
+java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --decompress --modelpath $1/java-model.fzm --numsamples 10000 $1/run-data > /dev/null
+
+
+
+
+echo -n "jni java compress: "
+rm -f runresults
+foreach x (1 2 3 4 5)
+    java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --compress --modelpath $1/model.fzm --benchmark --numsamples 10000 --native $1/run-data | grep Benchmarking | tr -d 'ms)' >> runresults
+end
+echo -n `head -1 runresults | awk '{print $3}'` " "
+echo `awk '{print $NF}' runresults | sum.awk` " / 5" | bc
+
+echo -n "jni java decompress: "
+rm -f runresults
+java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --compress --modelpath $1/model.fzm --numsamples 10000 --native $1/run-data > /dev/null
+foreach x (1 2 3 4 5)
+    java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --decompress --modelpath $1/model.fzm --benchmark --numsamples 10000 --native $1/run-data | grep Benchmarking | tr -d 'ms)' >> runresults
+end
+echo `awk '{print $NF}' runresults | sum.awk` " / 5" | bc
+java -classpath ../java/femtozip/bin org.toubassi.femtozip.Tool --decompress --modelpath $1/model.fzm --numsamples 10000 --native $1/run-data > /dev/null
+
+
+
+rm runresults
+

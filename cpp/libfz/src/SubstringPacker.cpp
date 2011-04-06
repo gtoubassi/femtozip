@@ -31,7 +31,7 @@ namespace femtozip {
 static const int MinimumMatchLength = PrefixHash::PrefixLength;
 
 
-SubstringPacker::SubstringPacker(const char *dictionary, int length) {
+SubstringPacker::SubstringPacker(const char *dictionary, int length, int compressionLevel) : compressionLevel(compressionLevel) {
     if (!dictionary) {
         dict = "";
         dictLen = 0;
@@ -40,7 +40,7 @@ SubstringPacker::SubstringPacker(const char *dictionary, int length) {
         dict = dictionary;
         dictLen = length;
     }
-    dictHash = new PrefixHash(dict, dictLen, true);
+    dictHash = new PrefixHash(dict, dictLen, true, compressionLevel);
 }
 
 SubstringPacker::~SubstringPacker() {
@@ -50,7 +50,7 @@ SubstringPacker::~SubstringPacker() {
 }
 
 void SubstringPacker::pack(const char *buf, int bufLen, Consumer& consumer, void *consumerContext) {
-    PrefixHash hash(buf, bufLen, false);
+    PrefixHash hash(buf, bufLen, false, compressionLevel);
 
     const char *previousMatch = 0;
     int previousMatchLength = 0;

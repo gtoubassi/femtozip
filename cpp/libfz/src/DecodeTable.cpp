@@ -33,43 +33,6 @@ DecodeTable::~DecodeTable() {
     }
 }
 
-void DecodeTable::load(DataInput& in) {
-    int len;
-    in >> len;
-    codes.resize(len);
-    for (vector<Codeword>::iterator i = codes.begin(); i != codes.end(); i++) {
-        i->load(in);
-    }
-
-    in >> len;
-    for (vector<DecodeTable*>::iterator i = tables.begin(); i != tables.end(); i++) {
-        bool hasTable;
-        in >> hasTable;
-        if (hasTable) {
-            *i = new DecodeTable();
-            (*i)->load(in);
-        }
-        else {
-            *i = 0;
-        }
-    }
-}
-
-void DecodeTable::save(DataOutput& out) {
-    out << ((int)codes.size());
-    for (vector<Codeword>::iterator i = codes.begin(); i != codes.end(); i++) {
-        i->save(out);
-    }
-
-    out << ((int)tables.size());
-    for (vector<DecodeTable*>::iterator i = tables.begin(); i != tables.end(); i++) {
-        out << (*i ? true : false);
-        if (*i) {
-            (*i)->save(out);
-        }
-    }
-}
-
 void DecodeTable::build(vector<Codeword>& encoding, int consumedBitLength) {
     for (vector<Codeword>::iterator i = encoding.begin(); i != encoding.end(); i++) {
         if (i->symbol != -1) {

@@ -22,8 +22,9 @@ using namespace std;
 
 namespace femtozip {
 
-PrefixHash::PrefixHash(const char *buf, int length, bool addToHash) : buf(buf), length(length) {
-    hashCapacity = 1.5 * length;
+PrefixHash::PrefixHash(const char *buf, int length, bool addToHash, int compressionLevel) : buf(buf), length(length) {
+    iterationLimit = compressionLevel == 9 ? 0 : (4 << compressionLevel);
+    hashCapacity = 1.75 * length;
     hash = new int[hashCapacity];
     memset(hash, -1, hashCapacity * sizeof(int));
     heap = new int[length];
@@ -44,17 +45,19 @@ PrefixHash::~PrefixHash() {
     }
 }
 
-int PrefixHash::index(const char *p) {
-    unsigned int index = (*reinterpret_cast<const unsigned int *>(p));
-    return index % hashCapacity;
+int PrefixHash::index(const char *p, unsigned int &asInt) {
+    asInt = (*reinterpret_cast<const unsigned int *>(p));
+    return asInt % hashCapacity;
 }
 
 int PrefixHash::index(int i) {
-    return index(buf + i);
+    unsigned int raw;
+    return index(buf + i, raw);
 }
 
 void PrefixHash::put(const char *p) {
-    int hashIndex = index(p);
+    unsigned int raw;
+    int hashIndex = index(p, raw);
     int index = (int)(p - buf);
     heap[index] = hash[hashIndex];
     hash[hashIndex] = index;
@@ -69,8 +72,12 @@ void PrefixHash::getBestMatch(const char *target, const char *targetBuf, int tar
         return;
     }
 
-    int targetHashIndex = index(target);
+    int maxLimit = min(255, (int)(targetBufLen - (target - targetBuf)));
+
+    unsigned int targetAsInt;
+    int targetHashIndex = index(target, targetAsInt);
     int candidate = hash[targetHashIndex];
+    int numIterations = 0;
     while (candidate != -1) {
 
         int distance;
@@ -86,22 +93,26 @@ void PrefixHash::getBestMatch(const char *target, const char *targetBuf, int tar
             break;
         }
 
-        const char *maxMatchJ = min(target + 255, targetBuf + targetBufLen);
-        const char *maxMatchK = min(buf + candidate + 255, buf + length);
-        const char *j, *k;
-        for (j = target, k = buf + candidate; j < maxMatchJ && k < maxMatchK; j++, k++) {
-            if (*j != *k) {
-                break;
+        if (targetAsInt == *reinterpret_cast<const unsigned int *>(buf + candidate)) {
+            const char *endJ = target + min(maxLimit, length - candidate);
+            const char *j, *k;
+            for (j = target + 4, k = buf + candidate + 4; j < endJ; j++, k++) {
+                if (*j != *k) {
+                    break;
+                }
+            }
+
+            int matchLength = j - target;
+            if (matchLength > bestMatchLength) {
+                bestMatch = buf + candidate;
+                bestMatchLength = matchLength;
             }
         }
 
-        int matchLength = j - target;
-        if (matchLength > bestMatchLength) {
-            bestMatch = buf + candidate;
-            bestMatchLength = matchLength;
-        }
-
         candidate = heap[candidate];
+        if (iterationLimit && numIterations++ > iterationLimit) {
+            break;
+        }
     }
 }
 

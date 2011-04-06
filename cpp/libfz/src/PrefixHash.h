@@ -25,19 +25,20 @@ namespace femtozip {
 
 class PrefixHash {
 protected:
+    int iterationLimit;
     const char *buf;
     int length;
     int *hash;
     int hashCapacity;
     int *heap;
 
-    int index(const char *p);
+    int index(const char *p, unsigned int &asInt);
     int index(int i);
 
 public:
     static const int PrefixLength = 4;
 
-    PrefixHash(const char *buf, int length, bool addToHash);
+    PrefixHash(const char *buf, int length, bool addToHash, int compressionLevel = 9 /* 0 faster ... 9 better */);
     virtual ~PrefixHash();
 
     void getBestMatch(const char *target, const char *targetBuf, int targetBufLen, const char *& bestMatch, int& bestMatchLength);

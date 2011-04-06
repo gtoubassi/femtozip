@@ -41,9 +41,6 @@ public:
     DecodeTable();
     ~DecodeTable();
 
-    virtual void load(DataInput& in);
-    virtual void save(DataOutput& out);
-
     void build(vector<Codeword>& encoding, int consumedBitLength = 0);
     Codeword& decode(int value);
 };
