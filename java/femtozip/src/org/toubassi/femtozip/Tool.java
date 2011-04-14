@@ -32,7 +32,7 @@ import org.toubassi.femtozip.util.FileUtil;
 public class Tool  {
     
     protected enum Operation {
-        BuildModel, Benchmark, Compress, Decompress, BuildDictionary
+        BuildModel, Benchmark, Compress, Decompress
     }
 
     protected DecimalFormat format = new DecimalFormat("#.##");
@@ -47,8 +47,9 @@ public class Tool  {
     protected boolean verify;
     protected boolean dumpArgs;
     protected boolean useNativeModel;
+    protected boolean dictOnly;
     
-    protected int numSamples = 0;
+    protected int numSamples = Integer.MAX_VALUE;
     protected int maxDictionarySize = 0;
 
     protected CompressionModel buildModel(DocumentList documents) throws IOException {
@@ -207,7 +208,10 @@ public class Tool  {
         DocumentList documents = new FileDocumentList(path, files);
         DictionaryOptimizer optimizer = new DictionaryOptimizer(documents);
         byte[] dictionary = optimizer.optimize(maxDictionarySize  > 0 ? maxDictionarySize : 64*1024);
-        System.out.write(dictionary);
+        
+        FileOutputStream fileOut = new FileOutputStream(modelPath);
+        fileOut.write(dictionary);
+        fileOut.close();
     }
     
     protected void loadBenchmarkModel() throws IOException {
@@ -229,7 +233,7 @@ public class Tool  {
     }
     
     protected void usage() {
-        System.out.println("Usage: [--buildmodel|--benchmark|--compress|--decompress] --modelpath path --models [Model1,Model2,...] --numsamples number path");
+        System.out.println("Usage: [--build|--benchmark|--compress|--decompress] [--dictonly] [--maxdict num] --model path path");
         System.exit(1);
     }
     
@@ -241,7 +245,7 @@ public class Tool  {
             if (arg.equals("--benchmark")) {
                 operation = Operation.Benchmark;
             }
-            else if (arg.equals("--buildmodel")) {
+            else if (arg.equals("--build")) {
                 operation = Operation.BuildModel;
             }
             else if (arg.equals("--compress")) {
@@ -250,13 +254,13 @@ public class Tool  {
             else if (arg.equals("--decompress")) {
                 operation = Operation.Decompress;
             }
-            else if (arg.equals("--builddict")) {
-                operation = Operation.BuildDictionary;
+            else if (arg.equals("--dictonly")) {
+                dictOnly = true;
             }
             else if (arg.equals("--numsamples")) {
                 numSamples = Integer.parseInt(args[++i]);
             }
-            else if (arg.equals("--modelpath")) {
+            else if (arg.equals("--model")) {
                 modelPath = args[++i];
             }
             else if (arg.equals("--models")) {
@@ -285,7 +289,6 @@ public class Tool  {
         if (operation == null || path == null || modelPath == null) {
             usage();
         }
-
         
         if (dumpArgs) {
             System.out.println("Command line arguments:");
@@ -298,8 +301,13 @@ public class Tool  {
         long start = System.currentTimeMillis();
         
         if (operation == Operation.BuildModel) {
-            buildModel();
-            saveBenchmarkModel();
+            if (dictOnly) {
+                buildDictionary();
+            }
+            else {
+                buildModel();
+                saveBenchmarkModel();
+            }
         }        
         else if (operation == Operation.Benchmark) {
             loadBenchmarkModel();
@@ -312,9 +320,6 @@ public class Tool  {
         else if (operation == Operation.Decompress) {
             loadBenchmarkModel();
             decompress();
-        }
-        else if (operation == Operation.BuildDictionary) {
-            buildDictionary();
         }
         
         long duration = System.currentTimeMillis() - start;

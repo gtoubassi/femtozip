@@ -24,7 +24,7 @@
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug.801909972" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug.1375299555" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug">
 								<option id="macosx.cpp.link.option.paths.2098325988" name="Library search path (-L)" superClass="macosx.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/Release}&quot;"/>
 								</option>
 								<option id="macosx.cpp.link.option.libs.1641324434" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="libfz"/>
@@ -486,7 +486,7 @@
 				<externalSettings containerId="libfz;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/libfz"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="libfz"/>
 					</externalSetting>
 				</externalSettings>
@@ -518,7 +518,7 @@
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.release.582826502" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.release"/>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.release.774709456" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.release">
 								<option id="macosx.cpp.link.option.paths.1786206672" name="Library search path (-L)" superClass="macosx.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/Release}&quot;"/>
 								</option>
 								<option id="macosx.cpp.link.option.libs.109820354" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="libfz"/>
@@ -981,7 +981,7 @@
 				<externalSettings containerId="libfz;" factoryId="org.eclipse.cdt.core.cfg.export.settings.sipplier">
 					<externalSetting>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="includePath" name="/libfz"/>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Debug"/>
+						<entry flags="VALUE_WORKSPACE_PATH" kind="libraryPath" name="/libfz/Release"/>
 						<entry flags="RESOLVED" kind="libraryFile" name="libfz"/>
 					</externalSetting>
 				</externalSettings>

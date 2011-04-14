@@ -30,6 +30,7 @@
 #include <FileDocumentList.h>
 #include <FileUtil.h>
 #include <CompressionModel.h>
+#include <DictionaryOptimizer.h>
 
 using namespace std;
 using namespace femtozip;
@@ -46,6 +47,7 @@ bool verbose = false;
 bool benchmark = false;
 int level = 9;
 int maxDictionary = -1;
+bool dictOnly;
 
 long getTimeMillis() {
     timeval tim;
@@ -92,6 +94,31 @@ void buildModel() {
         saveModel(*model);
     }
     delete model;
+}
+
+void buildDictionary() {
+    FileDocumentList documents(paths);
+
+    cout << "Building dictionary..." << endl;
+
+    long start = getTimeMillis();
+
+    DictionaryOptimizer optimizer(documents);
+    string dictionary = optimizer.optimize(maxDictionary >= 0 ? maxDictionary : 64*1024);
+
+    long duration = getTimeMillis() - start;
+
+    if (verbose || benchmark) {
+        cout << "Dictionary built in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
+    }
+
+    if (!benchmark) {
+        ofstream file(modelPath.c_str(), ios::out | ios::binary | ios::trunc);
+        DataOutput out(file);
+        out.write(dictionary.c_str(), dictionary.length());
+        out.flush();
+        file.close();
+    }
 }
 
 void compress() {
@@ -196,8 +223,27 @@ void usage(const string& error = "") {
     if (error.length() > 0) {
         cout << error << endl << endl;
     }
-    cout << "usage: --model <path> --build|compress|decompress [--models model1,model2,...] [--verbose] [--benchmark] [--level 0-9] <path> ..." << endl;
-    cout << "       if path is a directory all files in the specified directory are used" << endl;
+    cout << "basic usage: --model <path> --build|compress|decompress  <path> ..." << endl;
+    cout << "       <path>       All files to be operated on (compressed/decompressed or " << endl;
+    cout << "                    used for model building).  If path is a directory, then " << endl;
+    cout << "                    all files within path are inputs" << endl;
+    cout << "       --model      The path where the model should be saved (if --build) or " << endl;
+    cout << "                    loaded (if --compress or --decompress)" << endl;
+    cout << "       --build      Build a new model or sdch dictionary (saved to model path)" << endl;
+    cout << "       --compress   Compress all files specified or files contained in" << endl;
+    cout << "                    specified directory" << endl;
+    cout << "       --decompress Decompress all files specified or files contained in" << endl;
+    cout << "                    specified directory" << endl;
+    cout << "       --dictonly   If specified with --build, only write the dictionary to the" << endl;
+    cout << "                    model path.  useful for SDCH dictionary building" << endl;
+    cout << "       --verbose    Output status updates and timings" << endl;
+    cout << "       --benchmark  Output timings and don't actually write compressed or " << endl;
+    cout << "                    decompressed files (non destructive so can be rerun)" << endl;
+    cout << "       --maxdict    If specified with --build, limit the dictionary to the" << endl;
+    cout << "                    specified number of bytes (default and max are 64k)" << endl;
+    cout << "       --level      Speed vs compression ratio.  0 means fast, 9 means highly" << endl;
+    cout << "                    compressed" << endl;
+
     if (error.length() > 0) {
         exit(1);
     }
@@ -244,6 +290,9 @@ void parseArgs(int argc, const char **argv) {
         }
         else if (strcmp("--maxdict", arg) == 0) {
             maxDictionary = atoi(argv[++i]);
+        }
+        else if (strcmp("--dictonly", arg) == 0) {
+            dictOnly = true;
         }
         else if (strncmp("--", arg, 2) == 0) {
             usage(string("Unknown argument ") + arg);
@@ -295,7 +344,12 @@ int main(int argc, const char **argv) {
 
     switch (operation) {
     case Build:
-        buildModel();
+        if (dictOnly) {
+            buildDictionary();
+        }
+        else {
+            buildModel();
+        }
         break;
     case Compress:
         compress();
