@@ -42,6 +42,7 @@
 #include <GZipDictionaryCompressionModel.h>
 #include <DataIO.h>
 #include <femtozip.h>
+#include <IntSet.h>
 
 using namespace std;
 using namespace femtozip;
@@ -642,6 +643,41 @@ void exampleCApiDriver() {
     assertTrue(exampleCApi() == 0, "exampleCApi failure");
 }
 
+void testIntSet() {
+    IntSet h;
+
+    assertTrue(h.size() == 0, "empty size");
+    h.put(52);
+    assertTrue(h.size() == 1, "size 1");
+    h.put(52);
+    assertTrue(h.size() == 1, "size 1");
+    h.put(53);
+    assertTrue(h.size() == 2, "size 2");
+    h.put(54);
+    assertTrue(h.size() == 3, "size 3");
+    h.put(54);
+    assertTrue(h.size() == 3, "size 3");
+
+    size_t size = 3;
+
+    // force resizing
+    for (int i = 100; i < 1000; i++) {
+        if (i > 100 && i % 10 == 0) {
+            // force a repeat
+            h.put(i-1);
+        }
+        else {
+            h.put(i);
+            size++;
+        }
+        assertTrue(h.size() == size, "size");
+    }
+
+    h.clear();
+    assertTrue(h.size() == 0, "empty size");
+}
+
+
 int main() {
 
     testDocumentList();
@@ -675,6 +711,8 @@ int main() {
     testCApi();
 
     exampleCApiDriver();
+
+    testIntSet();
 
     reportTestResults();
 

@@ -29,6 +29,8 @@
 #include "DocumentList.h"
 #include "Substring.h"
 #include "sarray.h"
+#include "Util.h"
+#include "IntSet.h"
 
 using namespace std;
 
@@ -53,31 +55,61 @@ DictionaryOptimizer::~DictionaryOptimizer() {
 }
 
 string DictionaryOptimizer::optimize(int desiredLength) {
+    cout << "Computing suffix array" << endl;
     suffixArray.resize(bytes.size() + 1);
+    long start = Util::getMillis();
     bsarray(reinterpret_cast<const uchar *>(&bytes[0]), &suffixArray[0], bytes.size());
+    long duration = Util::getMillis() - start;
+    cout << "Computed suffix array in " << duration << "ms" << endl;
 
     // Due to the extra terminator symbol that bsarray puts, suffixArray is actually 1 bigger, and bytes
     // needs to allow access to a character in the terminator's position
     bytes.push_back('\0');
+    cout << "Computing lcp" << endl;
+    start = Util::getMillis();
     lcpArray = lcp(&suffixArray[0], &bytes[0], bytes.size());
+    duration = Util::getMillis() - start;
+    cout << "Computed lcp in " << duration << "ms" << endl;
     bytes.pop_back();
 
     computeSubstrings();
-    return pack(desiredLength);
+
+    cout << "Pack substrings" << endl;
+    start = Util::getMillis();
+    string packed = pack(desiredLength);
+    duration = Util::getMillis() - start;
+    cout << "Packed substrings in " << duration << "ms" << endl;
+
+    return packed;
 }
 
 void DictionaryOptimizer::computeSubstrings() {
+    long start, duration;
     vector<Substring> activeSubstrings;
-    set<int> uniqueDocIds;
+    IntSet uniqueDocIds;
 
+    start = Util::getMillis();
+
+    long bc = 0;
+    long maxrun = 0, run = 0;
     int n = suffixArray.size(); // Same as lcp size
+
+    cout << "Computing substrings " << n << endl;
 
     int lastLCP = lcpArray[0];
     for (int i = 1; i <= n; i++) {
+        run++;
         // Note we need to process currently existing runs, so we do that by acting like we hit an LCP of 0 at the end.
         // That is why the we loop i <= n vs i < n.  Otherwise runs that exist at the end of the suffixarray/lcp will
         // never be "cashed in" and counted in the substrings.  DictionaryOptimizerTest has a unit test for this.
         int currentLCP = i == n ? 0 : lcpArray[i];
+
+        if (currentLCP == 0) {
+            if (run > maxrun) {
+                maxrun = run;
+            }
+            run = 0;
+        }
 
         if (currentLCP > lastLCP) {
             // The order here is important so we can optimize adding redundant strings below.
@@ -107,6 +139,7 @@ void DictionaryOptimizer::computeSubstrings() {
 
                         // Could make this a lookup table if we are willing to burn an int[bytes.size()] but thats a lot
                         vector<int>::iterator docStart = lower_bound(starts.begin(), starts.end(), byteIndex);
+                        bc++;
 
                         if (docStart == starts.end() || *docStart != byteIndex) {
                             docStart--;
@@ -120,7 +153,7 @@ void DictionaryOptimizer::computeSubstrings() {
                         // cross a document boundary for this particular occurrence.
                         int nextDocStart = static_cast<unsigned int>(docIndex) < starts.size() - 1 ? starts[docIndex + 1] : bytes.size();
                         if (activeLength <= nextDocStart - byteIndex) {
-                            uniqueDocIds.insert(docIndex);
+                            uniqueDocIds.put(docIndex);
                         }
                     }
 
@@ -150,7 +183,17 @@ void DictionaryOptimizer::computeSubstrings() {
         lastLCP = currentLCP;
     }
 
+    duration = Util::getMillis() - start;
+    cout << "Computed substrings in " << duration << "ms" << endl;
+
+    cout << "Did " << bc << " binary searches" << endl;
+    cout << "Max run " << maxrun << endl;
+
+    cout << "Sorting substrings" << endl;
+    start = Util::getMillis();
     sort(substrings.begin(), substrings.end()); // Likely faster with radix sort
+    duration = Util::getMillis() - start;
+    cout << "Sorted substrings in " << duration << "ms" << endl;
 }
 
 string DictionaryOptimizer::pack(int desiredLength) {

@@ -224,7 +224,7 @@ libfzip_la_SOURCES = BitInput.h BitOutput.h CStringDocumentList.h \
 	PureHuffmanCompressionModel.cpp Substring.cpp \
 	SubstringPacker.cpp SubstringUnpacker.cpp \
 	SamplingDocumentList.cpp VerboseStringConsumer.cpp lcp.c \
-	sarray.c femtozip.h femtozip.cpp
+	sarray.c femtozip.h femtozip.cpp Util.h IntSet.h
 include_HEADERS = femtozip.h 
 all: all-am
 
