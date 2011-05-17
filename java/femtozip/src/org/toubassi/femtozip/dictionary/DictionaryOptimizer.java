@@ -53,6 +53,7 @@ public class DictionaryOptimizer {
         return pack(desiredLength);
     }
 
+    // TODO Bring this up to parity with C++ version, which has optimized
     protected void computeSubstrings() {
         SubstringArray activeSubstrings = new SubstringArray(128);
         Set<Integer> uniqueDocIds = new HashSet<Integer>();
@@ -88,6 +89,10 @@ public class DictionaryOptimizer {
                         // "toubassi", the string toubassi is far more valuable in a shared dictionary.  So find out
                         // how many unique documents this string occurs in.  We do this by taking the start position of
                         // each occurrence, and then map that back to the document using the "starts" array, and uniquing.
+                        // 
+                        // TODO Bring this up to parity with C++ version, which has optimized
+                        //
+                        
                         for (int k = activeSubstrings.index(j) - 1; k < i; k++) {
                             int byteIndex = suffixArray[k];
                             
