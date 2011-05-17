@@ -24,30 +24,36 @@ using namespace std;
 namespace femtozip {
 
 /**
- * Oodles faster for my purposes than hash_set<int>
+ * A fast simple set of positive ints that can't be iterated.
+ * This was written because std::set is based on std::tree and
+ * is thus slower than it needs to be, and hashmap is non standard
+ * and also fairly slow (for unknown reasons).  IntSet was motivated
+ * by an optimization round on the dictionary creation process.
  */
 class IntSet {
 private:
-    static float load_factor = .7;
+    static const float load_factor = .7;
 
     int *buckets;
+    int *bucket_end;
     size_t capacity;
     size_t max_size;
-    size_t s;
+    size_t set_size;
 
-    int insert(int n, int *buckets, size_t capacity) {
-        size_t index = n % capacity;
-        while (buckets[index] != -1) {
-            if (buckets[index] == n) {
+    inline int insert(int n, int *b, int *end, size_t capacity) {
+        int *p = b + (n % capacity);
+
+        while (*p != -1) {
+            if (*p == n) {
                 return 0;
             }
-            index++;
-            if (index == capacity) {
-                index = 0;
+            p++;
+            if (p == end) {
+                p = b;
             }
         }
 
-        buckets[index] = n;
+        *p = n;
         return 1;
     }
 
@@ -57,10 +63,11 @@ private:
     }
 
 public:
-    IntSet() {
-        s = 0;
-        capacity = 16;
+    IntSet(int targetCapacity = 0) {
+        set_size = 0;
+        capacity = targetCapacity == 0 ? 16 : targetCapacity/load_factor;
         buckets = new int[capacity];
+        bucket_end = buckets + capacity;
         max_size = load_factor * capacity;
         clear_buckets(buckets, capacity);
     }
@@ -69,17 +76,18 @@ public:
         delete[] buckets;
     }
 
-    size_t size() const { return s; }
+    size_t size() const { return set_size; }
 
-    void put(int n) {
-        if (capacity == max_size) {
+    inline void put(int n) {
+        if (set_size >= max_size) {
             int new_capacity = 2 * capacity;
             int *new_buckets = new int[new_capacity];
+            int *new_bucket_end = new_buckets + new_capacity;
             clear_buckets(new_buckets, new_capacity);
 
-            for (int *p = buckets, *end = p + capacity; p != end; p++) {
+            for (int *p = buckets; p != bucket_end; p++) {
                 if (*p != -1) {
-                    insert(*p, new_buckets, new_capacity);
+                    insert(*p, new_buckets, new_bucket_end, new_capacity);
                 }
             }
 
@@ -87,16 +95,17 @@ public:
 
             buckets = new_buckets;
             capacity = new_capacity;
+            bucket_end = new_bucket_end;
             max_size = load_factor * capacity;
         }
 
-        s += insert(n, buckets, capacity);
+        set_size += insert(n, buckets, bucket_end, capacity);
     }
 
     void clear() {
-        if (s != 0) {
+        if (set_size != 0) {
             clear_buckets(buckets, capacity);
-            s = 0;
+            set_size = 0;
         }
     }
 };

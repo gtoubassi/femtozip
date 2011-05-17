@@ -55,60 +55,45 @@ DictionaryOptimizer::~DictionaryOptimizer() {
 }
 
 string DictionaryOptimizer::optimize(int desiredLength) {
-    cout << "Computing suffix array" << endl;
     suffixArray.resize(bytes.size() + 1);
-    long start = Util::getMillis();
     bsarray(reinterpret_cast<const uchar *>(&bytes[0]), &suffixArray[0], bytes.size());
-    long duration = Util::getMillis() - start;
-    cout << "Computed suffix array in " << duration << "ms" << endl;
 
     // Due to the extra terminator symbol that bsarray puts, suffixArray is actually 1 bigger, and bytes
     // needs to allow access to a character in the terminator's position
     bytes.push_back('\0');
-    cout << "Computing lcp" << endl;
-    start = Util::getMillis();
     lcpArray = lcp(&suffixArray[0], &bytes[0], bytes.size());
-    duration = Util::getMillis() - start;
-    cout << "Computed lcp in " << duration << "ms" << endl;
     bytes.pop_back();
 
     computeSubstrings();
 
-    cout << "Pack substrings" << endl;
-    start = Util::getMillis();
     string packed = pack(desiredLength);
-    duration = Util::getMillis() - start;
-    cout << "Packed substrings in " << duration << "ms" << endl;
 
     return packed;
 }
 
 void DictionaryOptimizer::computeSubstrings() {
-    long start, duration;
     vector<Substring> activeSubstrings;
-    IntSet uniqueDocIds;
+    IntSet uniqueDocIds();
+    int recentDocStartsBase;
+    vector<int> recentDocStarts;
 
-    start = Util::getMillis();
-
-    long bc = 0;
-    long maxrun = 0, run = 0;
     int n = suffixArray.size(); // Same as lcp size
 
-    cout << "Computing substrings " << n << endl;
+    recentDocStartsBase = 0;
+    recentDocStarts.push_back(docStartForIndex(0));
 
     int lastLCP = lcpArray[0];
     for (int i = 1; i <= n; i++) {
-        run++;
         // Note we need to process currently existing runs, so we do that by acting like we hit an LCP of 0 at the end.
         // That is why the we loop i <= n vs i < n.  Otherwise runs that exist at the end of the suffixarray/lcp will
         // never be "cashed in" and counted in the substrings.  DictionaryOptimizerTest has a unit test for this.
-        int currentLCP = i == n ? 0 : lcpArray[i];
-
-        if (currentLCP == 0) {
-            if (run > maxrun) {
-                maxrun = run;
-            }
-            run = 0;
+        int currentLCP;
+        if (i == n) {
+            currentLCP = 0;
+        }
+        else {
+            currentLCP = lcpArray[i];
+            recentDocStarts.push_back(docStartForIndex(i));
         }
 
         if (currentLCP > lastLCP) {
@@ -135,16 +120,9 @@ void DictionaryOptimizer::computeSubstrings() {
                     // how many unique documents this string occurs in.  We do this by taking the start position of
                     // each occurrence, and then map that back to the document using the "starts" array, and uniquing.
                     for (int k = activeSubstrings[j].getIndex() - 1; k < i; k++) {
+
                         int byteIndex = suffixArray[k];
-
-                        // Could make this a lookup table if we are willing to burn an int[bytes.size()] but thats a lot
-                        vector<int>::iterator docStart = lower_bound(starts.begin(), starts.end(), byteIndex);
-                        bc++;
-
-                        if (docStart == starts.end() || *docStart != byteIndex) {
-                            docStart--;
-                        }
-                        int docIndex = *docStart;
+                        int docIndex = recentDocStarts[k - recentDocStartsBase];
 
                         // While we are at it lets make sure this is a string that actually exists in a single
                         // document, vs spanning two concatenanted documents.  The idea is that for documents
@@ -181,19 +159,16 @@ void DictionaryOptimizer::computeSubstrings() {
             }
         }
         lastLCP = currentLCP;
+
+        if (activeSubstrings.size() == 0 && recentDocStarts.size() > 1) {
+            int last = *(recentDocStarts.end() - 1);
+            recentDocStartsBase += recentDocStarts.size() - 1;
+            recentDocStarts.clear();
+            recentDocStarts.push_back(last);
+        }
     }
 
-    duration = Util::getMillis() - start;
-    cout << "Computed substrings in " << duration << "ms" << endl;
-
-    cout << "Did " << bc << " binary searches" << endl;
-    cout << "Max run " << maxrun << endl;
-
-    cout << "Sorting substrings" << endl;
-    start = Util::getMillis();
     sort(substrings.begin(), substrings.end()); // Likely faster with radix sort
-    duration = Util::getMillis() - start;
-    cout << "Sorted substrings in " << duration << "ms" << endl;
 }
 
 string DictionaryOptimizer::pack(int desiredLength) {
@@ -270,6 +245,23 @@ int DictionaryOptimizer::prepend(char *from, char *toStart, char *to, char *toEn
     return length - l;
 }
 
+/**
+ * Returns the offset into the byte buffer representing the
+ * start of the document which contains the specified byte
+ * (as an offset into the byte buffer).  So for example
+ * docStartForIndex(0) always returns 0, and
+ * docStartForIndex(15) will return 10 if the first doc is
+ * 10 bytes and the second doc is at least 5.
+ */
+int DictionaryOptimizer::docStartForIndex(int index) {
+    int byteIndex = suffixArray[index];
+    vector<int>::iterator docStart = lower_bound(starts.begin(), starts.end(), byteIndex);
+    if (docStart == starts.end() || *docStart != byteIndex) {
+        docStart--;
+    }
+    return *docStart;
+}
+
 
 void DictionaryOptimizer::dumpSuffixArray() {
     vector<int>::iterator i;
@@ -302,49 +294,4 @@ void DictionaryOptimizer::dumpSubstrings() {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
