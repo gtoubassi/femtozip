@@ -73,7 +73,7 @@ string DictionaryOptimizer::optimize(int desiredLength) {
 
 void DictionaryOptimizer::computeSubstrings() {
     vector<Substring> activeSubstrings;
-    IntSet uniqueDocIds();
+    IntSet uniqueDocIds;
     int recentDocStartsBase;
     vector<int> recentDocStarts;
 
