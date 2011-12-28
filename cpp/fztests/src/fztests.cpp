@@ -677,6 +677,24 @@ void testIntSet() {
     assertTrue(h.size() == 0, "empty size");
 }
 
+void testBadModelFiles() {
+
+    // via C api
+    void *model = fz_load_model("/tmp/nonexistent123");
+    assertTrue(model == 0, "non existent file");
+
+    model = fz_load_model("/dev/null");
+    assertTrue(model == 0, "empty file");
+
+    const char *path = tmpnam(NULL);
+    ofstream file(path, ios::out | ios::binary | ios::trunc);
+    file << "hello world";
+    file.close();
+
+    model = fz_load_model(path);
+    assertTrue(model == 0, "bad file");
+}
+
 
 int main() {
 
@@ -713,6 +731,8 @@ int main() {
     exampleCApiDriver();
 
     testIntSet();
+
+    testBadModelFiles();
 
     reportTestResults();
 

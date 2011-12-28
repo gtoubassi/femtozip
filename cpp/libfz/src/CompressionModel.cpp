@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string.h>
 #include "CompressionModel.h"
 #include "DictionaryOptimizer.h"
@@ -49,7 +50,7 @@ CompressionModel *CompressionModel::createModel(const string& type) {
         return new GZipDictionaryCompressionModel();
     }
     else {
-        throw "Unknown model";
+        throw runtime_error("Unknown model");
     }
 }
 
@@ -108,7 +109,7 @@ CompressionModel *CompressionModel::buildOptimalModel(DocumentList& documents, b
                 (*i)->decompress(outstr.c_str(), outstr.length(), decompressedOut);
                 string decompressed = decompressedOut.str();
                 if (decompressed.length() != static_cast<unsigned int>(length) || memcmp(decompressed.c_str(), data, length) != 0) {
-                    throw "Compress/Decompress roundtrip failed";
+                    throw runtime_error("Compress/Decompress roundtrip failed");
                 }
             }
 

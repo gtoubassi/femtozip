@@ -14,6 +14,7 @@
  *   limitations under the License.
  */
 
+#include <stdexcept>
 #include <vector>
 #include "FemtoZipCompressionModel.h"
 #include "HuffmanDecoder.h"
@@ -52,13 +53,13 @@ struct FemtoZipHuffmanModelBuilder : public SubstringPacker::Consumer {
     void encodeSubstring(int offset, int length, void *context) {
 
         if (length < 1 || length > 255) {
-            throw "FemtoZipHuffmanModelBuilder::encodeSubstring: Illegal argument length out of range";
+            throw runtime_error("FemtoZipHuffmanModelBuilder::encodeSubstring: Illegal argument length out of range");
         }
         literalLengthHistogram[256 + length]++;
 
         offset = -offset;
         if (length < 1 || offset > (2<<15)-1) {
-            throw "FemtoZipHuffmanModelBuilder::encodeSubstring: Illegal argument offset out of range";
+            throw runtime_error("FemtoZipHuffmanModelBuilder::encodeSubstring: Illegal argument offset out of range");
         }
         offsetHistogramNibble0[offset & 0xf]++;
         offsetHistogramNibble1[(offset >> 4) & 0xf]++;
@@ -152,13 +153,13 @@ void FemtoZipCompressionModel::encodeLiteral(int aByte, void *context) {
 void FemtoZipCompressionModel::encodeSubstring(int offset, int length, void *context) {
     HuffmanEncoder<FemtoZipHuffmanModel> *encoder = reinterpret_cast<HuffmanEncoder<FemtoZipHuffmanModel> *>(context);
     if (length < 1 || length > 255) {
-        throw "FemtoZipCompressionModel::encodeSubstring: Illegal argument length out of range";
+        throw runtime_error("FemtoZipCompressionModel::encodeSubstring: Illegal argument length out of range");
     }
     encoder->encodeSymbol(256 + length);
 
     offset = -offset;
     if (offset < 1 || offset > (2<<15)-1) {
-        throw "FemtoZipCompressionModel::encodeSubstring: Illegal argument offset out of range";
+        throw runtime_error("FemtoZipCompressionModel::encodeSubstring: Illegal argument offset out of range");
     }
     encoder->encodeSymbol(offset & 0xf);
     encoder->encodeSymbol((offset >> 4) & 0xf);

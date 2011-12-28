@@ -18,6 +18,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 #include <string.h>
 #include "DataIO.h"
 #include "DocumentList.h"
@@ -59,11 +60,19 @@ extern "C" {
 
 
 void *fz_load_model(const char *path) {
-    ifstream file(path, ios::in | ios::binary);
-    DataInput in(file);
-    CompressionModel *model = CompressionModel::loadModel(in);
-    file.close();
-    return reinterpret_cast<void *>(model);
+    try {
+        ifstream file(path, ios::in | ios::binary);
+        if (!file.good()) {
+            return 0;
+        }
+        DataInput in(file);
+        CompressionModel *model = CompressionModel::loadModel(in);
+        file.close();
+        return reinterpret_cast<void *>(model);
+    }
+    catch (runtime_error& e) {
+        return 0;
+    }
 }
 
 int fz_save_model(void *model, const char *path) {

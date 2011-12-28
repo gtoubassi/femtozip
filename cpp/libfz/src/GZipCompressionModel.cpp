@@ -15,6 +15,7 @@
  */
 
 #include "GZipCompressionModel.h"
+#include <stdexcept>
 #include <zlib.h>
 
 using namespace std;
@@ -32,15 +33,15 @@ void GZipCompressionModel::build(DocumentList& documents) {
 }
 
 void GZipCompressionModel::encodeLiteral(int aByte, void *context) {
-    throw "GZipCompressionModel::encodeLiteral unsupported";
+    throw runtime_error("GZipCompressionModel::encodeLiteral unsupported");
 }
 
 void GZipCompressionModel::encodeSubstring(int offset, int length, void *context) {
-    throw "GZipCompressionModel::encodeSubstring unsupported";
+    throw runtime_error("GZipCompressionModel::encodeSubstring unsupported");
 }
 
 void GZipCompressionModel::endEncoding(void *context) {
-    throw "GZipCompressionModel::endEncoding unsupported";
+    throw runtime_error("GZipCompressionModel::endEncoding unsupported");
 }
 
 bool GZipCompressionModel::useDict() {
@@ -62,7 +63,7 @@ void GZipCompressionModel::compress(const char *buf, int length, ostream& out) {
     strm.opaque = Z_NULL;
     ret = deflateInit(&strm, Z_BEST_COMPRESSION);
     if (ret != Z_OK) {
-        throw "deflateInit failed";
+        throw runtime_error("deflateInit failed");
     }
 
     /* compress until end of file */
@@ -105,7 +106,7 @@ void GZipCompressionModel::decompress(const char *buf, int length, ostream& out)
     strm.next_in = Z_NULL;
     ret = inflateInit(&strm);
     if (ret != Z_OK) {
-        throw "inflateInit failed";
+        throw runtime_error("inflateInit failed");
     }
 
     /* decompress until deflate stream ends or end of file */

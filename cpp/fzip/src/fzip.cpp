@@ -19,9 +19,10 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
+#include <stdlib.h>
 #include <string>
 #include <string.h>
-#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <vector>
@@ -358,7 +359,7 @@ int main(int argc, const char **argv) {
         decompress();
         break;
     case None:
-        throw "Should never happen";
+        throw runtime_error("Should never happen");
         break;
     }
 

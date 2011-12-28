@@ -98,7 +98,7 @@ DataInput& DataInput::operator>>(int& i) {
     i = 0;
 
     int shift = 0;
-    while (sz > 0) {
+    while (in.good() && sz > 0) {
         unsigned char ch;
         in.read((char *)&ch, 1);
         i |= (ch << shift);
@@ -113,7 +113,7 @@ DataInput& DataInput::operator>>(long& i) {
     i = 0;
 
     int shift = 0;
-    while (sz > 0) {
+    while (in.good() && sz > 0) {
         unsigned char ch;
         in.read((char *)&ch, 1);
         i |= (((long)ch) << shift);
@@ -128,7 +128,7 @@ DataInput& DataInput::operator>>(short& i) {
     i = 0;
 
     int shift = 0;
-    while (sz > 0) {
+    while (in.good() && sz > 0) {
         unsigned char ch;
         in.read((char *)&ch, 1);
         i |= (ch << shift);
@@ -141,8 +141,10 @@ DataInput& DataInput::operator>>(short& i) {
 DataInput& DataInput::operator>>(string& str) {
     int len;
     (*this) >> len;
-    str.resize(len);
-    in.read(&str[0], len);
+    if (in.good()) {
+        str.resize(len);
+        in.read(&str[0], len);
+    }
     return *this;
 }
 
