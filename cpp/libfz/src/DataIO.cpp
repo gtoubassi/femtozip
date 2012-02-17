@@ -45,7 +45,7 @@ DataOutput& DataOutput::operator<<(int i) {
     return *this;
 }
 
-DataOutput& DataOutput::operator<<(long i) {
+DataOutput& DataOutput::operator<<(long long i) {
     int sz = sizeof(i);
     while (sz > 0) {
         char ch = (char)(i & 0xff);
@@ -108,7 +108,7 @@ DataInput& DataInput::operator>>(int& i) {
     return *this;
 }
 
-DataInput& DataInput::operator>>(long& i) {
+DataInput& DataInput::operator>>(long long& i) {
     int sz = sizeof(i);
     i = 0;
 
@@ -116,7 +116,7 @@ DataInput& DataInput::operator>>(long& i) {
     while (in.good() && sz > 0) {
         unsigned char ch;
         in.read((char *)&ch, 1);
-        i |= (((long)ch) << shift);
+        i |= (((long long)ch) << shift);
         shift += 8;
         sz--;
     }

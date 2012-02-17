@@ -433,7 +433,7 @@ void testDataIO() {
     ostringstream outstr;
     DataOutput out(outstr);
 
-    out << false << true << 0 << 1 << -1 << 2000000000 << -2000000001 << 100000000000L << -100000000000L << ((short)20000) << ((short)-20001) << string("San Francisco");
+    out << false << true << 0 << 1 << -1 << 2000000000 << -2000000001 << 100000000000LL << -100000000000LL << ((short)20000) << ((short)-20001) << string("San Francisco");
     out.write("12345", 5);
     out.flush();
 
@@ -443,7 +443,7 @@ void testDataIO() {
     bool b;
     short s;
     int i;
-    long l;
+    long long l;
     string str;
     char buf[12];
 
@@ -462,9 +462,9 @@ void testDataIO() {
     in >> i;
     assertTrue(i == -2000000001, "Expected -2000000001");
     in >> l;
-    assertTrue(l == 100000000000L, "Expected 100000000000L");
+    assertTrue(l == 100000000000LL, "Expected 100000000000L");
     in >> l;
-    assertTrue(l == -100000000000L, "Expected -100000000000L");
+    assertTrue(l == -100000000000LL, "Expected -100000000000L");
     in >> s;
     assertTrue(s == (short)20000, "Expected 20000");
     in >> s;

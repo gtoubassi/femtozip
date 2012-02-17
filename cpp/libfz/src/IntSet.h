@@ -65,10 +65,10 @@ private:
 public:
     IntSet(int targetCapacity = 0) {
         set_size = 0;
-        capacity = targetCapacity == 0 ? 16 : targetCapacity/load_factor;
+        capacity = targetCapacity == 0 ? 16 : static_cast<int>(targetCapacity/load_factor);
         buckets = new int[capacity];
         bucket_end = buckets + capacity;
-        max_size = load_factor * capacity;
+        max_size = static_cast<int>(load_factor * capacity);
         clear_buckets(buckets, capacity);
     }
 
@@ -96,7 +96,7 @@ public:
             buckets = new_buckets;
             capacity = new_capacity;
             bucket_end = new_bucket_end;
-            max_size = load_factor * capacity;
+            max_size = static_cast<int>(load_factor * capacity);
         }
 
         set_size += insert(n, buckets, bucket_end, capacity);

@@ -23,10 +23,10 @@ namespace femtozip {
 
 class Util {
 public:
-    static long getMillis() {
+    static long long getMillis() {
         timeval tim;
         gettimeofday(&tim, NULL);
-        return tim.tv_sec * 1000 + tim.tv_usec / 1000;
+        return tim.tv_sec * 1000LL + tim.tv_usec / 1000LL;
     }
 };
 

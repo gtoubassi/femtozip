@@ -36,7 +36,7 @@ public:
 
     DataOutput& operator<<(bool i);
     DataOutput& operator<<(int i);
-    DataOutput& operator<<(long i);
+    DataOutput& operator<<(long long i);
     DataOutput& operator<<(short i);
     DataOutput& operator<<(const string& str);
 
@@ -53,7 +53,7 @@ public:
 
     DataInput& operator>>(bool& b);
     DataInput& operator>>(int& i);
-    DataInput& operator>>(long& i);
+    DataInput& operator>>(long long& i);
     DataInput& operator>>(short& i);
     DataInput& operator>>(string& str);
 

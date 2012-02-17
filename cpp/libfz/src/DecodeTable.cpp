@@ -24,7 +24,7 @@
 
 namespace femtozip {
 
-DecodeTable::DecodeTable() : codes(256), tables(256, NULL) {
+DecodeTable::DecodeTable() : codes(256), tables(256, static_cast<DecodeTable *>(0)) {
 }
 
 DecodeTable::~DecodeTable() {
