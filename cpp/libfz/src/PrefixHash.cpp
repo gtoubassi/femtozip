@@ -24,7 +24,7 @@ namespace femtozip {
 
 PrefixHash::PrefixHash(const char *buf, int length, bool addToHash, int compressionLevel) : buf(buf), length(length) {
     iterationLimit = compressionLevel == 9 ? 0 : (4 << compressionLevel);
-    hashCapacity = 1.75 * length;
+    hashCapacity = static_cast<int>(1.75 * length);
     hash = new int[hashCapacity];
     memset(hash, -1, hashCapacity * sizeof(int));
     heap = new int[length];
