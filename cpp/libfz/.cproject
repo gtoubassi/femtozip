@@ -37,6 +37,7 @@
 								<option id="macosx.cpp.link.option.libs.238436067" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="z"/>
 								</option>
+								<option id="macosx.cpp.link.option.flags.829083605" superClass="macosx.cpp.link.option.flags" value="-m32" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.macosx.cpp.linker.input.109495650" superClass="cdt.managedbuild.tool.macosx.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -49,11 +50,13 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.debug.184361965" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.macosx.so.debug">
 								<option id="gnu.cpp.compiler.macosx.so.debug.option.optimization.level.1893667018" name="Optimization Level" superClass="gnu.cpp.compiler.macosx.so.debug.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.macosx.so.debug.option.debugging.level.1885813470" name="Debug Level" superClass="gnu.cpp.compiler.macosx.so.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.cpp.compiler.option.other.other.695359956" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -m32" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.335067505" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug.2005297907" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.so.debug">
 								<option defaultValue="gnu.c.optimization.level.none" id="gnu.c.compiler.macosx.so.debug.option.optimization.level.389951353" name="Optimization Level" superClass="gnu.c.compiler.macosx.so.debug.option.optimization.level" valueType="enumerated"/>
 								<option id="gnu.c.compiler.macosx.so.debug.option.debugging.level.568861919" name="Debug Level" superClass="gnu.c.compiler.macosx.so.debug.option.debugging.level" value="gnu.c.debugging.level.max" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.misc.other.299136237" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -m32" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1102240416" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 						</toolChain>
@@ -515,7 +518,7 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.release.1874674888" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.so.release">
 								<option defaultValue="true" id="macosx.cpp.link.macosx.so.release.option.shared.822735911" name="Shared (-dynamiclib)" superClass="macosx.cpp.link.macosx.so.release.option.shared" valueType="boolean"/>
-								<option id="macosx.cpp.link.option.libs.1592157642" superClass="macosx.cpp.link.option.libs" valueType="libs">
+								<option id="macosx.cpp.link.option.libs.1592157642" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="z"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.macosx.cpp.linker.input.164002303" superClass="cdt.managedbuild.tool.macosx.cpp.linker.input">

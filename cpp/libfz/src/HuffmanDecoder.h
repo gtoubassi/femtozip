@@ -33,7 +33,7 @@ template <class T> class HuffmanDecoder {
 protected:
     BitInput bitIn;
     T& model;
-    long bitBuf;
+    long long bitBuf;
     int availableBits;
     bool endOfStream;
 
@@ -55,7 +55,7 @@ public:
                 break;
             }
             if (bit) {
-                bitBuf |= 1L << availableBits;
+                bitBuf |= 1LL << availableBits;
             }
             availableBits++;
         }

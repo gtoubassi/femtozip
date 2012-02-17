@@ -50,7 +50,7 @@ int level = 9;
 int maxDictionary = -1;
 bool dictOnly;
 
-long getTimeMillis() {
+long long getTimeMillis() {
     timeval tim;
     gettimeofday(&tim, NULL);
     return tim.tv_sec * 1000 + tim.tv_usec / 1000;
@@ -82,10 +82,10 @@ void buildModel() {
 
     cout << "Building model..." << endl;
 
-    long start = getTimeMillis();
+    long long start = getTimeMillis();
     CompressionModel *model = CompressionModel::buildOptimalModel(documents, true, models.size() == 0 ? 0 : &models);
     model->setCompressionLevel(level);
-    long duration = getTimeMillis() - start;
+    long long duration = getTimeMillis() - start;
 
     if (verbose || benchmark) {
         cout <<"Model built in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
@@ -102,12 +102,12 @@ void buildDictionary() {
 
     cout << "Building dictionary..." << endl;
 
-    long start = getTimeMillis();
+    long long start = getTimeMillis();
 
     DictionaryOptimizer optimizer(documents);
     string dictionary = optimizer.optimize(maxDictionary >= 0 ? maxDictionary : 64*1024);
 
-    long duration = getTimeMillis() - start;
+    long long duration = getTimeMillis() - start;
 
     if (verbose || benchmark) {
         cout << "Dictionary built in " << fixed << setprecision(3) << (duration / 1000.0) << "s" << endl;
@@ -125,9 +125,9 @@ void buildDictionary() {
 void compress() {
     CompressionModel *model = loadModel();
 
-    long duration = 0;
-    long totalUncompressedBytes = 0;
-    long totalCompressedBytes = 0;
+    long long duration = 0;
+    long long totalUncompressedBytes = 0;
+    long long totalCompressedBytes = 0;
     for (vector<string>::iterator i = paths.begin(); i != paths.end(); i++) {
 
         if (verbose) {
@@ -141,7 +141,7 @@ void compress() {
 
         ostringstream outstr;
 
-        long start = getTimeMillis();
+        long long start = getTimeMillis();
         model->compress(buf, length, outstr);
         duration += (getTimeMillis() - start);
         string compressedData = outstr.str();
@@ -174,7 +174,7 @@ void compress() {
 void decompress() {
     CompressionModel *model = loadModel();
 
-    long duration = 0;
+    long long duration = 0;
     for (vector<string>::iterator i = paths.begin(); i != paths.end(); i++) {
 
         if (verbose) {
@@ -186,7 +186,7 @@ void decompress() {
 
         ostringstream outstr;
 
-        long start = getTimeMillis();
+        long long start = getTimeMillis();
         model->decompress(buf, length, outstr);
         duration += (getTimeMillis() - start);
 

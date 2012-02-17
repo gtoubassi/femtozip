@@ -64,7 +64,7 @@ void assertTrue(bool result, const string& message) {
     }
 }
 
-long getTimeMillis() {
+long long getTimeMillis() {
     timeval tim;
     gettimeofday(&tim, NULL);
     return tim.tv_sec * 1000 + tim.tv_usec / 1000;
@@ -482,7 +482,7 @@ void *runThread(void *data) {
         source.push_back('a' + (rand() % 26));
     }
 
-    long start = getTimeMillis();
+    long long start = getTimeMillis();
 
     while (getTimeMillis() - start < 1500) {
         ostringstream ostr;
