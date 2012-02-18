@@ -22,14 +22,13 @@
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.macosx.exe.debug.1967576055" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.macosx.exe.debug"/>
 							<builder buildPath="${workspace_loc:/cpp-tests/Debug}" id="cdt.managedbuild.target.gnu.builder.macosx.exe.debug.1932884677" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.macosx.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug.801909972" name="MacOS X C Linker" superClass="cdt.managedbuild.tool.macosx.c.linker.macosx.exe.debug"/>
-							<tool commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug.1375299555" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug">
+							<tool id="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug.1375299555" name="MacOS X C++ Linker" superClass="cdt.managedbuild.tool.macosx.cpp.linker.macosx.exe.debug">
 								<option id="macosx.cpp.link.option.paths.2098325988" name="Library search path (-L)" superClass="macosx.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/Debug}&quot;"/>
 								</option>
 								<option id="macosx.cpp.link.option.libs.1641324434" name="Libraries (-l)" superClass="macosx.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="libfz"/>
 								</option>
-								<option id="macosx.cpp.link.option.flags.947491056" superClass="macosx.cpp.link.option.flags" value="-m32" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.macosx.cpp.linker.input.345935255" superClass="cdt.managedbuild.tool.macosx.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -50,7 +49,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.other.other.242539186" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -m32" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.622447988" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.debug.677032170" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.macosx.exe.debug">
@@ -60,7 +58,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/libfz/src}&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.misc.other.186494291" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -m32" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1918672693" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 						</toolChain>
