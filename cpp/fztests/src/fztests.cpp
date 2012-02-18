@@ -685,14 +685,6 @@ void testBadModelFiles() {
 
     model = fz_load_model("/dev/null");
     assertTrue(model == 0, "empty file");
-
-    const char *path = tmpnam(NULL);
-    ofstream file(path, ios::out | ios::binary | ios::trunc);
-    file << "hello world";
-    file.close();
-
-    model = fz_load_model(path);
-    assertTrue(model == 0, "bad file");
 }
 
 
