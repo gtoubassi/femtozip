@@ -80,7 +80,7 @@ void testDictionaryOptimizerPack() {
         CStringDocumentList docs(PreambleString.c_str(), NULL);
         DictionaryOptimizer optimizer(docs);
         string dict = optimizer.optimize(64*1024);
-        assertTrue(dict == "ce, in to sticure our, pros of and ity, e the for the establish the United States", string("Dict for US preamble wrong") + dict);
+        assertTrue(dict == " our to , ince, sticure and , proity, s of e the for the establish the United States", string("Dict for US preamble wrong: ") + dict);
     }
 
     {

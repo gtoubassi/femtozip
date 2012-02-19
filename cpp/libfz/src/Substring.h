@@ -53,6 +53,9 @@ public:
     inline int getScore() const {return _score;};
 
     inline bool operator<(const Substring& other) const {
+        if (_score == other.getScore()) {
+            return _index < other.getIndex();
+        }
         return _score < other.getScore();
     }
 };
