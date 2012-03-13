@@ -59,7 +59,7 @@ void PureHuffmanCompressionModel::save(DataOutput& out) {
 }
 
 void PureHuffmanCompressionModel::build(DocumentList& documents) {
-    vector<int> histogram(256, 0);
+    vector<int> histogram(256 + 1, 0); // +1 for the EOF
     for (int i = 0, count = documents.size(); i < count; i++) {
         int length;
         const char *bytes = documents.get(i, length);

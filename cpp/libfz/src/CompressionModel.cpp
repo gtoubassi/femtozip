@@ -138,7 +138,13 @@ CompressionModel *CompressionModel::loadModel(DataInput& in) {
     string type;
     in >> type;
     CompressionModel *model = createModel(type);
-    model->load(in);
+    try {
+        model->load(in);
+    }
+    catch (...) {
+        delete model;
+        throw;
+    }
     return model;
 }
 

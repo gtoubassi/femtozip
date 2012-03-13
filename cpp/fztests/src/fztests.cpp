@@ -295,7 +295,6 @@ void testHuffman() {
 
     // Test nested DecodingTables
     {
-        srand(1234567);
         for (int dataSize = 2; dataSize < 500; dataSize++) {
             vector<int> histogram(dataSize);
             for (int i = 0, count = histogram.size(); i < count; i++) {
@@ -353,6 +352,21 @@ void testCompressionModels() {
     testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipModel, gzipModel1, 210);
     GZipDictionaryCompressionModel gzipDictModel, gzipDictModel1;
     testModel(PreambleString.c_str(), PreambleDictionary.c_str(), gzipDictModel, gzipDictModel1, 204);
+}
+
+void testAllBytes() {
+    char buf[257];
+
+    int i;
+    for (i = 0; i < 255; i++) {
+        buf[i] = static_cast<char>(i + 1);
+    }
+    buf[i] = 0;
+    CStringDocumentList docs(buf,NULL);
+    CompressionModel *model = CompressionModel::buildOptimalModel(docs, true);
+    // The real failure mode is an exception but lets score a success explicitly.
+    assertTrue(model != 0, "Couldn't create model with 1 of every byte value");
+    delete model;
 }
 
 void testDocumentUniquenessScoring() {
@@ -689,6 +703,7 @@ void testBadModelFiles() {
 
 
 int main() {
+    srand(1234567);
 
     testDocumentList();
 
@@ -703,6 +718,8 @@ int main() {
     testHuffman();
 
     testCompressionModels();
+
+    testAllBytes();
 
     testDocumentUniquenessScoring();
 
