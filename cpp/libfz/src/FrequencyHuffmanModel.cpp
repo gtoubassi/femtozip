@@ -123,7 +123,7 @@ void FrequencyHuffmanModel::computeHuffmanCoding(vector<int>& histogram) {
     while (queue1.size() + queue2.size() > 1) {
         vector<HuffmanNode *> *candidateQueue1 = 0;
         vector<HuffmanNode *> *candidateQueue2 = 0;
-        int candidateWeight = std::numeric_limits<int>::max();
+        int candidateWeight = numeric_limits<int>::max();
 
         if (queue1.size() > 0 && queue2.size() > 0) {
             if (queue1[0]->weight + queue2[0]->weight < candidateWeight) {
