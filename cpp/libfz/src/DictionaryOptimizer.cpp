@@ -71,11 +71,12 @@ string DictionaryOptimizer::optimize(int desiredLength) {
     return packed;
 }
 
+
 void DictionaryOptimizer::computeSubstrings() {
     vector<Substring> activeSubstrings;
     IntSet uniqueDocIds;
     int recentDocStartsBase;
-    vector<int> recentDocStarts;
+    vector<pair<int, int> > recentDocStarts;
 
     int n = suffixArray.size(); // Same as lcp size
 
@@ -122,16 +123,15 @@ void DictionaryOptimizer::computeSubstrings() {
                     for (int k = activeSubstrings[j].getIndex() - 1; k < i; k++) {
 
                         int byteIndex = suffixArray[k];
-                        int docIndex = recentDocStarts[k - recentDocStartsBase];
+                        pair<int, int> docRange = recentDocStarts[k - recentDocStartsBase];
 
                         // While we are at it lets make sure this is a string that actually exists in a single
-                        // document, vs spanning two concatenanted documents.  The idea is that for documents
+                        // document, vs spanning two concatenated documents.  The idea is that for documents
                         // "http://espn.com", "http://google.com", "http://yahoo.com", we don't want to consider
                         // ".comhttp://" to be a legal string.  So make sure the length of this string doesn't
                         // cross a document boundary for this particular occurrence.
-                        int nextDocStart = static_cast<unsigned int>(docIndex) < starts.size() - 1 ? starts[docIndex + 1] : bytes.size();
-                        if (activeLength <= nextDocStart - byteIndex) {
-                            uniqueDocIds.put(docIndex);
+                        if (activeLength <= docRange.second - (byteIndex - docRange.first)) {
+                            uniqueDocIds.put(docRange.first);
                         }
                     }
 
@@ -148,6 +148,7 @@ void DictionaryOptimizer::computeSubstrings() {
                     // from growing very large.
                     if (!(lastActiveIndex != -1 && lastActiveIndex == activeIndex && lastActiveCount == activeCount && lastActiveLength > activeLength)) {
 
+                        // Empirically determined that we need 4 chars for it to be worthwhile.  Note gzip takes 3, so cause for skepticism at going with 4.
                         if (activeLength > 3) {
                             substrings.push_back(Substring(activeIndex, activeLength, scoreCount));
                         }
@@ -161,7 +162,7 @@ void DictionaryOptimizer::computeSubstrings() {
         lastLCP = currentLCP;
 
         if (activeSubstrings.size() == 0 && recentDocStarts.size() > 1) {
-            int last = *(recentDocStarts.end() - 1);
+            pair<int, int> last = *(recentDocStarts.end() - 1);
             recentDocStartsBase += recentDocStarts.size() - 1;
             recentDocStarts.clear();
             recentDocStarts.push_back(last);
@@ -172,10 +173,18 @@ void DictionaryOptimizer::computeSubstrings() {
 }
 
 string DictionaryOptimizer::pack(int desiredLength) {
+
+
+    // First, filter out the substrings to remove overlap since
+    // many of the substrings are themselves substrings of each other (e.g. 'http://', 'ttp://').
+
     vector<Substring> pruned;
     int size = 0;
 
     for (int i = substrings.size() - 1; i >= 0; i--) {
+
+        // Is this substring already covered within the pruned list?
+        // e.g. if we are considering "ttp://" when "http://" has been selected.
         bool alreadyCovered = false;
         for (int j = 0, c = pruned.size(); j < c; j++) {
             if (findSubstring(substrings[i], pruned[j])) {
@@ -187,6 +196,9 @@ string DictionaryOptimizer::pack(int desiredLength) {
         if (alreadyCovered) {
             continue;
         }
+
+        // If this is a superstring of already included strings, this will subsume them
+        // e.g. we are adding "rosebuds" but have previously added "rose" and "buds"
 
         for (int j = pruned.size() - 1; j >= 0; j--) {
             if (findSubstring(pruned[j], substrings[i])) {
@@ -201,6 +213,10 @@ string DictionaryOptimizer::pack(int desiredLength) {
             break;
         }
     }
+
+    // Now pack the substrings end to end, taking advantage of potential prefix/suffix overlap
+    // (e.g. if we are packing "toubassi" and "silence", pack it as
+    // "toubassilence" vs "toubassisilence")
 
     char *packed = new char[desiredLength];
     memset(packed, 0, desiredLength);
@@ -217,6 +233,8 @@ string DictionaryOptimizer::pack(int desiredLength) {
 
     string packedString(packed + pi, desiredLength - pi);
     delete[] packed;
+
+    //cout << packedString << endl;
 
     return packedString;
 }
@@ -253,45 +271,43 @@ int DictionaryOptimizer::prepend(char *from, char *toStart, char *to, char *toEn
  * docStartForIndex(15) will return 10 if the first doc is
  * 10 bytes and the second doc is at least 5.
  */
-int DictionaryOptimizer::docStartForIndex(int index) {
+pair<int, int> DictionaryOptimizer::docStartForIndex(int index) {
     int byteIndex = suffixArray[index];
     vector<int>::iterator docStart = lower_bound(starts.begin(), starts.end(), byteIndex);
     if (docStart == starts.end() || *docStart != byteIndex) {
         docStart--;
     }
-    return *docStart;
+    int nextDoc;
+    if (docStart == (starts.end() - 1)) {
+        nextDoc = bytes.size();
+    }
+    else {
+        nextDoc = *(docStart + 1);
+    }
+    return pair<int, int>(*docStart, nextDoc - (*docStart));
 }
 
 
 void DictionaryOptimizer::dumpSuffixArray() {
-    vector<int>::iterator i;
-    for (i = suffixArray.begin(); i != suffixArray.end(); i++) {
-        cout << setw(5) << *i << " ";
-        cout << setw(5) << lcpArray[i - suffixArray.begin()] << " ";
-        cout << "'";
-        vector<char>::iterator ch;
-        for (ch = bytes.begin() + *i; ch < bytes.begin() + 30 && ch != bytes.end(); ch++) {
-            cout << *ch;
-        }
-        cout << "'" << endl;
+    cout << string(&bytes[0], bytes.size()) << endl;
+    for (size_t i = 0; i < suffixArray.size(); i++) {
+        cout << right << setw(6) << i << setw(4) << suffixArray[i] << setw(4) << lcpArray[i] << left << "   " << string(&bytes[suffixArray[i]], bytes.size() - suffixArray[i]) << endl;
     }
 }
+
+void DictionaryOptimizer::dumpSubstrings(vector<Substring>& subs) {
+    vector<Substring>::reverse_iterator i;
+    int index = 0;
+    for (i = subs.rbegin(); i != subs.rend(); i++, index++) {
+        cout << right << setw(6) << index << setw(4) << i->getScore() << left << "   " << string(&bytes[suffixArray[i->getIndex()]], i->getLength()) << endl;
+    }
+}
+
 
 void DictionaryOptimizer::dumpSubstrings() {
-    vector<Substring>::iterator i;
-    cout << substrings.size() << " Substrings:" << endl;
-    for (i = substrings.begin(); i != substrings.end(); i++) {
-        cout << setw(10) << i->getScore() << " ";
-        cout << "'";
-        vector<char>::iterator ch = bytes.begin() + suffixArray[i->getIndex()];
-        vector<char>::iterator chend = ch + i->getLength();
-        for (; ch < chend; ch++) {
-            cout << *ch;
-        }
-        cout << "'" << endl;
-    }
+    dumpSubstrings(substrings);
 }
 
-
 }
+
 

@@ -45,7 +45,9 @@ protected:
     string pack(int desiredLength);
     bool findSubstring(Substring& needle, Substring& haystack);
     int prepend(char *from, char *toStart, char *to, char *toEnd, int length);
-    int docStartForIndex(int index);
+    pair<int, int> docStartForIndex(int index);
+
+    void dumpSubstrings(vector<Substring>& subs);
 
 public:
     explicit DictionaryOptimizer(DocumentList& documents);

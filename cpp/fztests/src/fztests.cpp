@@ -388,7 +388,7 @@ void testNonexistantStrings() {
     int length;
     const char *dict = model.getDictionary(length);
     // Make sure it doesn't think .dehttp:// is a good one
-    assertTrue(strncmp(dict, "gtoubassihttp://", length), "Got wrong dict back in testDocumentUniquenessScoring");
+    assertTrue(strncmp(dict, "gtoubassihttp://", length) == 0, string("Got wrong dict back in testNonexistantStrings.  Expected 'gtoubassihttp://', got '") + string(dict, length) + "'");
 }
 
 
@@ -701,6 +701,28 @@ void testBadModelFiles() {
     assertTrue(model == 0, "empty file");
 }
 
+void exampleCPlusPlus() {
+    CStringDocumentList docs("http://espn.com",
+                             "http://www.google.com",
+                             "http://www.stanford.edu", NULL);
+
+    CompressionModel *model = new FemtoZipCompressionModel();
+
+    model->build(docs);
+
+    const char *buf = "http://www.shopstyle.com";
+    ostringstream out;
+    model->compress(buf, strlen(buf), out);
+    string compressed = out.str();
+
+    ostringstream out2;
+    model->decompress(compressed.c_str(), compressed.length(), out2);
+    string decompressed = out2.str();
+    assertTrue(decompressed == buf, string("Mismatched string got: '") + decompressed + "' expected '" + buf);
+
+    delete model;
+}
+
 
 int main() {
     srand(1234567);
@@ -736,6 +758,8 @@ int main() {
     testPrefixHash();
 
     testCApi();
+
+    exampleCPlusPlus();
 
     exampleCApiDriver();
 
