@@ -40,7 +40,7 @@ public class PrefixHash {
     
     private int hashIndex(byte[] buf, int i) {
         int code = buf[i] | (buf[i + 1] << 8) | (buf[i + 2] << 16) | (buf[i + 3] << 24);
-        return Math.abs(code) % hash.length;
+        return (code & 0x7fffff) % hash.length;
     }
 
     
