@@ -139,5 +139,5 @@ public class FemtoZipHuffmanModel implements HuffmanModel, Cloneable {
         clonedModel.state = this.state;
 
         return clonedModel;
-	}
+    }
 }
