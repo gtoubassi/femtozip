@@ -49,7 +49,7 @@ public class StoredFieldDumper {
     protected void dump() throws IOException {
         IndexReader reader = IndexReader.open(indexPath);
 
-        Collection allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
+        Collection<?> allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
         String[] fieldNames = new String[allFields.size()];
         allFields.toArray(fieldNames);
         
