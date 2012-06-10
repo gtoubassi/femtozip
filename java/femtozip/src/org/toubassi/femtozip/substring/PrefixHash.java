@@ -66,7 +66,7 @@ public class PrefixHash {
         
         int targetHashIndex = hashIndex(targetBuf, index);
         int candidateIndex = hash[targetHashIndex];
-        while (candidateIndex != -1) {
+        while (candidateIndex >= 0) {
             int distance;
             if (targetBuf != this.buffer) {
                 distance = index + bufLen - candidateIndex;
