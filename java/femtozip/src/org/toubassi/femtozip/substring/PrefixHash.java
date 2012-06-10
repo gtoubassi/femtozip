@@ -21,9 +21,9 @@ public class PrefixHash {
     
     public static final int PrefixLength = 4;
     
-    private byte[] buffer;
-    int[] hash;
-    int[] heap;
+    final private byte[] buffer;
+    final int[] hash;
+    final int[] heap;
     
     public PrefixHash(byte[] buf, boolean addToHash) {
         buffer = buf;
@@ -50,26 +50,25 @@ public class PrefixHash {
         hash[hashIndex] = index;
     }
 
-    public final Match getBestMatch(int index, byte[] targetBuf) {
+    public final Match getBestMatch(final int index, final byte[] targetBuf) {
         int bestMatchIndex = 0;
         int bestMatchLength = 0;
         
-        byte[] buf = buffer;
-        int bufLen = buf.length;
+        final int bufLen = this.buffer.length;
         
         if (bufLen == 0) {
             return new Match(0, 0);
         }
         
-        int targetBufLen = targetBuf.length;
+        final int targetBufLen = targetBuf.length;
 
-        int maxLimit = Math.min(255, targetBufLen - index);
+        final int maxLimit = Math.min(255, targetBufLen - index);
         
         int targetHashIndex = hashIndex(targetBuf, index);
         int candidateIndex = hash[targetHashIndex];
         while (candidateIndex != -1) {
             int distance;
-            if (targetBuf != buf) {
+            if (targetBuf != this.buffer) {
                 distance = index + bufLen - candidateIndex;
             }
             else {
@@ -81,15 +80,15 @@ public class PrefixHash {
                 break;
             }
             
-            int maxMatchJ = index + Math.min(maxLimit, bufLen - candidateIndex);
+            final int maxMatchJ = index + Math.min(maxLimit, bufLen - candidateIndex);
             int j, k;
             for (j = index, k = candidateIndex; j < maxMatchJ; j++, k++) {
-                if (buf[k] != targetBuf[j]) {
+                if (this.buffer[k] != targetBuf[j]) {
                     break;
                 }
             }
             
-            int matchLength = j - index;
+            final int matchLength = j - index;
             if (matchLength > bestMatchLength) {
                 bestMatchIndex = candidateIndex;
                 bestMatchLength = matchLength;
