@@ -313,10 +313,17 @@ void parseArgs(int argc, const char **argv) {
                     usage(string("Cannot opendir ") + arg);
                 }
 
+				
                 while ((dp = readdir(dirp)) != NULL) {
-                    if (dp->d_type == DT_REG) {
-                        paths.push_back(string(arg) + "/" + dp->d_name);
-                    }
+					struct stat st;
+					std::string path = string(arg) + "/" + dp->d_name;
+					if(0 == stat(path.c_str(), &st)){
+						if (S_ISREG(st.st_mode)) {
+							paths.push_back(path);
+						}					
+					}else{
+						usage(string("Cannot stat ") + arg);
+					}
                 }
 
                 closedir(dirp);
