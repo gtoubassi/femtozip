@@ -160,10 +160,9 @@
     </target>
 
   <target name="jar" depends="build">
-    <jar destfile="lib/femtozip.jar"
-         basedir="."
-         includes="bin/**/*.class"
-         />
+    <jar destfile="lib/femtozip.jar">
+      <zipfileset dir="bin" includes="**/*.class" />
+    </jar>
   </target>
 
 </project>
