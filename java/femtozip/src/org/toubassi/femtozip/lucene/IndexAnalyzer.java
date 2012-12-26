@@ -50,7 +50,7 @@ public class IndexAnalyzer extends Tool  {
         
         IndexReader reader = openIndex(path);
 
-        Collection allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
+        Collection<?> allFields = reader.getFieldNames(IndexReader.FieldOption.ALL);
         String[] fieldNames = new String[allFields.size()];
         allFields.toArray(fieldNames);
 

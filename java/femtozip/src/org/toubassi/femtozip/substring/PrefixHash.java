@@ -21,9 +21,9 @@ public class PrefixHash {
     
     public static final int PrefixLength = 4;
     
-    private byte[] buffer;
-    int[] hash;
-    int[] heap;
+    final private byte[] buffer;
+    final int[] hash;
+    final int[] heap;
     
     public PrefixHash(byte[] buf, boolean addToHash) {
         buffer = buf;
@@ -39,8 +39,8 @@ public class PrefixHash {
     }
     
     private int hashIndex(byte[] buf, int i) {
-        int code = buf[i] | (buf[i + 1] << 8) | (buf[i + 2] << 16) | (buf[i + 3] << 24);
-        return Math.abs(code) % hash.length;
+        int code = (buf[i] & 0xff) | ((buf[i + 1] & 0xff) << 8) | ((buf[i + 2] & 0xff) << 16) | ((buf[i + 3] & 0xff) << 24);
+        return (code & 0x7fffff) % hash.length;
     }
 
     
@@ -50,26 +50,25 @@ public class PrefixHash {
         hash[hashIndex] = index;
     }
 
-    public final void getBestMatch(int index, byte[] targetBuf, int[] bestMatchIndex, int[] bestMatchLength) {
-        bestMatchIndex[0] = 0;
-        bestMatchLength[0] = 0;
+    public final Match getBestMatch(final int index, final byte[] targetBuf) {
+        int bestMatchIndex = 0;
+        int bestMatchLength = 0;
         
-        byte[] buf = buffer;
-        int bufLen = buf.length;
+        final int bufLen = this.buffer.length;
         
         if (bufLen == 0) {
-            return;
+            return new Match(0, 0);
         }
         
-        int targetBufLen = targetBuf.length;
+        final int targetBufLen = targetBuf.length;
 
-        int maxLimit = Math.min(255, targetBufLen - index);
+        final int maxLimit = Math.min(255, targetBufLen - index);
         
         int targetHashIndex = hashIndex(targetBuf, index);
         int candidateIndex = hash[targetHashIndex];
-        while (candidateIndex != -1) {
+        while (candidateIndex >= 0) {
             int distance;
-            if (targetBuf != buf) {
+            if (targetBuf != this.buffer) {
                 distance = index + bufLen - candidateIndex;
             }
             else {
@@ -81,21 +80,23 @@ public class PrefixHash {
                 break;
             }
             
-            int maxMatchJ = index + Math.min(maxLimit, bufLen - candidateIndex);
+            final int maxMatchJ = index + Math.min(maxLimit, bufLen - candidateIndex);
             int j, k;
             for (j = index, k = candidateIndex; j < maxMatchJ; j++, k++) {
-                if (buf[k] != targetBuf[j]) {
+                if (this.buffer[k] != targetBuf[j]) {
                     break;
                 }
             }
             
-            int matchLength = j - index;
-            if (matchLength > bestMatchLength[0]) {
-                bestMatchIndex[0] = candidateIndex;
-                bestMatchLength[0] = matchLength;
+            final int matchLength = j - index;
+            if (matchLength > bestMatchLength) {
+                bestMatchIndex = candidateIndex;
+                bestMatchLength = matchLength;
             }
             candidateIndex = heap[candidateIndex];
         }
+
+        return new Match(bestMatchIndex, bestMatchLength);
     }
     
 }

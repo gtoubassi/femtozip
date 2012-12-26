@@ -40,25 +40,23 @@ public class SubstringPacker {
         int previousMatchIndex = 0;
         int previousMatchLength = 0;
         
-        int[] matchIndex = new int[1];
-        int[] matchLength = new int[1];
-        
         int curr, count;
         for (curr = 0, count = rawBytes.length; curr < count; curr++) {
             int bestMatchIndex = 0;
             int bestMatchLength = 0;
             
             if (curr + PrefixHash.PrefixLength - 1 < count) {
-                dictHash.getBestMatch(curr, rawBytes, matchIndex, matchLength);
-                bestMatchIndex = matchIndex[0];
-                bestMatchLength = matchLength[0];
-                hash.getBestMatch(curr, rawBytes, matchIndex, matchLength);
+                Match match = dictHash.getBestMatch(curr, rawBytes);
+                bestMatchIndex = match.bestMatchIndex;
+                bestMatchLength = match.bestMatchLength;
+
+                match = hash.getBestMatch(curr, rawBytes);
                 
                 // Note the >= because we prefer a match that is nearer (and a match
                 // in the string being compressed is always closer than one from the dict).
-                if (matchLength[0] >= bestMatchLength) {
-                    bestMatchIndex = matchIndex[0] + dictLen;
-                    bestMatchLength = matchLength[0];
+                if (match.bestMatchLength >= bestMatchLength) {
+                    bestMatchIndex = match.bestMatchIndex + dictLen;
+                    bestMatchLength = match.bestMatchLength;
                 }
                 
                 hash.put(curr);

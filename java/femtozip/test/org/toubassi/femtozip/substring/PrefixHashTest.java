@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.toubassi.femtozip.substring.PrefixHash;
 
 
+
 public class PrefixHashTest {
     
     @Test
@@ -35,13 +36,10 @@ public class PrefixHashTest {
             hash.put(i);
         }
         
-        int[] matchIndex = new int[1];
-        int[] matchLength = new int[1];
+        Match match = hash.getBestMatch(12, bytes);
         
-        hash.getBestMatch(12, bytes, matchIndex, matchLength);
-        
-        Assert.assertEquals(5, matchIndex[0]);
-        Assert.assertEquals(4, matchLength[0]);
+        Assert.assertEquals(5, match.bestMatchIndex);
+        Assert.assertEquals(4, match.bestMatchLength);
     }
 
     @Test
@@ -50,15 +48,13 @@ public class PrefixHashTest {
         byte[] bytes = str.getBytes("UTF-8");
         
         PrefixHash hash = new PrefixHash(bytes, true);        
-        int[] matchIndex = new int[1];
-        int[] matchLength = new int[1];
         
         String target = "xxx a ca";
         byte[] targetBytes = target.getBytes("UTF-8");        
-        hash.getBestMatch(3, targetBytes, matchIndex, matchLength);
+        Match match = hash.getBestMatch(3, targetBytes);
         
-        Assert.assertEquals(12, matchIndex[0]);
-        Assert.assertEquals(5, matchLength[0]);
+        Assert.assertEquals(12, match.bestMatchIndex);
+        Assert.assertEquals(5, match.bestMatchLength);
     }
 
     @Test
@@ -67,15 +63,13 @@ public class PrefixHashTest {
         byte[] bytes = str.getBytes("UTF-8");
         
         PrefixHash hash = new PrefixHash(bytes, true);        
-        int[] matchIndex = new int[1];
-        int[] matchLength = new int[1];
         
         String target = "blah!";
         byte[] targetBytes = target.getBytes("UTF-8");        
-        hash.getBestMatch(0, targetBytes, matchIndex, matchLength);
+        Match match = hash.getBestMatch(0, targetBytes);
         
-        Assert.assertEquals(0, matchIndex[0]);
-        Assert.assertEquals(0, matchLength[0]);
+        Assert.assertEquals(0, match.bestMatchIndex);
+        Assert.assertEquals(0, match.bestMatchLength);
     }
 
 }

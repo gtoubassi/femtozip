@@ -58,12 +58,7 @@ public class FemtoZipHuffmanModel implements HuffmanModel, Cloneable {
     }
     
     public FemtoZipHuffmanModel createModel() {
-        try {
-            return (FemtoZipHuffmanModel)clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        return clone();
     }
     
     public void save(DataOutputStream out) throws IOException {
@@ -129,5 +124,20 @@ public class FemtoZipHuffmanModel implements HuffmanModel, Cloneable {
     
     public boolean isEOF(Codeword codeword) {
         return state == State.OffsetNibble0State && getCodewordForEOF().equals(codeword);
+    }
+    
+    @Override
+    protected FemtoZipHuffmanModel clone() {
+        FemtoZipHuffmanModel clonedModel = new FemtoZipHuffmanModel(
+            this.literalLengthModel,
+            this.offsetNibble0Model,
+            this.offsetNibble1Model,
+            this.offsetNibble2Model,
+            this.offsetNibble3Model
+        );
+
+        clonedModel.state = this.state;
+
+        return clonedModel;
     }
 }
