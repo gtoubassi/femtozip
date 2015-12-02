@@ -4,3 +4,5 @@ Debug/
 Release/
 autom4te.cache/
 junit/
+
+.idea/
