@@ -21,8 +21,6 @@ import java.util.Arrays;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.toubassi.femtozip.ArrayDocumentList;
-import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.models.GZipCompressionModel;
 import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
 import org.toubassi.femtozip.models.FemtoZipCompressionModel;

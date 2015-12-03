@@ -21,7 +21,6 @@ import java.util.Arrays;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.toubassi.femtozip.ArrayDocumentList;
 import org.toubassi.femtozip.dictionary.DictionaryOptimizer;
 
 

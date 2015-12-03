@@ -42,7 +42,7 @@ public class FemtoZipCompressionModel extends CompressionModel {
         super.save(out);
         codeModel.save(out);
     }
-
+    
     public void build(DocumentList documents) throws IOException {
         buildDictionaryIfUnspecified(documents);
         codeModel = ((ModelBuilder)buildEncodingModel(documents)).createModel();

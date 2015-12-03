@@ -55,13 +55,13 @@ import org.toubassi.femtozip.util.StreamUtil;
  *    CompressionModel.loadModel(String);
  * 5. Use CompressionModel.compress/decompress as needed.
  * 
- * For a simple pure Java example, see the ExampleTest JUnit test
+ * For a simple pure Java example, see the org.toubassi.femtozip.ExampleTest JUnit test
  * case in the source distribution of FemtoZip at http://github.com/gtoubassi/femtozip
  * 
  * To use the JNI interface to FemtoZip, you will follow largely the same recipe, but you
  * will use the NativeCompressionModel.
  * 
- * @see org.toubassi.femtozip.model.NativeCompressionModel
+ * @see org.toubassi.femtozip.models.NativeCompressionModel
  */
 public abstract class CompressionModel implements SubstringPacker.Consumer {
     

@@ -34,7 +34,7 @@ import org.toubassi.femtozip.DocumentList;
  * on an instance of this class, vs the buildOptimalModel and loadModel
  * statics on CompressionModel.
  * 
- * For a simple JNI example, see the NativeCompressionModelTest
+ * For a simple JNI example, see the org.toubassi.femtozip.models.NativeCompressionModelTest
  * JUnit test case in the source distribution of FemtoZip at
  * http://github.com/gtoubassi/femtozip
  */

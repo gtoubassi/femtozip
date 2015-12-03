@@ -24,10 +24,6 @@ import java.util.Random;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.toubassi.femtozip.coding.huffman.FrequencyHuffmanModel;
-import org.toubassi.femtozip.coding.huffman.HuffmanDecoder;
-import org.toubassi.femtozip.coding.huffman.HuffmanEncoder;
-
 
 public class HuffmanModelTest {
     

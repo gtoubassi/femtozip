@@ -22,8 +22,6 @@ import java.util.Random;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.toubassi.femtozip.ArrayDocumentList;
-import org.toubassi.femtozip.CompressionModel;
 import org.toubassi.femtozip.models.GZipCompressionModel;
 import org.toubassi.femtozip.models.GZipDictionaryCompressionModel;
 import org.toubassi.femtozip.models.FemtoZipCompressionModel;
@@ -38,7 +36,7 @@ public class MultiThreadCompressionTest {
         
         long start;
         long runTime;
-        CompressionModel model;
+        CompressionModel model;HuffmanModelTest
         String source;
         String dictionary;
         Exception e;

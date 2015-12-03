@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.toubassi.femtozip.ArrayDocumentList;
-import org.toubassi.femtozip.CompressionModel;
 
 /**
  * A Simple API example, packaged as a unit test

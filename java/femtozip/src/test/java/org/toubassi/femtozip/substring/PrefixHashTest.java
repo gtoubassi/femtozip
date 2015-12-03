@@ -20,7 +20,6 @@ import java.io.IOException;
 import junit.framework.Assert;
 
 import org.junit.Test;
-import org.toubassi.femtozip.substring.Match;
 import org.toubassi.femtozip.substring.PrefixHash;
 
 
