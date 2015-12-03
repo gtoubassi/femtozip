@@ -8,8 +8,8 @@
     <name>org.toubassi.femtozip</name>
     <url>http://maven.apache.org</url>
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
     </properties>
     <dependencies>
         <dependency>
@@ -37,10 +37,6 @@
             <artifactId>lucene-snowball</artifactId>
             <version>2.4.1</version>
         </dependency>
-
-
-
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
