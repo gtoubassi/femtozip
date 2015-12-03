@@ -36,7 +36,7 @@ public class MultiThreadCompressionTest {
         
         long start;
         long runTime;
-        CompressionModel model;HuffmanModelTest
+        CompressionModel model;
         String source;
         String dictionary;
         Exception e;
