@@ -61,7 +61,7 @@ import org.toubassi.femtozip.util.StreamUtil;
  * To use the JNI interface to FemtoZip, you will follow largely the same recipe, but you
  * will use the NativeCompressionModel.
  * 
- * @see org.toubassi.femtozip.model.NativeCompressionModel
+ * @see org.toubassi.femtozip.models.NativeCompressionModel
  */
 public abstract class CompressionModel implements SubstringPacker.Consumer {
     

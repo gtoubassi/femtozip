@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.toubassi.femtozip.substring.PrefixHash;
 
 
-
 public class PrefixHashTest {
     
     @Test
