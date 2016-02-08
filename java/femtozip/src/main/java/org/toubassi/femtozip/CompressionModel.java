@@ -321,13 +321,17 @@ public abstract class CompressionModel implements SubstringPacker.Consumer {
     
     protected void buildDictionaryIfUnspecified(DocumentList documents) throws IOException {
         if (dictionary == null) {
-            dictionary = buildDictionary(documents);
+            dictionary = (this.maxDictionaryLength != 0) ? buildDictionary(documents, this.maxDictionaryLength) : buildDictionary(documents);
         }
     }
-    
+
     protected static byte[] buildDictionary(DocumentList documents) throws IOException {
+        return buildDictionary(documents, 64*1024);
+    }
+
+    protected static byte[] buildDictionary(DocumentList documents, int maxDictionaryLength) throws IOException {
         DictionaryOptimizer optimizer = new DictionaryOptimizer(documents);
-        return optimizer.optimize(64*1024);
+        return optimizer.optimize(maxDictionaryLength);
     }
     
     protected SubstringPacker.Consumer createModelBuilder() {
