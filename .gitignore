@@ -21,6 +21,15 @@ java/jnifzip/src/.deps/
 java/jnifzip/src/Makefile
 java/jnifzip/stamp-h1
 
+#cpp results
+cpp/fzdatagen/src/fzdatagen
+cpp/fzip/src/.libs/
+cpp/fzip/src/fzip
+cpp/fztests/src/.libs/
+cpp/fztests/src/fztests
+cpp/libfz/src/.libs/
+
+
 *.lo
 *.la
 *.o
