@@ -108,6 +108,17 @@ int fz_compress(void *model, const char *source, int source_len, char *dest, int
     return outstr.length();
 }
 
+int fz_compress_writer(void *model, const char *source, size_t source_len, int (*dest_writer)(const char *buf, size_t len, void *arg), void *arg) {
+    CompressionModel *m = reinterpret_cast<CompressionModel*>(model);
+    ostringstream out;
+    m->compress(source, source_len, out);
+    string outstr = out.str();
+    if (outstr.length() == 0) {
+      return 1;
+    }
+    return dest_writer(outstr.c_str(), outstr.length(), arg);
+}
+
 int fz_decompress(void *model, const char *source, int source_len, char *dest, int dest_capacity) {
     CompressionModel *m = reinterpret_cast<CompressionModel*>(model);
     ostringstream out;
@@ -118,6 +129,17 @@ int fz_decompress(void *model, const char *source, int source_len, char *dest, i
     }
     memcpy(dest, outstr.c_str(), outstr.length());
     return outstr.length();
+}
+
+int fz_decompress_writer(void *model, const char *source, size_t source_len, int (*dest_writer)(const char *buf, size_t len, void *arg), void *arg) {
+    CompressionModel *m = reinterpret_cast<CompressionModel*>(model);
+    ostringstream out;
+    m->decompress(source, source_len, out);
+    string outstr = out.str();
+    if (outstr.length() == 0) {
+      return 1;
+    }
+    return dest_writer(outstr.c_str(), outstr.length(), arg);
 }
 
 

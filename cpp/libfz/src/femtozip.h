@@ -101,6 +101,17 @@ void fz_release_model(void *model);
 int fz_compress(void *model, const char *source, int source_len, char *dest, int dest_capacity);
 
 /*
+ * Attempts to compress 'source_len' bytes starting at 'source'.  'dest_writer'
+ * is called with a pointer to the destination buffer and it's length.  The
+ * pointer is valid only for the lifetime of 'dest_writer'.  Returns 0 on
+ * success, non zero if an error occurred.  Calling fz_decompress with the
+ * resulting buffer will return the original bytes.
+ *
+ * @see fz_decompress_writer.
+ */
+int fz_compress_writer(void *model, const char *source, size_t source_len, int (*dest_writer)(const char *buf, size_t len, void *arg), void *arg);
+
+/*
  * Attempts to dcompress 'source_len' bytes starting at 'source' into 'dest'
  * using the specified 'model'.  'dest_capacity' represents the maximum size of
  * the 'dest' buffer.  If the decompressed data fits, its length is returned.  If
@@ -111,6 +122,16 @@ int fz_compress(void *model, const char *source, int source_len, char *dest, int
  * @see fz_compress.
  */
 int fz_decompress(void *model, const char *source, int source_len, char *dest, int dest_capacity);
+
+/*
+ * Attempts to dcompress 'source_len' bytes starting at 'source'.  'dest_writer'
+ * is called with a pointer to the destination buffer and it's length.  The
+ * pointer is valid only for the lifetime of 'dest_writer'.  Returns 0 on
+ * success, non zero if an error occurred.
+ *
+ * @see fz_compress_writer.
+ */
+int fz_decompress_writer(void *model, const char *source, size_t source_len, int (*dest_writer)(const char *buf, size_t len, void *arg), void *arg);
 
 
 #ifdef __cplusplus
