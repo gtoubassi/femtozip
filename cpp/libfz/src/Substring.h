@@ -30,13 +30,13 @@ class Substring {
 private:
     int _index;
     int _length;
-    int _score;
+    float _score;
 
-    inline static int computeScore(int length, int count) {
+    inline static float computeScore(int length, int count) {
         if (length <= 3) {
             return 0;
         }
-        return (100 * count * (length - 3)) / length;
+        return (float)(count * (length - 3)) / (float)length;
     }
 
 public:
@@ -50,7 +50,7 @@ public:
 
     inline int getIndex() const {return _index;};
     inline int getLength() const {return _length;};
-    inline int getScore() const {return _score;};
+    inline float getScore() const {return _score;};
 
     inline bool operator<(const Substring& other) const {
         if (_score == other.getScore()) {

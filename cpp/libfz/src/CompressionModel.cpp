@@ -61,6 +61,7 @@ void CompressionModel::saveModel(CompressionModel& model, DataOutput& out) {
 
 CompressionModel *CompressionModel::buildOptimalModel(DocumentList& documents, bool verify, vector<string> *modelTypes) {
     vector<CompressionModel *> models;
+
     if (modelTypes) {
         for (vector<string>::iterator i = modelTypes->begin(); i != modelTypes->end(); i++) {
             models.push_back(CompressionModel::createModel(*i));
