@@ -281,12 +281,11 @@ void parseArgs(int argc, const char **argv) {
             level = max(0, min(9, 0 + (argv[++i][0] - '0')));
         }
         else if (strcmp("--models", arg) == 0) {
-            string modelNames = argv[++i];
             size_t pos = 0;
-            while (pos != string::npos) {
-                size_t pos2 = modelNames.find(",", pos);
-                models.push_back(modelNames.substr(pos, pos2 == string::npos ? pos2 : pos2 - 1));
-                pos = pos2;
+            stringstream strstream(argv[++i]);
+            string modelType;
+            while (getline(strstream, modelType, ',')) {
+                models.push_back(modelType);
             }
         }
         else if (strcmp("--maxdict", arg) == 0) {

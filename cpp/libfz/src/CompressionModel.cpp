@@ -69,7 +69,11 @@ CompressionModel *CompressionModel::buildOptimalModel(DocumentList& documents, b
     }
     else {
         models.push_back(new FemtoZipCompressionModel());
-        models.push_back(new PureHuffmanCompressionModel());
+    }
+
+    if (models.size() == 1) {
+        models[0]->build(documents);
+        return models[0];
     }
 
     // Split the documents into two groups.  One for building each model out
