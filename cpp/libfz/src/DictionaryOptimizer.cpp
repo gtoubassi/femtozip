@@ -169,7 +169,7 @@ void DictionaryOptimizer::computeSubstrings() {
         }
     }
 
-    sort(substrings.begin(), substrings.end()); // Likely faster with radix sort
+    sort(substrings.begin(), substrings.end());
 }
 
 string DictionaryOptimizer::pack(int desiredLength) {
@@ -208,8 +208,7 @@ string DictionaryOptimizer::pack(int desiredLength) {
         }
         pruned.push_back(substrings[i]);
         size += substrings[i].getLength();
-        // We calculate 2x because when we lay the strings out end to end we will merge common prefix/suffixes
-        if (size >= 2*desiredLength) {
+        if (size >= desiredLength) {
             break;
         }
     }
