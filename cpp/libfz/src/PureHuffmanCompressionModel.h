@@ -51,6 +51,7 @@ public:
     virtual void encodeSubstring(int offset, int length, void *context);
     virtual void endEncoding(void *context);
 
+    virtual int getCompressedLengthInBits(const char *buf, int length);
     virtual void compress(const char *buf, int length, ostream& out);
     virtual void decompress(const char *buf, int length, ostream& out);
 };

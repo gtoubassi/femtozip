@@ -27,6 +27,7 @@
 #include <string.h>
 #include "DictionaryOptimizer.h"
 #include "DocumentList.h"
+#include "PureHuffmanCompressionModel.h"
 #include "Substring.h"
 #include "sarray.h"
 #include "Util.h"
@@ -48,10 +49,13 @@ DictionaryOptimizer::DictionaryOptimizer(DocumentList& documents) {
         }
         documents.release(buf);
     }
+    huffman = new PureHuffmanCompressionModel();
+    huffman->build(documents);
 }
 
 DictionaryOptimizer::~DictionaryOptimizer() {
     free(lcpArray);
+    delete huffman;
 }
 
 string DictionaryOptimizer::optimize(int desiredLength) {
@@ -100,7 +104,7 @@ void DictionaryOptimizer::computeSubstrings() {
         if (currentLCP > lastLCP) {
             // The order here is important so we can optimize adding redundant strings below.
             for (int j = lastLCP + 1; j <= currentLCP; j++) {
-                activeSubstrings.push_back(Substring(i, j, 0));
+                activeSubstrings.push_back(Substring(i, j, 0, 0));
             }
         }
         else if (currentLCP < lastLCP) {
@@ -150,7 +154,8 @@ void DictionaryOptimizer::computeSubstrings() {
 
                         // Empirically determined that we need 4 chars for it to be worthwhile.  Note gzip takes 3, so cause for skepticism at going with 4.
                         if (activeLength > 3) {
-                            substrings.push_back(Substring(activeIndex, activeLength, scoreCount));
+                            int compressedLength = huffman->getCompressedLengthInBits(&bytes[0] + suffixArray[activeIndex], activeLength);
+                            substrings.push_back(Substring(activeIndex, activeLength, compressedLength, scoreCount));
                         }
                     }
                     lastActiveIndex = activeIndex;

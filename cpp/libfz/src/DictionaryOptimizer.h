@@ -31,6 +31,7 @@ using namespace std;
 namespace femtozip {
 
 class DocumentList;
+class PureHuffmanCompressionModel;
 
 class DictionaryOptimizer {
 
@@ -40,6 +41,7 @@ protected:
     vector<int> starts;
     int *lcpArray;
     vector<Substring> substrings;
+    PureHuffmanCompressionModel *huffman;
 
     void computeSubstrings();
     string pack(int desiredLength);

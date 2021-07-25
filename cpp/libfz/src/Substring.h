@@ -40,10 +40,10 @@ private:
     }
 
 public:
-    Substring(int index, int length, int count) {
+    Substring(int index, int length, int approxCompressedLength, int count) {
         _index = index;
         _length = length;
-        _score = computeScore(length, count);
+        _score = computeScore(approxCompressedLength, count);
     }
 
     ~Substring() {}

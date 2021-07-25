@@ -77,6 +77,15 @@ void PureHuffmanCompressionModel::encodeLiteral(int aByte, void *context) { thro
 void PureHuffmanCompressionModel::encodeSubstring(int offset, int length, void *context) { throw runtime_error("PureHuffmanModel::encodeSubstring should not be invoked");}
 void PureHuffmanCompressionModel::endEncoding(void *context) { throw runtime_error("PureHuffmanModel::endEncoding should not be invoked");}
 
+
+int PureHuffmanCompressionModel::getCompressedLengthInBits(const char *buf, int length) {
+    int lengthInBits = 0;
+    for (int i = 0; i < length; i++) {
+        lengthInBits += codeModel->encode(((int)buf[i]) & 0xff).bitLength;
+    }
+    return lengthInBits;
+}
+
 void PureHuffmanCompressionModel::compress(const char *buf, int length, ostream& out) {
     vector<char> outbuf; // Should we propagate this up to the outer levels?
     outbuf.reserve(length);
