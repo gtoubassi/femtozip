@@ -1,6 +1,6 @@
 # FemtoZip 
 
-FemtoZip is a "shared dictionary" compression library optimized for small documents that may not compress well with traditional tools such as gzip. In particular, situations where a very large number of small documents (10's to 1000's of bytes) share similar characteristics, but do not compress effectively standalone.
+FemtoZip (released in 2011) is a "shared dictionary" compression library optimized for small documents that may not compress well with traditional tools such as gzip. In particular, situations where a very large number of small documents (10's to 1000's of bytes) share similar characteristics, but do not compress effectively standalone.  Facebook's [Zstd](https://github.com/facebook/zstd) (released in 2016) has support for [dictionary compression](https://github.com/facebook/zstd#dictionary-compression-how-to), though in the use case explored in the FemtoZip tutorial, FemtoZip [compresses better](https://github.com/gtoubassi/femtozip/wiki/Tutorial#5-compare-to-zstds-dictionary-based-compression) (presumably at a higher CPU cost as Zstd is focused on speed).
 
 ### How can I tell if my data will work with femtozip?
 
