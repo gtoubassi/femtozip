@@ -10,7 +10,7 @@ FemtoZip is a "shared dictionary" compression library optimized for small docume
 
 ### Examples where FemtoZip is likely to outperform gzip:
 
-   1. Small objects serialized and stored in a database or in memory DHT such as memcached using php, json, or xml serialization format. Keys and tags are repeated across documents, but may not be repeated within a document. For example in one large scale consumer website, memcached user objects (via php serialization) were compressed to 29% of their gzipped size (8.3% of their original size).
+   1. Small objects serialized and stored in a database or in memory DHT such as memcached using php, json, or xml serialization format. Keys and tags are repeated across documents, but may not be repeated within a document. For example in one large scale consumer website, memcached user objects (via php serialization) were compressed to 29% of their gzipped size (8.3% of their original size).  [Doblander](https://dl.acm.org/doi/abs/10.1145/2933267.2933308) et al used FemtoZip to prototype such a system.
    2. Urls, for example stored in a Lucene search index. Urls often start with "http://www.", and have common substrings like ".com/", ".html", "?page=". Again this structure is repeated across documents, but not within a document. For example in a large scale search engine urls in Lucene were compressed to 60% of their gzipped size (20% of their original size).
 
 ### Learn More
